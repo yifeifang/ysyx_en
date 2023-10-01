@@ -45,7 +45,7 @@ Nanos-lite contains all modules used in subsequent PAs, but the specific functio
     ├── Makefile
     ├── README.md
     ├── resources
-    │   └── logo.txt    # Project-N logo文本
+    │   └── logo.txt    # Project-N logo text
     └── src
         ├── device.c    # Device abstraction
         ├── fs.c        # File System
