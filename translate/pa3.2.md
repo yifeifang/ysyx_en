@@ -132,10 +132,9 @@ The next question is, how to abstract the context management functions of differ
 *   First of all, of course, what caused this execution flow switch? Was it the program dividing by 0, an illegal instruction, triggering a breakpoint, or was the program voluntarily trapped in the operating system? Depending on the reasons, the operating system will handle it differently.
 *   Then there is the context of the program. During the processing, the operating system may read out some registers in the context and perform further processing based on their information. For example, the operating system reads the illegal instruction pointed to by the PC to see if it can be simulated and executed. In fact, through these contexts, the operating system can also implement some magical functions, which you will learn more about in PA4.
 
-#### 用软件模拟指令
+#### Simulate instructions using software
 
-在一些嵌入式场景中, 处理器对低功耗的要求非常严格, 很多时候都会去掉浮点处理单元FPU来节省功耗. 这时候如果软件要执行一条浮点指令, 处理器就会抛出一个非法指令的异常. 有了异常响应机制, 我们就可以在异常处理的过程中模拟这条非法指令的执行了, 原理和PA2中的指令执行过程非常类似. 在不带FPU的各种处理器中, 都可以通过这种方式来执行浮点指令.
-
+In some embedded scenarios, the processor has very strict requirements for low power consumption, and the floating point processing unit FPU is often removed to save power consumption. At this time, if the software wants to execute a floating point instruction, the processor will throw an illegal instruction exception. With the exception response mechanism, we can simulate the execution of this illegal instruction during the exception handling process. The principle is very similar to the instruction execution process in PA2. Floating point instructions can be executed in this way in various processors without FPU.
 #### 在AM中执行浮点指令是UB
 
 换句话说, AM的运行时环境不支持浮点数. 这听上去太暴力了. 之所以这样决定, 是因为IEEE 754是个工业级标准, 为了形式化逻辑上的soundness和completeness, 标准里面可能会有各种奇怪的设定, 例如不同的舍入方式, inf和nan的引入等等, 作为教学其实没有必要去理解它们的所有细节; 但如果要去实现一个正确的FPU, 你就没法摆脱这些细节了.
