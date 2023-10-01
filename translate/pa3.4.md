@@ -323,6 +323,6 @@ Let Nanos-lite run `navy-apps/tests/bmp-test`, since it doesn't have drawing cap
 
 Let Nanos-lite run `navy-apps/tests/bmp-test`, and if implemented correctly, you will see the Project-N logo displayed on the screen.
 
-#### 实现居中的画布
+#### Implementing a centered canvas
 
-你可以根据屏幕大小和画布大小, 让NDL将图像绘制到屏幕的中央, 从而获得较好的视觉效果.
+Depending on the screen size and canvas size, you can have NDL draw the image to the center of the screen to get a better visual effect.
