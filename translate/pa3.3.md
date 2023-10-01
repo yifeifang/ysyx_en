@@ -199,15 +199,15 @@ In addition, in order to compile dummy to run on AM native's Nanos-lite, you nee
 
 There is also an ISA called `native` in Navy, which is different from the ARCH mechanism called `native` in AM, and is not currently used.
 
-### [#](#操作系统的运行时环境) 操作系统的运行时环境
+### [#](#Runtime-environment-of-the-operating-system) Runtime environment of the operating system
 
-加载程序之后, 我们就来谈谈程序的运行. 回顾PA2, 我们已经知道, 程序的运行需要运行时环境的支撑. 而操作系统希望加载并运行程序, 自然有责任来提供运行时环境的功能. 在PA2中, 我们根据具体实现是否与ISA相关, 将运行时环境划分为两部分. 但对于运行在操作系统上的程序, 它们就不需要直接与硬件交互了. 那么在操作系统看来, 它应该从什么角度来看这些运行时环境呢?
+After loading the program, let's talk about running the program. Looking back at PA2, we know that running a program requires the support of a runtime environment. The operating system wants to load and run the program, so it is naturally responsible for providing the functionality of the runtime environment. In PA2, we divided the runtime environment into two parts, depending on whether or not the implementation is related to the ISA. However, for programs running on the operating system, they do not need to interact directly with the hardware. So from what point of view should the operating system look at the runtime environment?
 
-注意到运行时环境的部分功能是需要使用资源的, 比如申请内存需要使用物理内存, 更新屏幕需要使用帧缓冲. 在PA2中, 我们的计算机系统是被一个程序独占的, 它可以想怎么玩就怎么玩, 玩坏了也是它一个程序的事情. 而在现代的计算机系统中, 可能会有多个程序并发甚至同时使用计算机系统中的资源. 如果每个程序都直接使用这些资源, 各自都不知道对方的使用情况, 很快整个系统就会乱套了: 比如我覆盖了你的画面, 你覆盖了我的内存空间...
+Notice that some of the functions of the runtime environment require the use of resources, such as physical memory for memory requests and frame buffers for screen updates. In PA2, our computer system was owned by a single program, which could play with it as much as it wanted, and it was the sole responsibility of that program to break it. In modern computer systems, there may be multiple programs using the resources of the computer system concurrently or even simultaneously. If each program uses these resources directly, and each program doesn't know what the other program is using, the whole system will soon get messed up: I'm overwriting your screen, you're overwriting my memory space...
 
-所以需要有一个角色来对系统中的资源进行统一的管理: 程序不能擅自使用资源了, 使用的时候需要向资源管理者提出申请. 既然操作系统位于高特权级, 享受着至高无上的权利, 自然地它也需要履行相应的义务: 作为资源管理者管理着系统中的所有资源, 操作系统还需要为用户程序提供相应的服务. 这些服务需要以一种统一的接口来呈现, 用户程序也只能通过这一接口来请求服务.
+Therefore, there needs to be a role to manage the resources in the system in a unified way: programs can not use the resources without authorization, but need to apply to the resource manager when using them. Since the operating system is at a high privileged level and enjoys supreme rights, it naturally needs to fulfill its obligations: as a resource manager managing all the resources in the system, the operating system also needs to provide services to the user programs. These services need to be presented in a uniform interface, and user programs can only request services through this interface.
 
-这一接口就是系统调用. 这是操作系统从诞生那一刻就被赋予的使命: 我们之前提到GM-NAA I/O的一个主要任务就是加载新程序, 而它的另一个主要功能, 就是为程序提供输入输出的公共接口. GM-NAA I/O所提供的公共接口, 可以认为是系统调用的初原形态.
+This interface is the system call. This has been the mission of the operating system since its inception: we mentioned earlier that one of the main tasks of GM-NAA I/O is to load new programs, and another main function of GM-NAA I/O is to provide public interfaces for program input and output. The public interface provided by GM-NAA I/O can be considered as the original form of system calls.
 
 #### 系统调用的必要性
 
