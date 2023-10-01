@@ -247,13 +247,13 @@ Based on the above, let's make the VFS support writing to the serial port.
 
 Regarding the input devices, let's take a look at the clock first. The clock is unique in that most operating systems do not abstract it into a file, but instead provide clock-related system calls for the user program to access. In Nanos-lite, we also provide a `SYS_gettimeofday` system call, which allows the user program to read out the current system time.
 
-#### 实现gettimeofday
+#### Implement gettimeofday
 
-实现`gettimeofday`系统调用, 这一系统调用的参数含义请RTFM. 实现后, 在`navy-apps/tests/`中新增一个`timer-test`测试, 在测试中通过`gettimeofday()`获取当前时间, 并每过0.5秒输出一句话.
+Implement the `gettimeofday` system call, please RTFM for the meaning of the parameters of this system call. After implementation, add a new `timer-test` test in `navy-apps/tests/`, and get the current time by `gettimeofday()`, and output a sentence every 0.5 seconds.
 
-为了更好地封装IOE的功能, 我们在Navy中提供了一个叫NDL(NJU DirectMedia Layer)的多媒体库. 这个库的代码位于`navy-apps/libs/libndl/NDL.c`中, 但大部分的功能都没有实现. 代码中有一些和`NWM_APP`相关的内容, 你目前可以忽略它们, 但不要修改相关代码, 你将会在PA4的最后体验相关的功能. NDL向用户提供了一个和时钟相关的API:
+In order to better encapsulate the IOE functionality, we provide a multimedia library called NDL (NJU DirectMedia Layer) in Navy. The code for this library is located in `navy-apps/libs/libndl/NDL.c`, but most of the functionality is not implemented. There are a few things in the code related to `NWM_APP` that you can ignore for now, but don't modify the code, as you will experience the functionality at the end of PA4. The NDL provides the user with a clock-related API:
 
-    // 以毫秒为单位返回系统时间
+    // Returns the system time in milliseconds
     uint32_t NDL_GetTicks();
     
 
