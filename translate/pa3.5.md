@@ -1,9 +1,9 @@
 [#](#Brilliant-apps) Brilliant apps
 =========================
 
-### [#](#更丰富的运行时环境) 更丰富的运行时环境
+### [#](#Enriched-runtime-environment) Enriched runtime environment
 
-我们已经通过系统调用和文件的形式向用户程序提供IOE的访问方式, 并通过NDL进行了一些底层的封装. 但对于一些较为复杂的程序, 直接使用NDL进行编程还是比较困难. 为了更好地支持这些复杂程序的开发和运行, 我们需要提供更高层次的库.
+We have already provided IOE access to the user program through system calls and files, and made some underlying encapsulation through NDL. However, for some more complex programs, it is still difficult to program directly with NDL. In order to better support the development and operation of these complex programs, we need to provide higher level libraries.
 
 #### [#](#多媒体库) 多媒体库
 
