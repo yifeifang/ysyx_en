@@ -269,14 +269,14 @@ The code of `__am_irq_handle()` will package the cause for execution flow switch
 
 This is because the `__am_irq_handle()` function of CTE does not correctly identify the self-trap event. According to the definition of `yield()`, the `__am_irq_handle()` function needs to package the self-trap event into an event numbered `EVENT_YIELD`.
 
-#### 实现正确的事件分发
+#### Implement correct event distribution
 
-你需要:
+You need to:
 
-1.  在`__am_irq_handle()`中通过异常号识别出自陷异常, 并打包成编号为`EVENT_YIELD`的自陷事件.
-2.  在`do_event()`中识别出自陷事件`EVENT_YIELD`, 然后输出一句话即可, 目前无需进行其它操作.
+1.  In `__am_irq_handle()`, the trap exception is identified by the exception number and packaged into a trap event numbered `EVENT_YIELD`.
+2.  Identify the self-trapping event `EVENT_YIELD` in `do_event()`, and then output a sentence. No other operations are required at the moment.
 
-重新运行Nanos-lite, 如果你的实现正确, 你会看到识别到自陷事件之后输出的信息,
+Re-run Nanos-lite. If your implementation is correct, you will see the information output after recognizing the trap event.
 
 ### [#](#恢复上下文) 恢复上下文
 
