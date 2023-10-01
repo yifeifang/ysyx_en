@@ -262,9 +262,9 @@ You need to:
 
 Rerun the dummy program, and if you've implemented it correctly, you'll see that the dummy program has triggered another system call with the number `0`. Look at `nanos-lite/src/syscall.h`, and you will see that it is a `SYS_exit` system call. This means that the previous `SYS_yield` has returned successfully, and the `SYS_exit` is triggered because dummy has finished executing and is ready to exit.
 
-#### 实现SYS\_exit系统调用
+#### Implementing the SYS\_exit system call
 
-你需要实现`SYS_exit`系统调用, 它会接收一个退出状态的参数. 为了方便测试, 我们目前先直接使用这个参数调用`halt()`. 实现成功后, 再次运行dummy程序, 你会看到`HIT GOOD TRAP`的信息.
+You need to implement the `SYS_exit` system call, which takes an exit status argument. For the sake of testing, we will call `halt()` directly with this parameter for now. After successful implementation, run the dummy program again and you will see the message `HIT GOOD TRAP`.
 
 #### RISC-V系统调用号的传递
 
