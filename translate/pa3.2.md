@@ -136,11 +136,11 @@ The next question is, how to abstract the context management functions of differ
 
 In some embedded scenarios, the processor has very strict requirements for low power consumption, and the floating point processing unit FPU is often removed to save power consumption. At this time, if the software wants to execute a floating point instruction, the processor will throw an illegal instruction exception. With the exception response mechanism, we can simulate the execution of this illegal instruction during the exception handling process. The principle is very similar to the instruction execution process in PA2. Floating point instructions can be executed in this way in various processors without FPU.
 
-#### 在AM中执行浮点指令是UB
+#### 在AM中执行浮点指令是UBExecuting floating point instructions in AM is UB (Undefined Behavior)
 
-换句话说, AM的运行时环境不支持浮点数. 这听上去太暴力了. 之所以这样决定, 是因为IEEE 754是个工业级标准, 为了形式化逻辑上的soundness和completeness, 标准里面可能会有各种奇怪的设定, 例如不同的舍入方式, inf和nan的引入等等, 作为教学其实没有必要去理解它们的所有细节; 但如果要去实现一个正确的FPU, 你就没法摆脱这些细节了.
+In other words, AM's runtime environment does not support floating point numbers. This sounds too violent. The reason for this decision is that IEEE 754 is an industrial standard. In order to formalize logical soundness and completeness, there may be various strange settings in the standard, such as different rounding methods, the introduction of inf and nan, etc. It is not necessary to understand all their details as a tutorial; but if you want to implement a correct FPU, you cannot get rid of these details.
 
-和PA2中的定点指令不同, 浮点指令在PA中用到的场合比较少, 而且我们有别的方式可以绕开, 所以就怎么简单怎么来了, 于是就UB吧. 当然, 如果你感兴趣, 你也可以考虑实现一个简化版的FPU. 毕竟是UB, 如果你的FPU行为正确, 也不算违反规定.
+Different from the fixed-point instructions in PA2, floating-point instructions are rarely used in PA, and we have other ways to get around it, so we just do it as simple as possible, so let’s do UB. Of course, if you are interested, you can also consider implementing a simplified version of FPU. After all, it is UB, and if your FPU behaves correctly, it does not violate the regulations.
 
 #### 另一个UB
 
