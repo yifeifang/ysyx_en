@@ -55,18 +55,18 @@ In a harmonious computer society, most gate descriptors cannot be used by user p
 
 ### [#](#mips32) mips32
 
-mips32提供`syscall`指令作为自陷指令, 它的工作过程十分简单. mips32约定, 上述的异常入口地址总是`0x80000180`. 为了保存程序当前的状态, mips32提供了一些特殊的系统寄存器, 这些寄存器位于0号协处理器(Co-Processor 0)中, 因此也称CP0寄存器. 在PA中, 我们只使用如下3个CP0寄存器:
+mips32 provides the `syscall` instruction as a self-trap instruction, and its working process is very simple. According to mips32 convention, the above-mentioned exception entry address is always `0x80000180`. In order to save the current status of the program, mips32 provides some special system registers. These registers are located in co-processor 0 (Co-Processor 0), so they are also called CP0 registers. In PA, we only use the following three CP0 registers :
 
-*   epc寄存器 - 存放触发异常的PC
-*   status寄存器 - 存放处理器的状态
-*   cause寄存器 - 存放触发异常的原因
+*   epc register - stores the PC that triggered the exception
+*   status register - stores the status of the processor
+*   cause register - stores the reason for triggering the exception
 
-mips32触发异常后硬件的响应过程如下:
+The hardware response process after mips32 triggers an exception is as follows:
 
-1.  将当前PC值保存到epc寄存器
-2.  在cause寄存器中设置异常号
-3.  在status寄存器中设置异常标志, 使处理器进入内核态
-4.  跳转到`0x80000180`
+1.  Save current PC value to epc register
+2.  Set the exception number in the cause register
+3.  Set the exception flag in the status register to cause the processor to enter kernel mode
+4.  Jump to `0x80000180`
 
 ### [#](#riscv32) riscv32
 
