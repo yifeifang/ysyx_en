@@ -135,9 +135,9 @@ Once this is implemented, changing the user program in the future will only requ
 
 Implement `fs_write()` and `fs_lseek()`, then run the test program `navy-apps/tests/file-test`. In order to compile it, you need to add it to the `TESTS` variable of `navy-apps/Makefile`, so that it will eventually be included in the ramdisk image. This test program is used to perform some simple file reading, writing and positioning operations. If your implementation is correct, you will see the program output the `PASS!!!` message.
 
-#### 记得更新应用程序列表
+#### Remember to update the app list
 
-如果你希望在镜像中添加一个应用程序, 请记得将它加入到上述Makefile文件的应用程序列表中.
+If you wish to add an application to the image, please remember to add it to the list of applications in the Makefile above.
 
 #### 支持sfs的strace
 
