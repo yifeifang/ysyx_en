@@ -277,15 +277,15 @@ NDL provides the user with an API for keystroke events:
     int NDL_PollEvent(char *buf, int len);
     
 
-#### 把按键输入抽象成文件
+#### Abstracting keyboard inputs to files
 
-你需要:
+You need to:
 
-*   实现`events_read()`(在`nanos-lite/src/device.c`中定义), 把事件写入到`buf`中, 最长写入`len`字节, 然后返回写入的实际长度. 其中按键名已经在字符串数组`names`中定义好了, 你需要借助IOE的API来获得设备的输入. 另外, 若当前没有有效按键, 则返回0即可.
-*   在VFS中添加对`/dev/events`的支持.
-*   在NDL中实现`NDL_PollEvent()`, 从`/dev/events`中读出事件并写入到`buf`中.
+*   Implement `events_read()` (defined in `nanos-lite/src/device.c`), which writes events to `buf`, up to `len` bytes, and returns the actual length of the write. The key names are already defined in the string array `names`, you need to use the IOE API to get the device input. In addition, if there is no valid keystroke, then 0 is returned.
+*   Add support for `/dev/events` in VFS.
+*   Implement `NDL_PollEvent()` in NDL, read events from `/dev/events` and write to `buf`.
 
-我们可以假设一次最多只会读出一个事件, 这样可以简化你的实现. 实现后, 让Nanos-lite运行`navy-apps/tests/event-test`, 如果实现正确, 敲击按键时程序会输出按键事件的信息.
+We can simplify your implementation by assuming that at most one event will be read out at a time. Once implemented, have Nanos-lite run `navy-apps/tests/event-test`, and if it is implemented correctly, the program will output information about the keystroke event when the key is pressed.
 
 #### 用fopen()还是open()?
 
