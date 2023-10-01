@@ -306,14 +306,14 @@ Don't be intimidated by "every line of code". This process is only about 50 line
 
 We mentioned in PA2 that the standard mips32 processor uses branch delay slot technology. Think about it, if the standard mips32 processor triggers an exception when executing the delay slot instruction, what problems may be caused after returning from the exception? How to solve it? Try RTFM to compare your solution.
 
-### [#](#异常处理的踪迹-etrace) 异常处理的踪迹 - etrace
+### [#](#Traces-of-exception-handling-etrace) Traces of exception handling-etrace
 
-处理器抛出异常也可以反映程序执行的行为, 因此我们也可以记录异常处理的踪迹(exception trace). 你也许认为在CTE中通过`printf()`输出信息也可以达到类似的效果, 但这一方案和在NEMU中实现的etrace还是有如下区别:
+Exceptions thrown by the processor can also reflect the behavior of program execution, so we can also record exception handling traces (exception trace). You may think that similar effects can be achieved by outputting information through `printf()` in CTE, but there are still the following differences between this solution and etrace implemented in NEMU:
 
-*   打开etrace不改变程序的行为(对程序来说是非侵入式的): 你将来可能会遇到一些bug, 当你尝试插入一些`printf()`之后, bug的行为就会发生变化. 对于这样的bug, etrace还是可以帮助你进行诊断, 因为它是在NEMU中输出的, 不会改变程序的行为.
-*   etrace也不受程序行为的影响: 如果程序包含一些致命的bug导致无法进入异常处理函数, 那就无法在CTE中调用`printf()`来输出; 在这种情况下, etrace仍然可以正常工作
+*   Turning on etrace does not change the behavior of the program (it is non-intrusive to the program): you may encounter some bugs in the future, and the behavior of the bug will change after you try to insert some `printf()`. For such bugs, etrace can still help you diagnose, because it is output in NEMU and does not change the behavior of the program.
+*   etrace is also not affected by program behavior: if the program contains some fatal bugs that prevent it from entering the exception handling function, then `printf()` cannot be called in the CTE to output; in this case, etrace can still work normally.
 
-事实上, QEMU和Spike也实现了类似etrace的功能, 如果在上面运行的系统软件发生错误, 开发者也可以通过这些功能快速地进行bug的定位和诊断.
+In fact, QEMU and Spike also implement functions similar to etrace. If an error occurs in the system software running on them, developers can use these functions to quickly locate and diagnose the bug.
 
 #### 实现etrace
 
