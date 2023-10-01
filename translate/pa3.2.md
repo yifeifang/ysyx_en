@@ -120,17 +120,17 @@ In fact, we can express these failure conditions as a function `fex: S -> {0, 1}
 
 Finally, the addition of the exception response mechanism is also accompanied by the addition of some system instructions, such as x86's `lidt`, `iret`, riscv32's `csrrw`, `mret`, etc. Except that these instructions are used to specifically operate `SR` in the state machine, they are essentially not much different from the calculation instructions of TRM, so their behavior is not difficult to understand.
 
-[#](#将上下文管理抽象成cte) 将上下文管理抽象成CTE
+[#](#Abstract-context-management-into-CTE) Abstract context management into CTE
 -------------------------------
 
-我们刚才提到了程序的状态, 在操作系统中有一个等价的术语, 叫"上下文". 因此, 硬件提供的上述在操作系统和用户程序之间切换执行流的功能, 在操作系统看来, 都可以划入上下文管理的一部分.
+We just mentioned the state of the program, and there is an equivalent term in the operating system called "context". Therefore, the above-mentioned function provided by the hardware to switch the execution flow between the operating system and the user program, from the perspective of the operating system, All can be classified as part of context management.
 
-与IOE一样, 上下文管理的具体实现也是架构相关的: 例如上文提到, x86/mips32/riscv32中分别通过`int`/`syscall`/`ecall`指令来进行自陷, `native`中甚至可以通过一些神奇的库函数来模拟相应的功能; 而上下文的具体内容, 在不同的架构上也显然不一样(比如寄存器就已经不一样了). 于是, 我们可以将上下文管理的功能划入到AM的一类新的API中, 名字叫CTE(ConText Extension).
+Like IOE, the specific implementation of context management is also architecture-related: for example, as mentioned above, in x86/mips32/riscv32, the `int`/`syscall`/`ecall` instructions are used to trap, and in `native`, the corresponding functions can even be simulated through some magical library functions; the specific content of context is obviously different in different architectures (for example, registers are already different). Therefore, we can classify the context management function into a new API of AM called CTE (ConText Extension).
 
-接下来的问题是, 如何将不同架构的上下文管理功能抽象成统一的API呢? 换句话说, 我们需要思考, 操作系统的处理过程其实需要哪些信息?
+The next question is, how to abstract the context management functions of different architectures into a unified API? In other words, we need to think about what information the operating system actually needs for its processing?
 
-*   首先当然是引发这次执行流切换的原因, 是程序除0, 非法指令, 还是触发断点, 又或者是程序自愿陷入操作系统? 根据不同的原因, 操作系统都会进行不同的处理.
-*   然后就是程序的上下文了, 在处理过程中, 操作系统可能会读出上下文中的一些寄存器, 根据它们的信息来进行进一步的处理. 例如操作系统读出PC所指向的非法指令, 看看其是否能被模拟执行. 事实上, 通过这些上下文, 操作系统还能实现一些神奇的功能, 你将会在PA4中了解更详细的信息.
+*   First of all, of course, what caused this execution flow switch? Was it the program dividing by 0, an illegal instruction, triggering a breakpoint, or was the program voluntarily trapped in the operating system? Depending on the reasons, the operating system will handle it differently.
+*   Then there is the context of the program. During the processing, the operating system may read out some registers in the context and perform further processing based on their information. For example, the operating system reads the illegal instruction pointed to by the PC to see if it can be simulated and executed. In fact, through these contexts, the operating system can also implement some magical functions, which you will learn more about in PA4.
 
 #### 用软件模拟指令
 
