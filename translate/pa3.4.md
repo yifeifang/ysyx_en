@@ -36,45 +36,45 @@ In order to keep track of the names and sizes of the files in the ramdisk, we al
 
 Then running `make ARCH=$ISA-nemu update` will automatically compile the program in Navy, and assemble everything in the `navy-apps/fsimg/` directory into a ramdisk image `navy-apps/build/ramdisk.img`, and generate a file list `navy-apps/build/ramdisk.h` for the ramdisk image, which Nanos-lite's `Makefile` will link to the project via a soft link.
 
-#### 记得更新镜像文件
+#### Remember to update the image file
 
-如果你修改了Navy中的内容, 请记得通过上述命令来更新镜像文件.
+If you have modified the contents of Navy, please remember to update the image file with the above command.
 
-"文件记录表"其实是一个数组, 数组的每个元素都是一个结构体:
+The "file list" is actually an array, and each element of the array is a structure.
 
     typedef struct {
-      char *name;         // 文件名
-      size_t size;        // 文件大小
-      size_t disk_offset;  // 文件在ramdisk中的偏移
+      char *name;         // File name
+      size_t size;        // File size
+      size_t disk_offset;  // File offset in ramdisk
     } Finfo;
     
 
-在sfs中, 这三项信息都是固定不变的. 其中的文件名和我们平常使用的习惯不太一样: 由于sfs没有目录, 我们把目录分隔符`/`也认为是文件名的一部分, 例如`/bin/hello`是一个完整的文件名. 这种做法其实也隐含了目录的层次结构, 对于文件数量不多的情况, 这种做法既简单又奏效.
+In sfs, all three pieces of information are fixed. The filenames are not as we normally use them: since sfs does not have directories, we consider the directory separator `/` to be part of the filename, e.g., `/bin/hello` is a full filename. This approach also implies a hierarchy of directories, which is simple and effective when the number of files is small.
 
-有了这些信息, 就已经可以实现最基本的文件读写操作了:
+With this information, the most basic file reading and writing operations can be realized:
 
     size_t read(const char *filename, void *buf, size_t len);
     size_t write(const char *filename, const void *buf, size_t len);
     
 
-但在真实的操作系统中, 这种直接用文件名来作为读写操作参数的做法却有所缺陷. 例如, 我们在用`less`工具浏览文件的时候:
+In real operating systems, however, this direct use of file names as parameters for read and write operations has its drawbacks. For example, when browsing a file with the `less` tool.
 
     cat file | less
     
 
-`cat`工具希望把文件内容写到`less`工具的标准输入中, 但我们却无法用文件名来标识`less`工具的标准输入! 实际上, 操作系统中确实存在不少"没有名字"的文件. 为了统一管理它们, 我们希望通过一个编号来表示文件, 这个编号就是文件描述符(file descriptor). 一个文件描述符对应一个正在打开的文件, 由操作系统来维护文件描述符到具体文件的映射. 于是我们很自然地通过`open()`系统调用来打开一个文件, 并返回相应的文件描述符
+The `cat` tool wants to write the contents of the file to the `less` tool's standard input, but we can't identify the `less` tool's standard input with the name of the file! In fact, there are quite a few "unnamed" files in the operating system. In order to manage them in a uniform way, we would like to represent the file by a number, which is a file descriptor. A file descriptor corresponds to a file that is being opened, and it is up to the operating system to maintain the mapping of file descriptors to specific files. It is natural to open a file with the `open()` system call, which returns the corresponding file descriptor.
 
     int open(const char *pathname, int flags, int mode);
     
 
-在Nanos-lite中, 由于sfs的文件数目是固定的, 我们可以简单地把文件记录表的下标作为相应文件的文件描述符返回给用户程序. 在这以后, 所有文件操作都通过文件描述符来标识文件:
+In Nanos-lite, since the number of files in the sfs is fixed, we can simply return the subscripts of the file list to the user program as the file descriptors of the corresponding files. From now on, all file operations identify files by their file descriptors.
 
     size_t read(int fd, void *buf, size_t len);
     size_t write(int fd, const void *buf, size_t len);
     int close(int fd);
     
 
-另外, 我们也不希望每次读写操作都需要从头开始. 于是我们需要为每一个已经打开的文件引入偏移量属性`open_offset`, 来记录目前文件操作的位置. 每次对文件读写了多少个字节, 偏移量就前进多少.
+Also, we don't want to have to start from scratch every time we read or write to a file. So we need to introduce an offset attribute, `open_offset`, for each open file to keep track of where the file operation is currently taking place. Each time a file is read or written, the offset is advanced by a certain number of bytes.
 
 #### 文件偏移量和用户程序
 
