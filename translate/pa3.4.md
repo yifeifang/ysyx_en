@@ -208,22 +208,22 @@ The extended semantics of this API have a cool name, called [VFS (Virtual File S
 
 So, VFS is actually an abstraction of different kinds of real file systems, it uses a set of APIs to describe the abstract behavior of these real file systems, blocking the differences between the real file systems, the upper modules (such as system call handler) do not have to care about the current operation of the file is what type, as long as the call to this set of APIs can be completed to the appropriate file operations. With the concept of VFS, it is very easy to add a real file system: just wrap the real file system access method into the VFS API, the upper module does not need to change any code, it can support a new real file system.
 
-#### 又来了
+#### Here it comes again
 
-阅读上述文字的时候, 如果你想起了AM的概念, 这就对了, 因为VFS背后的思想, 也是抽象.
+When reading the above text, if you think of the concept of AM, you are right, because the idea behind VFS is also abstraction.
 
-在Nanos-lite中, 实现VFS的关键就是`Finfo`结构体中的两个读写函数指针:
+In Nanos-lite, the key to implementing VFS is the two read/write function pointers in the `Finfo` structure:
 
     typedef struct {
-      char *name;         // 文件名
-      size_t size;        // 文件大小
-      size_t disk_offset;  // 文件在ramdisk中的偏移
-      ReadFn read;        // 读函数指针
-      WriteFn write;      // 写函数指针
+      char *name;         // File name
+      size_t size;        // File size
+      size_t disk_offset;  // File offset in ramdisk
+      ReadFn read;        // Read function pointer
+      WriteFn write;      // Write function pointer
     } Finfo;
     
 
-其中`ReadFn`和`WriteFn`分别是两种函数指针, 它们用于指向真正进行读写的函数, 并返回成功读写的字节数. 有了这两个函数指针, 我们只需要在文件记录表中对不同的文件设置不同的读写函数, 就可以通过`f->read()`和`f->write()`的方式来调用具体的读写函数了.
+Among them, `ReadFn` and `WriteFn` are two kinds of function pointers, which are used to point to the function that actually reads or writes and returns the number of bytes successfully read or written. With these two function pointers, we only need to set up different read/write functions for different files in the file record table, and then we can call the specific read/write functions by `f->read()` and `f->write()`.
 
 #### 用C语言模拟面向对象编程
 
