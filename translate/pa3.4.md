@@ -241,11 +241,11 @@ With VFS, it is very easy to abstract IOEs into files.
 
 The first place to start is, of course, the simplest output device: the serial port. In Nanos-lite, both `stdout` and `stderr` are output to the serial port. Previously you might have been able to determine whether `sys_write()` writes to the serial port by determining whether `fd` is `1` or `2`. Now with VFS, we don't need to let the system call handler care about these special files: we just need to implement `serial_write()` in `nanos-lite/src/device.c`, and then set up the appropriate write function in the file record table to accomplish the above. Since the serial port is a character device, the corresponding byte sequence has no concept of "position", so the `offset` parameter in `serial_write()` can be ignored. In addition, Nanos-lite is not intended to support `stdin` reads, so it is sufficient to set the error function in the file log table.
 
-#### 把串口抽象成文件
+#### Abstracting the serial port to a file
 
-根据上述内容, 让VFS支持串口的写入.
+Based on the above, let's make the VFS support writing to the serial port.
 
-关于输入设备, 我们先来看看时钟. 时钟比较特殊, 大部分操作系统并没有把它抽象成一个文件, 而是直接提供一些和时钟相关的系统调用来给用户程序访问. 在Nanos-lite中, 我们也提供一个`SYS_gettimeofday`系统调用, 用户程序可以通过它读出当前的系统时间.
+Regarding the input devices, let's take a look at the clock first. The clock is unique in that most operating systems do not abstract it into a file, but instead provide clock-related system calls for the user program to access. In Nanos-lite, we also provide a `SYS_gettimeofday` system call, which allows the user program to read out the current system time.
 
 #### 实现gettimeofday
 
