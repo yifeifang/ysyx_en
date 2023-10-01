@@ -266,9 +266,9 @@ Rerun the dummy program, and if you've implemented it correctly, you'll see that
 
 You need to implement the `SYS_exit` system call, which takes an exit status argument. For the sake of testing, we will call `halt()` directly with this parameter for now. After successful implementation, run the dummy program again and you will see the message `HIT GOOD TRAP`.
 
-#### RISC-V系统调用号的传递
+#### RISC-V System Call Number Passing
 
-如果你选择的是RISC-V, 你会发现它并不是通过`a0`来传递系统调用号. 事实上, 我们参考了RISC-V Linux的系统调用参数传递的约定: 即在RISC-V Linux上也是通过这个寄存器来传递系统调用号的. 你觉得RISC-V Linux为什么没有使用`a0`来传递系统调用号呢?
+If you choose RISC-V, you will notice that it does not pass the syscall number through `a0`. In fact, we refer to the RISC-V Linux syscall parameter passing convention: i.e., RISC-V Linux also passes the syscall number through this register. Why do you think RISC-V Linux doesn't use `a0` to pass system call numbers?
 
 #### Linux的系统调用
 
