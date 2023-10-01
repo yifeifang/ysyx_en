@@ -199,15 +199,15 @@ You need to implement the new instructions mentioned above and implement the `is
 
 After implementation, re-run Nanos-lite. If you find that NEMU does jump to the exception entry address you found, it means your implementation is correct (NEMU may also terminate the operation because an unimplemented instruction is triggered).
 
-#### 让DiffTest支持异常响应机制
+#### Let DiffTest support exception response mechanism
 
-为了让DiffTest机制正确工作, 你需要
+In order for the DiffTest mechanism to work correctly, you need
 
-*   针对x86:
-    *   NEMU中不实现分段机制, 没有cs寄存器的概念. 但为了顺利进行DiffTest, 你还是需要在cpu结构体中添加一个cs寄存器, 并在将其初始化为`8`.
-    *   由于x86的异常响应机制需要对eflags进行压栈, 你还需要将eflags初始化为`0x2`.
-*   针对riscv32, 你需要将mstatus初始化为`0x1800`.
-*   针对riscv64, 你需要将mstatus初始化为`0xa00001800`.
+*   For x86:
+    *   NEMU does not implement segmentation mechanism and there is no concept of cs register. But in order to perform DiffTest smoothly, you still need to add a cs register to the cpu structure and initialize it to `8`.
+    *   Since the x86 exception response mechanism requires pushing eflags onto the stack, you also need to initialize eflags to `0x2`.
+*   For riscv32, you need to initialize mstatus to `0x1800`.
+*   For riscv64, you need to initialize mstatus to `0xa00001800`.
 
 ### [#](#保存上下文) 保存上下文
 
