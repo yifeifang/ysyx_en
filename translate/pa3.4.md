@@ -308,12 +308,12 @@ The "canvas" is a program-oriented concept, the coordinates of the program drawi
 
 The functionality of `NDL_DrawRect()` is very similar to the drawing interface introduced in PA2. However, in order to implement it, NDL also needs to know the screen size information. Nanos-lite and Navy have assumed that screen size information is obtained through the `/proc/dispinfo` file, which needs to support read operations. The format of the contents of this file is specified in `navy-apps/README.md`, which you need to read. As for the screen size, you need to get it from the IOE API.
 
-#### 在NDL中获取屏幕大小
+#### Getting Screen Size in NDL
 
-*   实现`dispinfo_read()`(在`nanos-lite/src/device.c`中定义), 按照约定将文件的`len`字节写到`buf`中(我们认为这个文件不支持`lseek`, 可忽略`offset`).
-*   在NDL中读出这个文件的内容, 从中解析出屏幕大小, 然后实现`NDL_OpenCanvas()`的功能. 目前`NDL_OpenCanvas()`只需要记录画布的大小就可以了, 当然我们要求画布大小不能超过屏幕大小.
+*   Implement `dispinfo_read()` (defined in `nanos-lite/src/device.c`), which writes the `len` bytes of the file to `buf` as per the convention (we assume that this file doesn't support `lseek`, and can ignore `offset`).
+*   Read the contents of this file into NDL, parse the screen size from it, and then implement the `NDL_OpenCanvas()` function. Currently `NDL_OpenCanvas()` only needs to record the size of the canvas, but of course we require that the size of the canvas does not exceed the size of the screen.
 
-让Nanos-lite运行`navy-apps/tests/bmp-test`, 由于目前还没有实现绘图功能, 因此无法输出图像内容, 但你可以先通过`printf()`输出解析出的屏幕大小.
+Let Nanos-lite run `navy-apps/tests/bmp-test`, since it doesn't have drawing capabilities yet, you can't output the image content, but you can first output the parsed screen size via `printf()`.
 
 #### 把VGA显存抽象成文件
 
