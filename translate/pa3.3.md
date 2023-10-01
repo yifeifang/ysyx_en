@@ -169,9 +169,9 @@ You need to replace the above `0xBadC0de` with the correct magic number.
 
 Don't underestimate the apparent stupidity of `assert()`, and thank goodness when it catches you one day when your hands are shaking and you don't know what you've done.
 
-#### 检测ELF文件的ISA类型
+#### Detecting the ISA type of an ELF file
 
-你很有可能会因为疏忽, 从而让`native`的Nanos-lite来加载运行一个x86/mips32/riscv32的dummy. 从ISA规范的角度来说, 这种行为显然属于UB, 具体而言通常会发生一些难以理解的错误. 为了避免这种情况, 你可以在loader中检测ELF文件的ISA类型. 我们可以根据AM中定义的一些宏来筛选出预期的ISA类型:
+There is a good chance that you will inadvertently allow `native` Nanos-lite to load and run an x86/mips32/riscv32 dummy. From an ISA specification point of view, this behavior is clearly a UB, and in particular, usually results in some incomprehensible error. To avoid this, you can detect the ISA type of the ELF file in the loader. We can filter the expected ISA type by some macros defined in AM.
 
     #if defined(__ISA_AM_NATIVE__)
     # define EXPECT_TYPE EM_X86_64
@@ -183,7 +183,7 @@ Don't underestimate the apparent stupidity of `assert()`, and thank goodness whe
     #endif
     
 
-然后和ELF信息中的某个域进行对比, 如果发现要加载的ELF文件的ISA类型和预期不一致, 就报错. 如果你不知道AM中的宏在哪里定义, RTFSC. 如果你不知道应该和ELF中的哪个域进行对比, RTFM.
+Then compare it to one of the fields in the ELF information, and if you find that the ISA type of the ELF file to be loaded does not match what is expected, report an error. If you don't know where the macros are defined in AM, RTFSC. If you don't know which field in ELF to compare against, RTFM.
 
 #### 将Nanos-lite编译到native
 
