@@ -17,10 +17,10 @@ Before proceeding with this PA, please run the following commands in the project
 
 #### Submission Requirements (please read the following carefully, if you violate it, you will be responsible for the consequences)
 
-**Expected average time to completion**: 40小时
+**Expected average time to completion**: 40 hours
 
 **Tasks to-do**:
 
-*   task PA3.1: Implement self-trap operation`yield()`
-*   task PA3.2: Implement the loading and system calling of user programs, and support the running of TRM programs
-*   task PA3.3: Run Xian Jian Qi Xia Zhuan (also called Chinese PAL) and Fairy and demonstrate the batch processing system, and submit a complete experimental report
+*   task PA3.1: Implement self-trap operation `yield()`
+*   task PA3.2: Implement loading for guest programs and system calls to support execution of TRM programs
+*   task PA3.3: task PA3.3: Run Xian Jian Qi Xia Zhuan (also called Chinese PAL) and demonstrate the batch processing system, and submit a complete lab report
