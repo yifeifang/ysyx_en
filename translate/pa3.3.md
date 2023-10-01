@@ -283,9 +283,9 @@ We already know that a user program running on an operating system can only do t
 
 In fact, it is possible to implement a simple strace in Nanos-lite: Nanos-lite gets all the information about the system call, including the name, arguments and return value. That's why we chose to implement strace in Nanos-lite: system calls carry high-level program semantics, but NEMU can only see the underlying state machine.
 
-#### 实现strace
+#### Implementing strace
 
-在Nanos-lite中实现strace是一个很简单的任务.
+Implementing strace in Nanos-lite is a very simple task.
 
 ### [#](#操作系统之上的trm) 操作系统之上的TRM
 
