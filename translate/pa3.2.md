@@ -292,9 +292,9 @@ At this time, we can consider this question: Is it hardware or software that dec
 
 The code will eventually return to the code location where Nanos-lite triggered the trap, and then continue execution. From its perspective, this time and space journey will be as if it never happened.
 
-#### 恢复上下文
+#### Restore context
 
-你需要实现这一过程中的新指令. 重新运行Nanos-lite, 如果你的实现正确, 你会看到在`do_event()`中输出的信息, 并且最后仍然触发了`main()`函数末尾设置的`panic()`.
+You need to implement the new instructions in this process. Re-run Nanos-lite. If your implementation is correct, you will see the information output in `do_event()`, and finally the `panic()` set at the end of the `main()` function is still triggered.
 
 #### 必答题(需要在实验报告中回答) - 理解穿越时空的旅程
 
