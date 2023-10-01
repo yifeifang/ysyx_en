@@ -219,11 +219,11 @@ In addition to general-purpose registers, context includes:
 *   Exception number. For x86, the exception number is saved by software; while for mips32 and riscv32, the exception number has been saved by hardware in the cause/mcause register, and we also need to save it on the stack.
 *   Address space. This is prepared for PA4. In x86, it corresponds to the `CR3` register. The code takes up space on the stack through a `pushl $0` instruction, mips32 and riscv32 share the storage space of address space information with register 0. Anyway, the value of register 0 is always 0, and there is no need to save and restore. However, we do not use address space information for the time being, and you can ignore their meaning for now.
 
-#### 异常号的保存
+#### Save exception number
 
-x86通过软件来保存异常号, 没有类似cause的寄存器. mips32和riscv32也可以这样吗? 为什么?
+x86 saves exception numbers through software, and there is no register similar to cause. Can mips32 and riscv32 also do this? Why?
 
-于是, 这些内容构成了完整的上下文信息, 异常处理过程可以根据上下文来诊断并进行处理, 同时, 将来恢复上下文的时候也需要这些信息.
+Therefore, these contents constitute complete context information. The exception handling process can diagnose and handle based on the context. At the same time, this information will also be needed when restoring the context in the future.
 
 #### 对比异常处理与函数调用
 
