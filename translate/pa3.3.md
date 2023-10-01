@@ -373,6 +373,6 @@ Anyway, excluding the `printf()` to `write()` conversions in the C library, the 
 
 If we want to understand the process of `printf()` to `write()` in the C library, ftrace will be a good tool for us. But as we know, Nanos-lite and the user program it loads are two separate ELF files, which means that if we assign NEMU's ftrace the ELF file of one of them, then ftrace will not be able to correctly translate the address of the other one into the correct function name. In fact, we can make NEMU ftrace support multiple ELFs: if an address doesn't belong to a function in one of the ELFs, try the next ELF. In this way, ftrace can trace function calls from both Nanos-lite and the user program.
 
-#### 温馨提示
+#### Kind tips
 
-PA3阶段2到此结束.
+This concludes PA3 Phase 2.
