@@ -136,7 +136,7 @@ The next question is, how to abstract the context management functions of differ
 
 In some embedded scenarios, the processor has very strict requirements for low power consumption, and the floating point processing unit FPU is often removed to save power consumption. At this time, if the software wants to execute a floating point instruction, the processor will throw an illegal instruction exception. With the exception response mechanism, we can simulate the execution of this illegal instruction during the exception handling process. The principle is very similar to the instruction execution process in PA2. Floating point instructions can be executed in this way in various processors without FPU.
 
-#### 在AM中执行浮点指令是UBExecuting floating point instructions in AM is UB (Undefined Behavior)
+#### Executing floating point instructions in AM is UB (Undefined Behavior)
 
 In other words, AM's runtime environment does not support floating point numbers. This sounds too violent. The reason for this decision is that IEEE 754 is an industrial standard. In order to formalize logical soundness and completeness, there may be various strange settings in the standard, such as different rounding methods, the introduction of inf and nan, etc. It is not necessary to understand all their details as a tutorial; but if you want to implement a correct FPU, you cannot get rid of these details.
 
