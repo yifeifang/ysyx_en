@@ -77,9 +77,9 @@ The Nanos-lite executable is generated, and the ramdisk image `nanos-lite/build/
 
 To answer the rest of the questions, we first need to understand how executables are organized. You've already studied the ELF file format in class, which contains not only the code and static data of the program itself, but also some information that describes it, otherwise we wouldn't even know where the boundary between code and data is. This information describes the organization of the executable file, different organization forms different executable file formats, for example, the mainstream Windows executable file is [PE (Portable Executable)](https://en.wikipedia.org/wiki/Portable_Executable) format, while GNU/Linux mainly use [ELF (Executable and Linkable Format)](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) format. Therefore, in general, you cannot copy an executable file from Windows to GNU/Linux and vice versa. ELF is the standard format for GNU/Linux executables because GNU/Linux follows the System V ABI ([Application Binary Interface](http://stackoverflow.com/questions/2171177/what-is-application-binary-interface-abi)).
 
-#### 堆和栈在哪里?
+#### Where's the heap and stack?
 
-我们提到了代码和数据都在可执行文件里面, 但却没有提到堆(heap)和栈(stack). 为什么堆和栈的内容没有放入可执行文件里面? 那程序运行时刻用到的堆和栈又是怎么来的? AM的代码是否能给你带来一些启发?
+We mentioned that the code and data are in the executable, but we didn't mention the heap and stack. Why aren't the contents of the heap and stack in the executable? And where do the heap and stack come from when the program is running? Does AM's code give you any ideas?
 
 #### 如何识别不同格式的可执行文件?
 
