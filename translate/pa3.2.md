@@ -302,9 +302,9 @@ From the time Nanos-lite calls `yield()` to the time it returns from `yield()`, 
 
 Don't be intimidated by "every line of code". This process is only about 50 lines of code. It is not impossible to fully understand it. The reason why we set this mandatory question is to force you to understand every detail of this process. This understanding is so important that if you lack it, you will be almost helpless when facing bugs.
 
-#### mips32延迟槽和异常
+#### mips32 delay slots and exceptions
 
-我们在PA2中提到, 标准的mips32处理器采用了分支延迟槽技术. 思考一下, 如果标准的mips32处理器在执行延迟槽指令的时候触发了异常, 从异常返回之后可能会造成什么问题? 该如何解决? 尝试RTFM对比你的解决方案.
+We mentioned in PA2 that the standard mips32 processor uses branch delay slot technology. Think about it, if the standard mips32 processor triggers an exception when executing the delay slot instruction, what problems may be caused after returning from the exception? How to solve it? Try RTFM to compare your solution.
 
 ### [#](#异常处理的踪迹-etrace) 异常处理的踪迹 - etrace
 
