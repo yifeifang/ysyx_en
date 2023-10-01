@@ -349,11 +349,11 @@ You already know how system calls work. In fact, it wouldn't be cost-effective t
 
 If you are interested, you can write a program on GNU/Linux to roughly test the overhead of a single `write()` syscall, and then compare it to [this article](http://arkanis.de/weblog/2017-01-05-measurements-of-system-call-performance-and-overhead).
 
-#### printf和换行
+#### printf and newlines
 
-我们在PA1的时候提示过大家, 使用`printf()`调试时需要添加`\n`, 现在终于可以解释为什么了: `fwrite()`的实现中有缓冲区, `printf()`打印的字符不一定会马上通过`write()`系统调用输出, 但遇到`\n`时可以强行将缓冲区中的内容进行输出. 有兴趣的同学可以阅读`navy-apps/libs/libc/src/stdio/wbuf.c`, 这个文件实现了缓冲区的功能.
+We hinted in PA1 that you need to add `\n` when debugging with `printf()`, and now we can finally explain why: `fwrite()` has a buffer in its implementation, and the characters printed by `printf()` are not necessarily outputted immediately by the `write()` system call, but the contents of the buffer are forced to be output by `\n` when it is encountered. But it is possible to force the contents of the buffer to be output when \n` is encountered. If you are interested, you can read `navy-apps/libs/libc/src/stdio/wbuf.c`, which implements the buffer function.
 
-实现了这两个系统调用之后, 原则上所有TRM上能运行的程序, 现在都能在Nanos-lite上运行了. 不过我们目前并没有严格按照AM的API来将相应的系统调用功能暴露给用户程序, 毕竟与AM相比, 对操作系统上运行的程序来说, libc的接口更加广为人们所用, 我们也就不必班门弄斧了.
+With the implementation of these two system calls, in principle all programs that can run on TRM can now run on Nanos-lite. However, we do not currently expose the system calls to user programs in strict accordance with the AM API, since the libc interface is more widely available to programs running on the operating system than to AM, and we do not need to show off.
 
 #### 必答题(需要在实验报告中回答) - hello程序是什么, 它从而何来, 要到哪里去
 
