@@ -1,20 +1,20 @@
 [#](#Simple-file-system) simple file system
 ===================
 
-要实现一个完整的批处理系统, 我们还需要向系统提供多个程序. 我们之前把程序以文件的形式存放在ramdisk之中, 但如果程序的数量增加之后, 我们就要知道哪个程序在ramdisk的什么位置. 我们的ramdisk已经提供了读写接口, 使得我们可以很方便地访问某一个位置的内容, 这对Nanos-lite来说貌似没什么困难的地方; 另一方面, 用户程序也需要处理数据, 它们处理的数据也可能会组织成文件, 那么对用户程序来说, 它怎么知道文件位于ramdisk的哪一个位置呢? 更何况文件会动态地增删, 用户程序并不知情. 这说明, 把ramdisk的读写接口直接提供给用户程序来使用是不可行的. 操作系统还需要在存储介质的驱动程序之上为用户程序提供一种更高级的抽象, 那就是文件.
+To implement a complete batch system, we need to provide multiple programs to the system. We have previously stored our programs as files on the ramdisk, but if the number of programs increases, we need to know the position (offset) of certain program in ramdisk. Our ramdisk already provides a read/write interface, which makes it easy to access the contents of a certain location, which doesn't seem to be much of a problem for Nanos-lite; on the other hand, user programs need to process data, and the data they process may be organized into files, so how does the user program know where the files are located on the ramdisk? Moreover, files are dynamically added and deleted without the user program's knowledge. This means that it is not feasible to make the ramdisk read/write interface directly available to the user program. The operating system needs to provide the user program with a higher level of abstraction over the storage medium driver, that is, the file.
 
-文件的本质就是字节序列, 另外还由一些额外的属性构成. 在这里, 我们先讨论普通意义上的文件. 这样, 那些额外的属性就维护了文件到ramdisk存储位置的映射. 为了管理这些映射, 同时向上层提供文件操作的接口, 我们需要在Nanos-lite中实现一个文件系统.
+A file is essentially a sequence of bytes, with some additional attributes. Here, we will discuss files in the normal sense. Thus, those additional attributes maintain a mapping of files to ramdisk storage locations. In order to manage these mappings and provide an interface to the upper layers for file operations, we need to implement a file system in Nanos-lite.
 
-不要被"文件系统"四个字吓到了, 我们对文件系统的需求并不是那么复杂, 因此我们可以定义一个简易文件系统sfs(Simple File System):
+Don't be intimidated by the word "file system", our needs for a file system are not that complex, so we can define a simple file system sfs (Simple File System):
 
-*   每个文件的大小是固定的
-*   写文件时不允许超过原有文件的大小
-*   文件的数量是固定的, 不能创建新文件
-*   没有目录
+*   The size of each file is fixed
+*   Writing a file is not allowed to exceed the size of the original file
+*   The number of files is fixed, no new files can be created
+*   No directories
 
-既然文件的数量和大小都是固定的, 我们自然可以把每一个文件分别固定在ramdisk中的某一个位置. 这些简化的特性大大降低了文件系统的实现难度. 当然, 真实的文件系统远远比sfs复杂.
+Since the number and size of files is fixed, it is natural to fix each file in a separate location on the ramdisk. These simplifications make the file system much less difficult to implement. Of course, real filesystems are much more complex than sfs.
 
-我们约定文件从ramdisk的最开始一个挨着一个地存放:
+Let's assume that the files are stored one by one from the very beginning of the ramdisk.
 
     0
     +-------------+---------+----------+-----------+--
@@ -24,7 +24,7 @@
       +  size0  +   +size1+              + sizen +
     
 
-为了记录ramdisk中各个文件的名字和大小, 我们还需要一张"文件记录表". Nanos-lite的Makefile已经提供了维护这些信息的脚本, 先对`nanos-lite/Makefile`作如下修改:
+In order to keep track of the names and sizes of the files in the ramdisk, we also need a "file list". Nanos-lite's Makefile already provides a script to maintain this information, so make the following changes to `nanos-lite/Makefile`.
 
     --- nanos-lite/Makefile
     +++ nanos-lite/Makefile
@@ -34,7 +34,7 @@
      RAMDISK_FILE = build/ramdisk.img
     
 
-然后运行`make ARCH=$ISA-nemu update`就会自动编译Navy中的程序, 并把`navy-apps/fsimg/`目录下的所有内容整合成ramdisk镜像`navy-apps/build/ramdisk.img`, 同时生成这个ramdisk镜像的文件记录表`navy-apps/build/ramdisk.h`, Nanos-lite的`Makefile`会通过软连接把它们链接到项目中.
+Then running `make ARCH=$ISA-nemu update` will automatically compile the program in Navy, and assemble everything in the `navy-apps/fsimg/` directory into a ramdisk image `navy-apps/build/ramdisk.img`, and generate a file list `navy-apps/build/ramdisk.h` for the ramdisk image, which Nanos-lite's `Makefile` will link to the project via a soft link.
 
 #### 记得更新镜像文件
 
