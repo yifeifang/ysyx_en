@@ -123,13 +123,13 @@ where `2` means consulting the manual page associated with the system call. Impl
 
 Finally, you need to add system calls to Nanos-lite and Navy's libos to invoke the appropriate file operations.
 
-#### 让loader使用文件
+#### Let loader use files
 
-我们之前是让loader来直接调用`ramdisk_read()`来加载用户程序. ramdisk中的文件数量增加之后, 这种方式就不合适了, 我们首先需要让loader享受到文件系统的便利.
+Previously, we had the loader call `ramdisk_read()` directly to load the user program. As the number of files in the ramdisk grows, this approach is no longer appropriate, and we need to give the loader the benefit of the filesystem in the first place.
 
-你需要先实现`fs_open()`, `fs_read()`和`fs_close()`, 这样就可以在loader中使用文件名来指定加载的程序了, 例如"/bin/hello".
+You need to implement `fs_open()`, `fs_read()` and `fs_close()`, so that you can specify the loaded program in the loader with a filename, e.g. "/bin/hello".
 
-实现之后, 以后更换用户程序只需要修改传入`naive_uload()`函数的文件名即可.
+Once this is implemented, changing the user program in the future will only require changing the filename passed to the `naive_uload()` function.
 
 #### 实现完整的文件系统
 
