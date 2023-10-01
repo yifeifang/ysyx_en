@@ -191,11 +191,11 @@ The contents of the random device will be included in the source file: since the
 
 The "everything is a file" abstraction makes it easy to do things with standard tools that are not easy to do on Windows, and this is part of the Unix philosophy: each program uses text files as input and output, which makes it easy for programs to work together. GNU/Linux inherits from Unix, and naturally inherits this excellent feature. In order to provide a uniform abstraction for user programs, Nanos-lite also attempts to abstract IOEs to files.
 
-### [#](#虚拟文件系统) 虚拟文件系统
+### [#](#Virtual-file-system) Virtual file system
 
-为了实现一切皆文件的思想, 我们之前实现的文件操作就需要进行扩展了: 我们不仅需要对普通文件进行读写, 还需要支持各种"特殊文件"的操作. 至于扩展的方式, 你是再熟悉不过的了, 那就是抽象!
+In order to realize the idea that everything is a file, we need to extend our previous implementation of file operations: not only do we need to be able to read and write normal files, but we also need to be able to support all kinds of "special file" operations. The way to do this, as you're all too familiar with, is abstraction!
 
-我们对之前实现的文件操作API的语义进行扩展, 让它们可以支持任意文件(包括"特殊文件")的操作:
+We extend the semantics of our previously implemented file manipulation APIs to support arbitrary files (including "special files"):
 
     int fs_open(const char *pathname, int flags, int mode);
     size_t fs_read(int fd, void *buf, size_t len);
@@ -204,9 +204,9 @@ The "everything is a file" abstraction makes it easy to do things with standard 
     int fs_close(int fd);
     
 
-这组扩展语义之后的API有一个酷炫的名字, 叫[VFS(虚拟文件系统)open in new window](https://en.wikipedia.org/wiki/Virtual_file_system). 既然有虚拟文件系统, 那相应地也应该有"真实文件系统", 这里所谓的真实文件系统, 其实是指具体如何操作某一类文件. 比如在Nanos-lite上, 普通文件通过ramdisk的API进行操作; 在真实的操作系统上, 真实文件系统的种类更是数不胜数: 比如熟悉Windows的你应该知道管理普通文件的NTFS, 目前在GNU/Linux上比较流行的则是EXT4; 至于特殊文件的种类就更多了, 于是相应地有`procfs`, `tmpfs`, `devfs`, `sysfs`, `initramfs`... 这些不同的真实文件系统, 它们都分别实现了这些文件的具体操作方式.
+The extended semantics of this API have a cool name, called [VFS (Virtual File System)](https://en.wikipedia.org/wiki/Virtual_file_system). Since there is a virtual filesystem, there should also be a "real filesystem", where the real filesystem refers to how a certain type of file is manipulated. For example, on Nanos-lite, ordinary files are manipulated through the ramdisk API; on real operating systems, there are countless types of real filesystems: for example, if you're familiar with Windows, you'll know NTFS, which manages ordinary files, and EXT4, which is currently more popular on GNU/Linux; and there are even more types of special files. As for special files, there are many more, so there are `procfs`, `tmpfs`, `devfs`, `sysfs`, `initramfs`... These are different real filesystems, each of which implements a specific way of manipulating these files.
 
-所以, VFS其实是对不同种类的真实文件系统的抽象, 它用一组API来描述了这些真实文件系统的抽象行为, 屏蔽了真实文件系统之间的差异, 上层模块(比如系统调用处理函数)不必关心当前操作的文件具体是什么类型, 只要调用这一组API即可完成相应的文件操作. 有了VFS的概念, 要添加一个真实文件系统就非常容易了: 只要把真实文件系统的访问方式包装成VFS的API, 上层模块无需修改任何代码, 就能支持一个新的真实文件系统了.
+So, VFS is actually an abstraction of different kinds of real file systems, it uses a set of APIs to describe the abstract behavior of these real file systems, blocking the differences between the real file systems, the upper modules (such as system call handler) do not have to care about the current operation of the file is what type, as long as the call to this set of APIs can be completed to the appropriate file operations. With the concept of VFS, it is very easy to add a real file system: just wrap the real file system access method into the VFS API, the upper module does not need to change any code, it can support a new real file system.
 
 #### 又来了
 
