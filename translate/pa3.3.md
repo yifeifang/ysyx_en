@@ -185,19 +185,19 @@ There is a good chance that you will inadvertently allow `native` Nanos-lite to 
 
 Then compare it to one of the fields in the ELF information, and if you find that the ISA type of the ELF file to be loaded does not match what is expected, report an error. If you don't know where the macros are defined in AM, RTFSC. If you don't know which field in ELF to compare against, RTFM.
 
-#### 将Nanos-lite编译到native
+#### Compiling Nanos-lite to native
 
-你可以在`native`上测试你的Nanos-lite实现是否正确.
+You can test your Nanos-lite implementation on `native` to see if it is correct.
 
-由于`native`是64位环境, ELF的一些数据结构会与32位有所不同, 但总的来说, ELF的加载过程是一样的. 为了屏蔽数据结构的差异, `nanos-lite/src/loader.c`中定义了宏`Elf_Ehdr`和`Elf_Phdr`, 你可以在loader的实现中使用它们.
+Since `native` is a 64-bit environment, some of ELF's data structures will be different from 32-bit, but in general, ELF's loading process is the same. To mask the differences in data structures, the macros `Elf_Ehdr` and `Elf_Phdr` are defined in `nanos-lite/src/loader.c`, and you can use them in the loader implementation.
 
-另外为了编译可以在AM native的Nanos-lite上运行的dummy, 你需要在Navy中通过`make ISA=am_native`来编译. 之后的操作与在`$ISA-nemu`上运行的操作类似, 即:
+In addition, in order to compile dummy to run on AM native's Nanos-lite, you need to compile it in Navy via `make ISA=am_native`. After that it's similar to running it on `$ISA-nemu`, i.e..
 
-1.  使用`ISA=xxx`编译dummy
-2.  把编译出的dummy ELF文件作为nanos-lite的ramdisk
-3.  使用`ARCH=xxx`编译并运行nanos-lite
+1.  Compiling dummy with `ISA=xxx`
+2.  Use the compiled dummy ELF file as a ramdisk for nanos-lite
+3.  Compile and run nanos-lite with `ARCH=xxx`
 
-Navy中还有一个叫`native`的ISA, 它与AM中名为`native`的ARCH机制有所不同, 目前暂不使用.
+There is also an ISA called `native` in Navy, which is different from the ARCH mechanism called `native` in AM, and is not currently used.
 
 ### [#](#操作系统的运行时环境) 操作系统的运行时环境
 
