@@ -97,28 +97,28 @@ Since the exception entry address is agreed between the hardware and the operati
 *   mips32 returns from the exception handling process through the `eret` instruction, which will clear the exception flag in the status register and restore the PC according to the epc register.
 *   riscv32 returns from the exception handling process through the `mret` instruction, which will restore the PC according to the mepc register.
 
-### [#](#状态机视角下的异常响应机制) 状态机视角下的异常响应机制
+### [#](#Exception-response-mechanism-from-the-perspective-of-state-machine) Exception response mechanism from the perspective of state machine
 
-程序是个`S = <R, M>`的状态机, 我们之前已经讨论过在TRM和IOE中这个状态机的具体行为. 如果要给计算机添加异常响应机制, 我们又应该如何对这个状态机进行扩充呢?
+The program is a state machine with `S = <R, M>`. We have discussed the specific behavior of this state machine in TRM and IOE before. If we want to add an exception response mechanism to the computer, how should we expand this state machine?
 
-首先当然是对`R`的扩充, 除了PC和通用寄存器之外, 还需要添加上文提到的一些特殊寄存器. 我们不妨把这些寄存器称为系统寄存器(System Register), 因为这些寄存器的作用都是和系统功能相关的, 平时进行计算的时候不会使用. 扩充之后的寄存器可以表示为`R = {GPR, PC, SR}`. 异常响应机制和内存无关, 因此我们无需对`M`的含义进行修改.
+The first is of course the expansion of `R`. In addition to the PC and general registers, some special registers mentioned above also need to be added. We might as well call these registers system registers (System Register), because the functions of these registers are related to system functions and are not used during normal calculations. The expanded register can be expressed as `R = {GPR, PC, SR}`. The exception response mechanism has nothing to do with memory, so we do not need to modify the meaning of `M`.
 
-对状态转移的扩充就比较有趣了. 我们之前都是认为程序执行的每一条指令都会成功, 从而状态机会根据指令的语义进行状态转移. 添加异常响应机制之后, 我们允许一条指令的执行会"失败". 为了描述指令执行失败的行为, 我们可以假设CPU有一条虚构的指令`raise_intr`, 执行这条虚构指令的行为就是上文提到的异常响应过程. 显然, 这一行为是可以用状态机视角来描述的, 例如在riscv32中可以表示成:
+The expansion of state transfer is more interesting. We used to think that every instruction executed by the program will succeed, so the state machine will transfer the state according to the semantics of the instruction. After adding the exception response mechanism, we allow the execution of an instruction to "fail". In order to describe the behavior of instruction execution failure, we can assume that the CPU has a fictitious instruction `raise_intr`, and the behavior of executing this fictitious instruction is the exception response process mentioned above. Obviously, this behavior can be described from a state machine perspective, for example in riscv32 it can be expressed as:
 
     SR[mepc] <- PC
-    SR[mcause] <- 一个描述失败原因的号码
+    SR[mcause] <- a number describing the reason for the failure
     PC <- SR[mtvec]
     
 
-有了这条虚构的指令, 我们就可以从状态机视角来理解异常响应的行为了: 如果一条指令执行成功, 其行为和之前介绍的TRM与IOE相同; 如果一条指令执行失败, 其行为等价于执行了虚构的`raise_intr`指令.
+With this fictitious instruction, we can understand the behavior of exception responses from a state machine perspective: If an instruction is executed successfully, its behavior is the same as the TRM and IOE introduced previously; if an instruction fails, its behavior is equivalent to executing the fictional `raise_intr` instruction.
 
-那么, "一条指令的执行是否会失败"这件事是不是确定性的呢? 显然这取决于"失败"的定义, 例如除0就是"除法指令的第二个操作数为0", 非法指令可以定义成"不属于ISA手册描述范围的指令", 而自陷指令可以认为是一种特殊的无条件失败. 不同的ISA手册都有各自对"失败"的定义, 例如RISC-V手册就不认为除0是一种失败, 因此即使除数为0, 在RISC-V处理器中这条指令也会按照指令手册的描述来执行.
+So, is "whether the execution of an instruction will fail" deterministic? Obviously this depends on the definition of "failure". For example, division by 0 means "the second operand of the division instruction is 0", which is an illegal instruction. It can be defined as "instructions that do not belong to the description scope of the ISA manual", and the self-trap instruction can be considered as a special unconditional failure. Different ISA manuals have their own definitions of "failure", for example, the RISC-V manual does not consider division by 0 is a failure, so even if the divider is 0, this instruction will be executed as described in the instruction manual in the RISC-V processor.
 
-事实上, 我们可以把这些失败的条件表示成一个函数`fex: S -> {0, 1}`, 给定状态机的任意状态`S`, `fex(S)`都可以唯一表示当前PC指向的指令是否可以成功执行. 于是, 给计算机加入异常响应机制并不会增加系统的不确定性, 这大大降低了我们理解异常响应机制的难度, 同时也让调试不至于太困难: 一个程序运行多次, 还是会在相同的地方抛出相同的异常, 从而进行相同的状态转移 (IOE的输入指令会引入一些不确定性, 但目前还是在我们能控制的范围内).
+In fact, we can express these failure conditions as a function `fex: S -> {0, 1}`. Given any state `S` of the state machine, `fex(S)` can uniquely indicate whether the instruction pointed to by the current PC can be successfully executed. Therefore, adding an exception response mechanism to the computer will not increase the uncertainty of the system. This greatly reduces the difficulty for us to understand the exception response mechanism, and also makes debugging not too difficult: if a program is run multiple times, the same exception will still be thrown in the same place, resulting in the same state transition (IOE input instructions will introduce some uncertainty, but it is still within our control).
 
 ![cte](/docs/assets/cte.08895f5f.png)
 
-最后, 异常响应机制的加入还伴随着一些系统指令的添加, 例如x86的`lidt`, `iret`, riscv32的`csrrw`, `mret`等. 这些指令除了用于专门对状态机中的`SR`进行操作之外, 它们本质上和TRM的计算指令没有太大区别, 因此它们的行为也不难理解.
+Finally, the addition of the exception response mechanism is also accompanied by the addition of some system instructions, such as x86's `lidt`, `iret`, riscv32's `csrrw`, `mret`, etc. Except that these instructions are used to specifically operate `SR` in the state machine, they are essentially not much different from the calculation instructions of TRM, so their behavior is not difficult to understand.
 
 [#](#将上下文管理抽象成cte) 将上下文管理抽象成CTE
 -------------------------------
