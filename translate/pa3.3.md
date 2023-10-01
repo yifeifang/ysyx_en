@@ -335,13 +335,13 @@ But if the heap is always unavailable, a lot of the functionality of the library
 
 The above code is implemented in a user-level library function, but we also need to implement `SYS_brk` in Nanos-lite. Since Nanos-lite is still a single-tasking operating system, free memory is free for the user program to use, so we just need to make the `SYS_brk` system call always return `0` to indicate that the heap resize is always successful. In PA4, we will modify this system call to enable real memory allocation.
 
-#### 实现堆区管理
+#### Implementing heap area management
 
-根据上述内容在Nanos-lite中实现`SYS_brk`系统调用, 然后在用户层实现`_sbrk()`. 你可以通过`man 2 sbrk`来查阅libc中`brk()`和`sbrk()`的行为, 另外通过`man 3 end`来查阅如何使用`_end`符号.
+Implement the `SYS_brk` system call in Nanos-lite based on the above, and then implement `_sbrk()` at the user level. You can check the behavior of `brk()` and `sbrk()` in libc via `man 2 sbrk`, and how to use the `_end` symbol via `man 3 end`.
 
-需要注意的是, 调试的时候不要在`_sbrk()`中通过`printf()`进行输出, 这是因为`printf()`还是会尝试通过`malloc()`来申请缓冲区, 最终会再次调用`_sbrk()`, 造成死递归. 你可以通过`sprintf()`先把调试信息输出到一个字符串缓冲区中, 然后通过`_write()`进行输出.
+Note that when debugging, you should not output from `_sbrk()` via `printf()`, because `printf()` will still try to claim the buffer via `malloc()`, and will end up calling `_sbrk()` again, which will result in a dead recursion. You can use `sprintf()` to output the debugging information to a string buffer first, and then `_write()` to output it.
 
-如果你的实现正确, 你可以借助strace看到`printf()`不再是逐个字符地通过`write()`进行输出, 而是将格式化完毕的字符串通过一次性进行输出.
+If your implementation is correct, you can see with strace that `printf()` no longer outputs the string character by character via `write()`, but rather outputs the formatted string all at once.
 
 #### 缓冲区与系统调用开销
 
