@@ -246,9 +246,9 @@ It should be noted that although we are not currently using the address space in
 
 After implementation, you can output the contents of context `c` through `printf` in `__am_irq_handle()`, and then use the simple debugger to observe the register status when the trap is triggered to check whether your `Context` implementation is correct.
 
-#### 给一些提示吧
+#### Some tips
 
-"实现新指令"没什么好说的, 你已经在PA2中实现了很多指令了. "重新组织结构体"是一个非常有趣的题目, 如果你不知道要做什么, 不妨从读懂题目开始. 题目大概的意思就是, 根据`trap.S`里面的内容, 来定义`$ISA-nemu.h`里面的一个结构体. `trap.S`明显是汇编代码, 而`$ISA-nemu.h`里面则是一个用C语言定义的结构体. 汇编代码和C语言... 等等, 你好像想起了ICS课本的某些内容...
+There is nothing much to say about "Implementing new instructions". You have already implemented many instructions in PA2. "Reorganizing structures" is a very interesting topic. If you don't know what to do, you might as well start by understanding the task. The general meaning of the task is to define a structure in `$ISA-nemu.h` based on the content in `trap.S`. `trap.S` is obviously assembly code, while `$ISA-nemu.h` contains a structure defined in C language. Assembly code and C language... Wait, you seem to remember some content from the ICS textbook...
 
 #### 我乱改一通, 居然过了, 嘿嘿嘿
 
