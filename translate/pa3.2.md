@@ -260,14 +260,14 @@ You will see a context structure pointer `c` in `__am_irq_handle()`. Where is th
 
 If you are not smart enough, don't just stare at the code. To understand the detailed behavior of the program, you still have to start from the state machine perspective.
 
-### [#](#事件分发) 事件分发
+### [#](#Event-distribution) Event distribution
 
-`__am_irq_handle()`的代码会把执行流切换的原因打包成事件, 然后调用在`cte_init()`中注册的事件处理回调函数, 将事件交给Nanos-lite来处理. 在Nanos-lite中, 这一回调函数是`nanos-lite/src/irq.c`中的`do_event()`函数. `do_event()`函数会根据事件类型再次进行分发. 不过我们在这里会触发一个未处理的4号事件:
+The code of `__am_irq_handle()` will package the cause for execution flow switching into an event, then call the event processing callback function registered in `cte_init()`, and hand the event to Nanos-lite for processing. In Nanos-lite, this callback function is the `do_event()` function in `nanos-lite/src/irq.c`. The `do_event()` function will be distributed again according to the event type. But here we will trigger an unhandled event No. 4:
 
     [src/irq.c,5,do_event] system panic: Unhandled event ID = 4
     
 
-这是因为CTE的`__am_irq_handle()`函数并未正确识别出自陷事件. 根据`yield()`的定义, `__am_irq_handle()`函数需要将自陷事件打包成编号为`EVENT_YIELD`的事件.
+This is because the `__am_irq_handle()` function of CTE does not correctly identify the self-trap event. According to the definition of `yield()`, the `__am_irq_handle()` function needs to package the self-trap event into an event numbered `EVENT_YIELD`.
 
 #### 实现正确的事件分发
 
