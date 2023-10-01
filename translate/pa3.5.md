@@ -22,13 +22,13 @@ We can use NDL to support the underlying implementation of miniSDL, allowing min
 
 We will only give a general overview of what these APIs do in the handout, so be sure to consult the SDL manual to understand their specific behavior.
 
-#### [#](#定点算术) 定点算术
+#### [#](#Fixed-point-arithmetic) Fixed-point arithmetic
 
-有一些程序的逻辑会使用实数, 目前真实的计算机系统一般都带有FPU, 因此开发者一般也会选择使用浮点数来表示这些实数. 但浮点数标准对一个面向教学的计算机系统来说实在太复杂了, 尤其是考虑到自制处理器的情况: 在硬件上实现一个正确的FPU对大家来说是一件非常困难的事情. 因此我们在Project-N的整个体系中都不打算引入浮点数: NEMU没有FPU, 在AM中执行浮点操作是UB, Nanos-lite认为浮点寄存器不属于上下文的一部分, Navy中也不提供浮点数相关的运行时环境(我们在编译Newlib的时候定义了宏`NO_FLOATING_POINT`).
+Some program logic uses real numbers, and since real computer systems nowadays usually come with FPUs, developers usually choose to use floating point numbers to represent these real numbers. But the floating-point standard is too complex for a teaching-oriented computer system, especially when considering DIY processors: implementing a correct FPU in hardware is a very difficult task for everyone. Therefore, we don't plan to introduce floating point numbers in the whole system of Project-N: NEMU doesn't have an FPU, performing floating point operations in AM is UB, Nanos-lite doesn't consider floating point registers to be part of the context, and Navy doesn't provide a runtime environment for floating point numbers (we define the macro `NO_FLOATING_POINT` when we compile Newlib).
 
-如果我们能够用其它方式来实现程序的逻辑, 那么这些酷炫的程序都将有机会在你自己设计的处理器上运行. 事实上, 浮点数并不是实数的唯一表示, 用定点数也可以实现实数! 而且定点数的运算可以通过整数运算来实现, 这意味着, 我们可以通过整数运算指令来实现实数的逻辑, 而无需在硬件上引入FPU来运行这些程序. 这样的一个算术体系称为[定点算术open in new window](https://en.wikipedia.org/wiki/Fixed-point_arithmetic).
+If we can implement the logic of the program in some other way, then all these cool programs will have a chance to run on a processor of your own design. In fact, floating-point numbers are not the only way to represent real numbers, but fixed-point numbers can be implemented as well! And fixed-point arithmetic can be implemented as integer arithmetic, which means that we can implement real-number logic through integer arithmetic instructions without having to introduce FPUs into the hardware to run these programs. Such an arithmetic system is called [fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic).
 
-Navy中提供了一个fixedptc的库, 专门用于进行定点算术. fixedptc库默认采用32位整数来表示实数, 其具体格式为"24.8" (见`navy-apps/libs/libfixedptc/include/fixedptc.h`), 表示整数部分占24位, 小数部分占8位, 也可以认为实数的小数点总是固定位于第8位二进制数的左边. 库中定义了`fixedpt`的类型, 用于表示定点数, 可以看到它的本质是`int32_t`类型.
+Navy provides a fixedptc library for fixed-point arithmetic. The fixedptc library defaults to 32-bit integers for real numbers, in the form "24.8" (see `navy-apps/libs/libfixedptc/include/fixedptc.h`), which means that the integer portion of the integer takes up 24 bits, and the fractional portion of the integer takes up 8 bits, which is also assumed to mean that the decimal point of a real number is always fixed to the left of the 8th binary digit. It can also be assumed that the decimal point of real numbers is always fixed to the left of the eighth binary digit. The library defines the type `fixedpt`, which is used to represent fixed-point numbers, and can be seen to be essentially of type `int32_t`.
 
     31  30                           8          0
     +----+---------------------------+----------+
@@ -36,7 +36,7 @@ Navy中提供了一个fixedptc的库, 专门用于进行定点算术. fixedptc�
     +----+---------------------------+----------+
     
 
-这样, 对于一个实数`a`, 它的`fixedpt`类型表示`A = a * 2^8`(截断结果的小数部分). 例如实数`1.2`和`5.6`用`FLOAT`类型来近似表示, 就是
+Thus, for a real number `a`, its `fixedpt` type represents `A = a * 2^8` (truncating the fractional part of the result). For example, the real numbers `1.2` and `5.6` are approximated by the type `FLOAT`, which is
 
     1.2 * 2^8 = 307 = 0x133
     +----+---------------------------+----------+
@@ -50,13 +50,13 @@ Navy中提供了一个fixedptc的库, 专门用于进行定点算术. fixedptc�
     +----+---------------------------+----------+
     
 
-而实际上, 这两个`fixedpt`类型数据表示的实数(真值)是:
+In fact, the two `fixedpt` type data represent real numbers (truth values) that are：
 
     0x133 / 2^8 = 1.19921875
     0x599 / 2^8 = 5.59765625
     
 
-对于负实数, 我们用相应正数的相反数来表示, 例如`-1.2`的`fixedpt`类型表示为:
+For negative real numbers, we use the opposite of the corresponding positive number, e.g. the `fixedpt` type of `-1.2` is expressed as:
 
     -(1.2 * 2^8) = -0x133 = 0xfffffecd
     
