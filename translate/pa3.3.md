@@ -238,19 +238,19 @@ Navy has already prepared the system call interface for the user program. The `_
 
 The above code puts the arguments of the system call into the registers first, and then executes the trapping instruction. Since the registers and the syscall are both ISA-related, different macros are defined to abstract from them, depending on the ISA. The CTE packages this trap operation into a system call event `EVENT_SYSCALL`, which is passed on to Nanos-lite for further processing.
 
-#### 识别系统调用
+#### Recognition system call
 
-目前`dummy`已经通过`_syscall_()`直接触发系统调用, 你需要让Nanos-lite识别出系统调用事件`EVENT_SYSCALL`.
+Now that `dummy` has triggered the system call directly via `_syscall_()`, you need to get Nanos-lite to recognize the system call event `EVENT_SYSCALL`.
 
-你可能需要对多处代码进行修改, 当你为代码无法实现正确而感到疑惑时, 请检查这个过程中的每一个细节. 我们已经强调了很多次, 理解细节是很重要的.
+You may need to make multiple changes to the code, and when you're puzzled by the fact that the code doesn't do it right, check every detail of the process. As we have emphasized many times, it is important to understand the details.
 
-Nanos-lite收到系统调用事件之后, 就会调出系统调用处理函数`do_syscall()`进行处理. `do_syscall()`首先通过宏`GPR1`从上下文`c`中获取用户进程之前设置好的系统调用参数, 通过第一个参数 - 系统调用号 - 进行分发. 但目前Nanos-lite没有实现任何系统调用, 因此触发了panic.
+When Nanos-lite receives a system call event, it calls the system call handler `do_syscall()`. `do_syscall()` first gets the system call parameters previously set by the user process from context `c` via macro `GPR1`, and distributes them via the first parameter - the system call number. However, Nanos-lite does not currently implement any syscalls, thus triggering panic.
 
-添加一个系统调用比你想象中要简单, 所有信息都已经准备好了. 我们只需要在分发的过程中添加相应的系统调用号, 并编写相应的系统调用处理函数`sys_xxx()`, 然后调用它即可. 回过头来看`dummy`程序, 它触发了一个`SYS_yield`系统调用. 我们约定, 这个系统调用直接调用CTE的`yield()`即可, 然后返回`0`.
+Adding a syscall is easier than you think, all the information is already there. All we need to do is add the appropriate syscall number to the distribution, write the appropriate syscall handler function `sys_xxx()`, and call it. Looking back at the `dummy` program, it triggers a `SYS_yield` system call. The convention is that this system call calls the CTE's `yield()` directly, and returns `0`.
 
-处理系统调用的最后一件事就是设置系统调用的返回值. 对于不同的ISA, 系统调用的返回值存放在不同的寄存器中, 宏`GPRx`用于实现这一抽象, 所以我们通过`GPRx`来进行设置系统调用返回值即可.
+The last thing you need to do with a system call is to set the return value of the system call. For different ISAs, the return value of the system call is stored in a different register, and the macro `GPRx` is used to implement this abstraction, so we set the return value of the system call via `GPRx`.
 
-经过CTE, 执行流会从`do_syscall()`一路返回到用户程序的`_syscall_()`函数中. 代码最后会从相应寄存器中取出系统调用的返回值, 并返回给`_syscall_()`的调用者, 告知其系统调用执行的情况(如是否成功等).
+After the CTE, the execution flow goes from `do_syscall()` all the way back to the `_syscall_()` function of the user program. The code will finally retrieve the return value of the system call from the corresponding register and return it to the caller of `_syscall_()` to inform the user program about the execution of the system call (e.g. whether it was successful or not).
 
 #### 实现SYS\_yield系统调用
 
