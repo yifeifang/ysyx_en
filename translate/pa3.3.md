@@ -89,11 +89,11 @@ ELF files provide two perspectives for organizing an executable, a section persp
 
 We are now interested in how to load the program, so we focus on the segment perspective. ELF uses a program header table to manage segments. A table entry in the program header table describes all the attributes of a segment, including its type, virtual address, flags, alignment, as well as its in-file offset and segment size. Based on this information, we know which bytes of the executable need to be loaded, and we can also see that loading an executable is not about loading all the content it contains, but only those that are relevant to the moment of operation, such as debugging information and symbol tables do not need to be loaded. We can tell if a segment needs to be loaded by determining if its `Type` attribute is `PT_LOAD`.
 
-#### 冗余的属性?
+#### Redundant attributes?
 
-使用`readelf`查看一个ELF文件的信息, 你会看到一个segment包含两个大小的属性, 分别是`FileSiz`和`MemSiz`, 这是为什么? 再仔细观察一下, 你会发现`FileSiz`通常不会大于相应的`MemSiz`, 这又是为什么?
+Using `readelf` to view information about an ELF file, you will see that a segment contains two size attributes, `FileSiz` and `MemSiz`, why is that? If you look more closely, you will see that `FileSiz` is usually not larger than the corresponding `MemSiz`, why is that?
 
-我们通过下面的图来说明如何根据segment的属性来加载它:
+We illustrate how to load a segment based on its attributes with the following diagram:
 
           +-------+---------------+-----------------------+
           |       |...............|                       |
@@ -127,7 +127,7 @@ We are now interested in how to load the program, so we focus on the segment per
                                                 Memory  
     
 
-你需要找出每一个需要加载的segment的`Offset`, `VirtAddr`, `FileSiz`和`MemSiz`这些参数. 其中相对文件偏移`Offset`指出相应segment的内容从ELF文件的第`Offset`字节开始, 在文件中的大小为`FileSiz`, 它需要被分配到以`VirtAddr`为首地址的虚拟内存位置, 在内存中它占用大小为`MemSiz`. 也就是说, 这个segment使用的内存就是`[VirtAddr, VirtAddr + MemSiz)`这一连续区间, 然后将segment的内容从ELF文件中读入到这一内存区间, 并将`[VirtAddr + FileSiz, VirtAddr + MemSiz)`对应的物理区间清零.
+You need to find out the `Offset`, `VirtAddr`, `FileSiz` and `MemSiz` parameters for each segment to be loaded. The relative file offset `Offset` indicates that the content of the corresponding segment starts at the `Offset` byte of the ELF file, and its size in the file is `FileSiz`, and it needs to be allocated to a virtual memory location with the `VirtAddr` header address, and its size in memory is `MemSiz`. In other words, the memory used by the segment is the contiguous interval `[VirtAddr, VirtAddr + MemSiz)`, and then the content of the segment is read from the ELF file into this memory interval and the physical interval `[VirtAddr + FileSiz, VirtAddr + MemSiz)` is zeroed out.
 
 #### 为什么要清零?
 
