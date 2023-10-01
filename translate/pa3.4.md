@@ -76,29 +76,29 @@ In Nanos-lite, since the number of files in the sfs is fixed, we can simply retu
 
 Also, we don't want to have to start from scratch every time we read or write to a file. So we need to introduce an offset attribute, `open_offset`, for each open file to keep track of where the file operation is currently taking place. Each time a file is read or written, the offset is advanced by a certain number of bytes.
 
-#### 文件偏移量和用户程序
+#### File Offsets and User Programs
 
-事实上在真正的操作系统中, 把偏移量放在文件记录表中维护会导致用户程序无法实现某些功能. 但解释这个问题需要理解一些超出课程范围的知识, 我们在此就不展开叙述了. 你可以在学习操作系统课程的时候再来思考这个问题.
+In fact, in a real operating system, maintaining offsets in a file record table can cause a user program to fail to perform certain functions. Explaining this requires some knowledge beyond the scope of this course, so we won't go into it here. You can think about this in your operating systems course.
 
-由于Nanos-lite是一个精简版的操作系统, 上述问题暂时不会出现, 为了简化实现, 我们还是把偏移量放在文件记录表中进行维护.
+Since Nanos-lite is a stripped-down version of the operating system, the above problem will not occur for a while, but for simplicity of implementation, we will maintain the offsets in a file record table.
 
-偏移量可以通过`lseek()`系统调用来调整, 从而可以对文件中的任意位置进行读写:
+The offsets can be adjusted by the `lseek()` system call, which allows you to read or write anywhere in the file: `lseek()`:
 
     size_t lseek(int fd, size_t offset, int whence);
     
 
-为了方便用户程序进行标准输入输出, 操作系统准备了三个默认的文件描述符:
+In order to facilitate standard input and output for user programs, the operating system has prepared three default file descriptors:
 
     #define FD_STDIN 0
     #define FD_STDOUT 1
     #define FD_STDERR 2
     
 
-它们分别对应标准输入`stdin`, 标准输出`stdout`和标准错误`stderr`. 我们经常使用的printf, 最终会调用`write(FD_STDOUT, buf, len)`进行输出; 而scanf将会通过调用`read(FD_STDIN, buf, len)`进行读入.
+They correspond to standard input `stdin`, standard output `stdout` and standard error `stderr`. We often use printf, which will eventually call `write(FD_STDOUT, buf, len)` for output, and scanf, which will call `read(FD_STDIN, buf, len)` for read.
 
-`nanos-lite/src/fs.c`中定义的`file_table`会包含`nanos-lite/src/files.h`, 其中前面还有3个特殊的文件: `stdin`, `stdout`和`stderr`的占位表项, 它们只是为了保证sfs和约定的标准输入输出的文件描述符保持一致, 例如根据约定`stdout`的文件描述符是`1`, 而我们添加了三个占位表项之后, 文件记录表中的`1`号下标也就不会分配给其它的普通文件了.
+The `file_table` defined in `nanos-lite/src/fs.c` will contain `nanos-lite/src/files.h`, which will be preceded by placeholder entries for three special files: `stdin`, `stdout`, and `stderr`, which are there to ensure that the sfs is in line with the agreed-upon standard. For example, the file descriptor for `stdout` is `1` by convention, and by adding the three placeholder entries, the `1` subscript in the file record table will not be assigned to any other common file.
 
-根据以上信息, 我们就可以在文件系统中实现以下的文件操作了:
+Based on the above information, we can implement the following file operations in the file system:
 
     int fs_open(const char *pathname, int flags, int mode);
     size_t fs_read(int fd, void *buf, size_t len);
@@ -107,21 +107,21 @@ Also, we don't want to have to start from scratch every time we read or write to
     int fs_close(int fd);
     
 
-这些文件操作实际上是相应的系统调用在内核中的实现. 你可以通过 `man` 查阅它们的功能, 例如
+These file operations are actually implementations of the corresponding system calls in the kernel. You can find out what they do via `man`, for example
 
     man 2 open
     
 
-其中`2`表示查阅和系统调用相关的manual page. 实现这些文件操作的时候注意以下几点:
+where `2` means consulting the manual page associated with the system call. Implement these file operations with the following in mind:
 
-*   由于sfs中每一个文件都是固定的, 不会产生新文件, 因此"`fs_open()`没有找到`pathname`所指示的文件"属于异常情况, 你需要使用assertion终止程序运行.
-*   为了简化实现, 我们允许所有用户程序都可以对所有已存在的文件进行读写, 这样以后, 我们在实现`fs_open()`的时候就可以忽略`flags`和`mode`了.
-*   使用`ramdisk_read()`和`ramdisk_write()`来进行文件的真正读写.
-*   由于文件的大小是固定的, 在实现`fs_read()`, `fs_write()`和`fs_lseek()`的时候, 注意偏移量不要越过文件的边界.
-*   除了写入`stdout`和`stderr`之外(用`putch()`输出到串口), 其余对于`stdin`, `stdout`和`stderr`这三个特殊文件的操作可以直接忽略.
-*   由于sfs没有维护文件打开的状态, `fs_close()`可以直接返回`0`, 表示总是关闭成功.
+*   Since every file in sfs is fixed and no new files are created, "`fs_open()` did not find the file indicated by `pathname`" is an exception, and you need to terminate the program with an assertion.
+*   To simplify the implementation, we allow all user programs to read and write to all existing files, so that in the future, we can ignore `flags` and `mode` when implementing `fs_open()`.
+*   Use `ramdisk_read()` and `ramdisk_write()` to actually read and write files.
+*   Since the size of the file is fixed, when implementing `fs_read()`, `fs_write()` and `fs_lseek()`, be careful that the offsets do not cross the file boundaries.
+*   Except for writing to `stdout` and `stderr` (using `putch()` to output to the serial port), the rest of the operations on the three special files `stdin`, `stdout` and `stderr` can be ignored.
+*   Since sfs does not maintain the status of open files, `fs_close()` can simply return `0`, indicating that the close was always successful.
 
-最后你还需要在Nanos-lite和Navy的libos中添加相应的系统调用, 来调用相应的文件操作.
+Finally, you need to add system calls to Nanos-lite and Navy's libos to invoke the appropriate file operations.
 
 #### 让loader使用文件
 
