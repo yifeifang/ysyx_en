@@ -235,11 +235,11 @@ However, in Nanos-lite, since the number of special files is very small, we assu
 
 We think of a file as a sequence of bytes, most byte sequences are "static", e.g., for ramdisk and files on disk, if we don't modify them, they will always be located in the same place, such byte sequences have the concept of "location"; but there are some special byte sequences that are not, e.g., byte sequences of typed keys are "flowing", after being read out, such byte sequences will not exist. However, there are some special byte sequences which are not like that, for example, byte sequences typed into a key are "flowing", and after they are read out they don't exist anymore. Files belonging to the former category support the `lseek` operation, and the devices that store them are called "block devices"; files belonging to the latter category do not support the `lseek` operation, and the corresponding devices are called "character devices". Real operating systems also abstract from the `lseek` operation, which we have simplified in Nanos-lite by not implementing it.
 
-### [#](#操作系统之上的ioe) 操作系统之上的IOE
+### [#](#IOE-for-operating-system) IOE for operating system
 
-有了VFS, 要把IOE抽象成文件就非常简单了.
+With VFS, it is very easy to abstract IOEs into files.
 
-首先当然是来看最简单的输出设备: 串口. 在Nanos-lite中, `stdout`和`stderr`都会输出到串口. 之前你可能会通过判断`fd`是否为`1`或`2`, 来决定`sys_write()`是否写入到串口. 现在有了VFS, 我们就不需要让系统调用处理函数关心这些特殊文件的情况了: 我们只需要在`nanos-lite/src/device.c`中实现`serial_write()`, 然后在文件记录表中设置相应的写函数, 就可以实现上述功能了. 由于串口是一个字符设备, 对应的字节序列没有"位置"的概念, 因此`serial_write()`中的`offset`参数可以忽略. 另外Nanos-lite也不打算支持`stdin`的读入, 因此在文件记录表中设置相应的报错函数即可.
+The first place to start is, of course, the simplest output device: the serial port. In Nanos-lite, both `stdout` and `stderr` are output to the serial port. Previously you might have been able to determine whether `sys_write()` writes to the serial port by determining whether `fd` is `1` or `2`. Now with VFS, we don't need to let the system call handler care about these special files: we just need to implement `serial_write()` in `nanos-lite/src/device.c`, and then set up the appropriate write function in the file record table to accomplish the above. Since the serial port is a character device, the corresponding byte sequence has no concept of "position", so the `offset` parameter in `serial_write()` can be ignored. In addition, Nanos-lite is not intended to support `stdin` reads, so it is sufficient to set the error function in the file log table.
 
 #### 把串口抽象成文件
 
