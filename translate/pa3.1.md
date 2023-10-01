@@ -78,16 +78,16 @@ Since Nanos-lite is essentially an AM program, we can compile/run Nanos-lite in 
 
 in the `nanos-lite/` directory. In addition, as mentioned above, you can also compile Nanos-lite to `native` and run it to help you debug.
 
-#### 操作系统是个C程序
+#### The operating system is a C program
 
-你也许有点不敢相信, 但框架代码的.c和.h文件无疑蕴含着这铁一般的事实, 甚至连编译方式也看不出什么特殊的地方. GNU/Linux也是这样: 如果你阅读它的源代码, 就会发现GNU/Linux只不过是个巨大的C程序而已.
+You may not believe it, but the .c and .h files of the framework code undoubtedly contain this ironclad fact, and there is nothing special about even the compilation method. The same is true for GNU/Linux: If you read it If you look at the source code, you will find that GNU/Linux is just a huge C program.
 
-那么和一般的C程序相比, 操作系统究竟有何特殊之处呢? 完成PA3之后, 相信你就会略知一二了.
+So compared with ordinary C programs, what is special about the operating system? After completing PA3, I believe you will know something about it.
 
-框架代码提供的这个操作系统还真的什么都没做! 回顾历史, 要实现一个最简单的操作系统, 就要实现以下两点功能:
+The operating system provided by the framework code really does nothing! Looking back at history, to implement the simplest operating system, it is necessary to implement the following two functions:
 
-*   用户程序执行结束之后, 可以跳转到操作系统的代码继续执行
-*   操作系统可以加载一个新的用户程序来执行
+*   After the user program is executed, it can jump to the operating system code to continue execution.
+*   The operating system can load a new user program to execute
 
 ### [#](#来自操作系统的新需求) 来自操作系统的新需求
 
