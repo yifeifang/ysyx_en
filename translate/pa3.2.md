@@ -70,22 +70,22 @@ The hardware response process after mips32 triggers an exception is as follows:
 
 ### [#](#riscv32) riscv32
 
-riscv32提供`ecall`指令作为自陷指令, 并提供一个mtvec寄存器来存放异常入口地址. 为了保存程序当前的状态, riscv32提供了一些特殊的系统寄存器, 叫控制状态寄存器(CSR寄存器). 在PA中, 我们只使用如下3个CSR寄存器:
+riscv32 provides the `ecall` instruction as a self-trap instruction, and provides an mtvec register to store the exception entry address. In order to save the current status of the program, riscv32 provides some special system registers called control status registers (CSR registers). In PA, we only use the following 3 CSR registers:
 
-*   mepc寄存器 - 存放触发异常的PC
-*   mstatus寄存器 - 存放处理器的状态
-*   mcause寄存器 - 存放触发异常的原因
+*   mepc register - stores the PC that triggered the exception
+*   mstatus register - stores the status of the processor
+*   mcause register - stores the reason for triggering the exception
 
-riscv32触发异常后硬件的响应过程如下:
+The hardware response process after riscv32 triggers an exception is as follows:
 
-1.  将当前PC值保存到mepc寄存器
-2.  在mcause寄存器中设置异常号
-3.  从mtvec寄存器中取出异常入口地址
-4.  跳转到异常入口地址
+1.  Save current PC value to mepc register
+2.  Set the exception number in the mcause register
+3.  Get the exception entry address from the mtvec register
+4.  Jump to the exception entry address
 
 * * *
 
-需要注意的是, 上述保存程序状态以及跳转到异常入口地址的工作, 都是硬件自动完成的, 不需要程序员编写指令来完成相应的内容. 事实上, 这只是一个简化后的过程, 在真实的计算机上还要处理很多细节问题, 比如x86和riscv32的特权级切换等, 在这里我们就不深究了. ISA手册中还记录了处理器对中断号和异常号的分配情况, 并列出了各种异常的详细解释, 需要了解的时候可以进行查阅.
+It should be noted that the above-mentioned work of saving the program state and jumping to the exception entry address is automatically completed by the hardware, and the programmer does not need to write instructions to complete the corresponding content. In fact, this is just a simplified process. There are many details that need to be dealt with on a real computer, such as privilege level switching between x86 and riscv32, etc. We will not go into details here. The ISA manual also records the allocation of interrupt numbers and exception numbers by the processor, and lists detailed explanations of various exceptions, which you can refer to when you need to know more.
 
 #### 特殊的原因? (建议二周目思考)
 
