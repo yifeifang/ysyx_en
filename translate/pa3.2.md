@@ -170,18 +170,18 @@ There are other APIs in CTE that are not currently used, so we will not introduc
 
 Next, we will try to trigger a trap operation in Nanos-lite to sort out the details of the process.
 
-### [#](#设置异常入口地址) 设置异常入口地址
+### [#](#Set-exception-entry-address) Set exception entry address
 
-首先是按照ISA的约定来设置异常入口地址, 将来切换执行流时才能跳转到正确的异常入口. 这显然是架构相关的行为, 因此我们把这一行为放入CTE中, 而不是让Nanos-lite直接来设置异常入口地址. 你需要在`nanos-lite/include/common.h`中定义宏`HAS_CTE`, 这样以后, Nanos-lite会多进行一项初始化工作: 调用`init_irq()`函数, 这最终会调用位于`abstract-machine/am/src/$ISA/nemu/cte.c`中的`cte_init()`函数. `cte_init()`函数会做两件事情, 第一件就是设置异常入口地址:
+The first is to set the exception entry address according to the ISA convention, so that it can jump to the correct exception entry when switching the execution flow in the future. This is obviously an architecture-related behavior, so we put this behavior into the CTE instead of letting Nanos-lite directly sets the exception entry address. You need to define the macro `HAS_CTE` in `nanos-lite/include/common.h`, so that in the future, Nanos-lite will perform one more initialization work: Call the `init_irq()` function, which ultimately calls the `cte_init()` function located in `abstract-machine/am/src/$ISA/nemu/cte.c`. The `cte_init()` function will do two things. The first is to set the exception entry address:
 
-*   对x86来说, 就是要准备一个有意义的IDT
-    1.  代码定义了一个结构体数组`idt`, 它的每一个元素是一个门描述符结构体
-    2.  在相应的数组元素中填写有意义的门描述符, 例如编号为`0x81`的门描述符中就包含自陷操作的入口地址. 需要注意的是, 框架代码中还是填写了完整的门描述符(包括上文中提到的don't care的域), 这主要是为了进行DiffTest时让KVM也能跳转到正确的入口地址. KVM实现了完整的x86异常响应机制, 如果只填写简化版的门描述符, 代码就无法在其中正确运行. 但我们无需了解其中的细节, 只需要知道代码已经填写了正确的门描述符即可.
-    3.  通过`lidt`指令在IDTR中设置`idt`的首地址和长度
-*   对于mips32来说, 由于异常入口地址是固定在`0x80000180`, 因此我们需要在`0x80000180`放置一条无条件跳转指令, 使得这一指令的跳转目标是我们希望的真正的异常入口地址即可.
-*   对于riscv32来说, 直接将异常入口地址设置到mtvec寄存器中即可.
+*   For x86, it is necessary to prepare a meaningful IDT
+    1.  The code defines a structure array `idt`, each element of which is a gate descriptor structure
+    2.  Fill in the meaningful gate descriptor in the corresponding array element. For example, the gate descriptor numbered `0x81` contains the entry address of the trap operation. It should be noted that the complete gate descriptor (including the don't care fields mentioned above) is still filled in in the framework code. This is mainly to allow KVM to jump to the correct entry address when performing DiffTest. KVM implements a complete x86 exception response mechanism. If you only fill in the simplified version of the gate descriptor, the code will not run correctly in it. But we do not need to know the details, we only need to know that the code has filled in the correct gate descriptor.
+    3.  Set the start address and length of `idt` in IDTR through `lidt` command
+*   For mips32, since the exception entry address is fixed at `0x80000180`, we need to place an unconditional jump instruction at `0x80000180` so that the jump target of this instruction is the real exception entry address we want.
+*   For riscv32, just set the exception entry address directly to the mtvec register.
 
-`cte_init()`函数做的第二件事是注册一个事件处理回调函数, 这个回调函数由Nanos-lite提供, 更多信息会在下文进行介绍.
+The second thing the `cte_init()` function does is to register an event handling callback function. This callback function is provided by Nanos-lite. More information will be introduced below.
 
 ### [#](#触发自陷操作) 触发自陷操作
 
