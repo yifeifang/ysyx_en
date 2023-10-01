@@ -319,6 +319,6 @@ In fact, QEMU and Spike also implement functions similar to etrace. If an error 
 
 You have already implemented many trace tools in NEMU, so it will not be difficult for you to implement etrace.
 
-#### 温馨提示
+#### Kind tips
 
-PA3阶段1到此结束.
+This concludes PA3 Phase 1.
