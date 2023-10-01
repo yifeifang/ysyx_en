@@ -7,7 +7,7 @@ This process is part of the ISA specification and is called the interrupt/except
 
 ### [#](#x86) x86
 
-x86提供`int`指令作为自陷指令, 但其异常响应机制和其它ISA相比会复杂一些. 在x86中, 上述的异常入口地址是通过门描述符(Gate Descriptor)来指示的. 门描述符是一个8字节的结构体, 里面包含着不少细节的信息, 我们在NEMU中简化了门描述符的结构, 只保留存在位P和偏移量OFFSET:
+x86 provides the `int` instruction as a self-trap instruction, but its exception response mechanism is more complicated than other ISAs. In x86, the above exception entry address is indicated by the gate descriptor. The door descriptor is an 8-byte structure, which contains a lot of detailed information. We have simplified the structure of the door descriptor in NEMU, retaining only the existence bit P and offset OFFSET:
 
        31                23                15                7                0
       +-----------------+-----------------+---+-------------------------------+
@@ -17,9 +17,9 @@ x86提供`int`指令作为自陷指令, 但其异常响应机制和其它ISA相�
       +-----------------+-----------------+-----------------+-----------------+
     
 
-P位来用表示这一个门描述符是否有效, OFFSET用来指示异常入口地址. 有了门描述符, 用户程序就只能跳转到门描述符中OFFSET所指定的位置, 再也不能随心所欲地跳转到操作系统的任意代码了.
+The P bit is used to indicate whether this gate descriptor is valid, and OFFSET is used to indicate the exception entry address. With the gate descriptor, the user program can only jump to the location specified by OFFSET in the gate descriptor, and can no longer jump to any code of the operating system as desired.
 
-为了方便管理各个门描述符, x86把内存中的某一段数据专门解释成一个数组, 叫IDT(Interrupt Descriptor Table, 中断描述符表), 数组的一个元素就是一个门描述符. 为了从数组中找到一个门描述符, 我们还需要一个索引. 对于CPU异常来说, 这个索引由CPU内部产生(例如除零异常为0号异常),或者由`int`指令给出(例如`int $0x80`). 最后, 为了在内存中找到IDT, x86使用IDTR寄存器来存放IDT的首地址和长度. 操作系统的代码事先把IDT准备好, 然后执行一条特殊的指令`lidt`, 来在IDTR中设置好IDT的首地址和长度, 这一异常响应机制就可以正常工作了. 现在是万事俱备, 等到程序执行自陷指令或者触发异常的时候, CPU就会按照设定好的IDT跳转到异常入口地址:
+In order to facilitate the management of each gate descriptor, x86 specifically interprets a certain piece of data in the memory into an array, called IDT (Interrupt Descriptor Table, interrupt descriptor table). One element of the array is a gate descriptor. In order to find a gate descriptor from the array, we also need an index. For CPU exceptions, this index is generated internally by the CPU (e.g. divide-by-zero exception is exception 0), or given by the `int` instruction (e.g. `int $0x80`). Finally, in order to find the IDT in memory, x86 uses the IDTR register to store the first address and length of the IDT. The operating system code prepares the IDT in advance, and then executes a special instruction `lidt` to set the first address and length of the IDT in the IDTR. This exception response mechanism can work smoothly. Now everything is ready, when the program executes the trap instruction or triggers an exception, the CPU will jump to the exception entry address according to the set IDT:
 
                |               |
                |   Entry Point |<----+
@@ -43,15 +43,15 @@ P位来用表示这一个门描述符是否有效, OFFSET用来指示异常入�
                |               |
     
 
-不过, 我们将来还是有可能需要返回到程序的当前状态来继续执行的, 比如通过`int3`触发的断点异常. 这意味着, 我们需要在进行响应异常的时候保存好程序当前的状态. 于是, 触发异常后硬件的响应过程如下:
+However, we may still need to return to the current state of the program to continue execution in the future, such as a breakpoint exception triggered by `int3`. This means that we need to save the current state of the program when responding to an exception. Therefore, the response process of the hardware after an exception is triggered is as follows:
 
-1.  从IDTR中读出IDT的首地址
-2.  根据异常号在IDT中进行索引, 找到一个门描述符
-3.  将门描述符中的offset域组合成异常入口地址
-4.  依次将eflags, cs(代码段寄存器), eip(也就是PC)寄存器的值压栈
-5.  跳转到异常入口地址
+1.  Read the first address of IDT from IDTR
+2.  Index in the IDT based on the exception number and find a gate descriptor
+3.  Combine the offset fields in the door descriptor into the exception entry address
+4.  Push the values of eflags, cs (code segment register), and eip (that is, PC) registers onto the stack in sequence.
+5.  Jump to the exception entry address
 
-在计算机和谐社会中, 大部分门描述符都不能让用户进程随意使用, 否则恶意程序就可以通过`int`指令欺骗操作系统. 例如恶意程序执行`int $0x2`来谎报电源掉电, 扰乱其它进程的正常运行. 因此执行`int`指令也需要进行特权级检查, 但PA中就不实现这一保护机制了, 具体的检查规则我们也就不展开讨论了, 需要了解时RTFM即可.
+In a harmonious computer society, most gate descriptors cannot be used by user processes at will, otherwise malicious programs can deceive the operating system through the `int` instruction. For example, a malicious program executes `int $0x2` to falsely report a power outage and disrupt the normal operation of other processes. Therefore, executing the `int` instruction also requires a privilege level check, but this protection mechanism is not implemented in PA. We will not discuss the specific checking rules. If you need to know more, just RTFM.
 
 ### [#](#mips32) mips32
 
