@@ -183,15 +183,15 @@ The first is to set the exception entry address according to the ISA convention,
 
 The second thing the `cte_init()` function does is to register an event handling callback function. This callback function is provided by Nanos-lite. More information will be introduced below.
 
-### [#](#触发自陷操作) 触发自陷操作
+### [#](#Trigger-a-trap-operation) Trigger a trap operation
 
-为了测试异常入口地址是否已经设置正确, 我们还需要真正触发一次自陷操作. 定义了宏`HAS_CTE`后, Nanos-lite会在`panic()`前调用`yield()`来触发自陷操作. 为了支撑这次自陷操作, 你需要在NEMU中实现`isa_raise_intr()`函数 (在`nemu/src/isa/$ISA/system/intr.c`中定义)来模拟上文提到的异常响应机制.
+In order to test whether the exception entry address has been set correctly, we also need to actually trigger a trap operation. After defining the macro `HAS_CTE`, Nanos-lite will call `yield()` before `panic()` to trigger the self-trap operation. In order to support this self-trap operation, you need to implement the `isa_raise_intr()` function in NEMU (defined in `nemu/src/isa/$ISA/system/intr.c`) to simulate the exception response mentioned mechanism above.
 
-需要注意的是:
+You should notice that:
 
-*   PA不涉及特权级的切换, RTFM的时候你不需要关心和特权级切换相关的内容.
-*   你需要在自陷指令的实现中调用`isa_raise_intr()`, 而不要把异常响应机制的代码放在自陷指令的helper函数中实现, 因为在后面我们会再次用到`isa_raise_intr()`函数.
-*   如果你选择的是x86, 通过IDTR中的地址对IDT进行索引的时候, 需要使用`vaddr_read()`.
+*   PA does not involve privilege level switching. When RTFM, you do not need to care about privilege level switching.
+*   You need to call `isa_raise_intr()` in the implementation of the trap instruction, instead of implementing the exception response mechanism code in the helper function of the trap instruction, because we will use the `isa_raise_intr()` function again later.
+*   If you choose x86, you need to use `vaddr_read()` when indexing the IDT through the address in IDTR.
 
 #### 实现异常响应机制
 
