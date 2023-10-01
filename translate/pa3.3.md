@@ -1,27 +1,27 @@
 [#](#User-programs-and-system-calls) User programs and system calls
 =========================
 
-有了自陷指令, 用户程序就可以将执行流切换到操作系统指定的入口了. 现在我们来解决实现批处理系统的第二个问题: 如何加载用户程序.
+With the trap instruction, the user program can switch the execution flow to the entry specified by the operating system. Now we have to solve the second problem of implementing the batch processing system: how to load the user program.
 
-### [#](#加载第一个用户程序) 加载第一个用户程序
+### [#](#Load-the-first-user-program) Load the first user program
 
-在操作系统中, 加载用户程序是由loader(加载器)模块负责的. 我们知道程序中包括代码和数据, 它们都是存储在可执行文件中. 加载的过程就是把可执行文件中的代码和数据放置在正确的内存位置, 然后跳转到程序入口, 程序就开始执行了. 更具体的, 为了实现`loader()`函数, 我们需要解决以下问题:
+In the operating system, the loader module is responsible for loading user programs. We know that programs include code and data, which are stored in executable files. The loading process is to place the code and data in the executable file in the correct memory location, and then jump to the program entry, and the program will start executing. More specifically, in order to implement the `loader()` function, we need to solve the following problems:
 
-*   可执行文件在哪里?
-*   代码和数据在可执行文件的哪个位置?
-*   代码和数据有多少?
-*   "正确的内存位置"在哪里?
+*   Where is the executable file?
+*   Where are the code and data located in the executable file?
+*   How much code and data is there?
+*   Where is the "correct memory location"?
 
-为了回答第一个问题, 我们还要先说明一下用户程序是从哪里来的. 用户程序运行在操作系统之上, 由于运行时环境的差异, 我们不能把编译到AM上的程序放到操作系统上运行. 为此, 我们准备了一个新的子项目Navy-apps, 专门用于编译出操作系统的用户程序. 通过执行以下命令获取Navy的框架代码:
+In order to answer the first question, we need to first explain where the user program comes from. User programs run on the operating system. Due to differences in runtime environments, we cannot run programs compiled on AM on the operating system. Therefore, we have prepared a new sub-project Navy-apps, specifically used to compile user programs for the operating system. Obtain Navy's framework code by executing the following command:
 
     cd ics2023
     bash init.sh navy-apps
     
 
-Navy子项目的结构组织如下, 更多的说明可以阅读`README.md`:
+The structure of the Navy sub-project is organized as follows, more instructions can be read in `README.md`:
 
     navy-apps
-    ├── apps            # 用户程序
+    ├── apps            # User program
     │   ├── am-kernels
     │   ├── busybox
     │   ├── fceux
@@ -33,17 +33,17 @@ Navy子项目的结构组织如下, 更多的说明可以阅读`README.md`:
     │   ├── nwm
     │   ├── onscripter
     │   ├── oslab0
-    │   └── pal         # 仙剑奇侠传
-    ├── fsimg           # 根文件系统
-    ├── libs            # 运行库
-    │   ├── libc        # Newlib C库
+    │   └── pal         # Xian Jian Qi Xia Zhuan (also called Chinese PAL)
+    ├── fsimg           # Root file system
+    ├── libs            # Runtime library
+    │   ├── libc        # Newlib C library
     │   ├── libam
     │   ├── libbdf
     │   ├── libbmp
     │   ├── libfixedptc
     │   ├── libminiSDL
     │   ├── libndl
-    │   ├── libos       # 系统调用的用户层封装
+    │   ├── libos       # User-level encapsulation of system calls
     │   ├── libSDL_image
     │   ├── libSDL_mixer
     │   ├── libSDL_ttf
@@ -51,10 +51,10 @@ Navy子项目的结构组织如下, 更多的说明可以阅读`README.md`:
     ├── Makefile
     ├── README.md
     ├── scripts
-    └── tests           # 一些测试
+    └── tests           # Some tests
     
 
-Navy的`Makefile`组织和`abstract-machine`非常类似, 你应该很容易理解它. 其中, `navy-apps/libs/libc`中是一个名为[Newlibopen in new window](https://sourceware.org/newlib/)的项目, 它是一个专门为嵌入式系统提供的C库, 库中的函数对运行时环境的要求极低. 这对Nanos-lite来说是非常友好的, 我们不必为了配合C库而在Nanos-lite中实现额外的功能. 用户程序的入口位于`navy-apps/libs/libos/src/crt0/start.S`中的`_start()`函数, 这里的`crt`是`C RunTime`的缩写, `0`的含义表示最开始. `_start()`函数会调用`navy-apps/libs/libos/src/crt0/crt0.c`中的`call_main()`函数, 然后调用用户程序的`main()`函数, 从`main()`函数返回后会调用`exit()`结束运行.
+Navy's `Makefile` organization is very similar to `abstract-machine`, you should easily understand it. Among them, `navy-apps/libs/libc` is a project named [Newlib](https://sourceware.org/newlib/), which is a C library specially provided for embedded systems. The function in newlib has extremely low requirements on the runtime environment. This is very friendly to Nanos-lite. We do not have to implement additional functions in Nanos-lite to cooperate with the C library. The entry point of the user program is located in the `_start()` function in `navy-apps/libs/libos/src/crt0/start.S`. `crt` here is the abbreviation of `C RunTime`, and `0` means the beginning. The `_start()` function will call the `call_main()` function in `navy-apps/libs/libos/src/crt0/crt0.c`, and then call the `main()` function of the user program, after returning from the `main()` function, `exit()` will be called to end the operation.
 
 #### C库的代码"总是"对的
 
