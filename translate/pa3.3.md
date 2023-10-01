@@ -129,28 +129,28 @@ We illustrate how to load a segment based on its attributes with the following d
 
 You need to find out the `Offset`, `VirtAddr`, `FileSiz` and `MemSiz` parameters for each segment to be loaded. The relative file offset `Offset` indicates that the content of the corresponding segment starts at the `Offset` byte of the ELF file, and its size in the file is `FileSiz`, and it needs to be allocated to a virtual memory location with the `VirtAddr` header address, and its size in memory is `MemSiz`. In other words, the memory used by the segment is the contiguous interval `[VirtAddr, VirtAddr + MemSiz)`, and then the content of the segment is read from the ELF file into this memory interval and the physical interval `[VirtAddr + FileSiz, VirtAddr + MemSiz)` is zeroed out.
 
-#### 为什么要清零?
+#### Why do you need to clear it?
 
-为什么需要将 `[VirtAddr + FileSiz, VirtAddr + MemSiz)` 对应的物理区间清零?
+Why do I need to zero out the physical interval corresponding to `[VirtAddr + FileSiz, VirtAddr + MemSiz)`?
 
-关于程序从何而来, 可以参考一篇文章: [COMPILER, ASSEMBLER, LINKER AND LOADER: A BRIEF STORYopen in new window](http://www.tenouk.com/ModuleW.html). 如果你希望查阅更多与ELF文件相关的信息, 请参考
+For more information on where programs come from, see the article [COMPILER, ASSEMBLER, LINKER AND LOADER: A BRIEF STORY](http://www.tenouk.com/ModuleW.html). If you would like to see more information about ELF files, see the manual
 
     man 5 elf
     
 
-由于ELF文件在ramdisk中, 框架代码提供了一些ramdisk相关的函数(在`nanos-lite/src/ramdisk.c`中定义), 你可以使用它们来实现loader的功能:
+Since the ELF files are in ramdisk, the framework code provides some ramdisk-related functions (defined in `nanos-lite/src/ramdisk.c`), which you can use to implement the loader.
 
-    // 从ramdisk中`offset`偏移处的`len`字节读入到`buf`中
+    // Read `len` bytes from `offset` offset in ramdisk into `buf`
     size_t ramdisk_read(void *buf, size_t offset, size_t len);
     
-    // 把`buf`中的`len`字节写入到ramdisk中`offset`偏移处
+    // Write `len` bytes from `buf` to `offset` offset in ramdisk
     size_t ramdisk_write(const void *buf, size_t offset, size_t len);
     
-    // 返回ramdisk的大小, 单位为字节
+    // Returns the size of the ramdisk in bytes
     size_t get_ramdisk_size();
     
 
-事实上, loader的工作向我们展现出了程序的最为原始的状态: 比特串! 加载程序其实就是把这一毫不起眼的比特串放置在正确的位置, 但这其中又折射出"存储程序"的划时代思想: 当操作系统将控制权交给它的时候, 计算机把它解释成指令并逐条执行. loader让计算机的生命周期突破程序的边界: 一个程序结束并不意味着计算机停止工作, 计算机将终其一生履行执行程序的使命.
+In fact, the work of the loader shows us the program in its most primitive state: the bit string! The loader is actually a program that puts this unobtrusive string of bits in the right place, but it reflects the epochal idea of the "stored program": when the operating system gives it control, the computer interprets it as an instruction and executes it line by line. The loader pushes the life cycle of the computer beyond the boundaries of the program: the end of a program does not mean that the computer stops working, but that the computer will carry out its mission of executing the program for the rest of its life.
 
 #### 实现loader
 
