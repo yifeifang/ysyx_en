@@ -252,15 +252,15 @@ The last thing you need to do with a system call is to set the return value of t
 
 After the CTE, the execution flow goes from `do_syscall()` all the way back to the `_syscall_()` function of the user program. The code will finally retrieve the return value of the system call from the corresponding register and return it to the caller of `_syscall_()` to inform the user program about the execution of the system call (e.g. whether it was successful or not).
 
-#### 实现SYS\_yield系统调用
+#### Implementing the SYS\_yield system call
 
-你需要:
+You need to:
 
-1.  在`abstract-machine/am/include/arch/`目录下的相应头文件中实现正确的`GPR?`宏, 让它们从上下文`c`中获得正确的系统调用参数寄存器.
-2.  添加`SYS_yield`系统调用.
-3.  设置系统调用的返回值.
+1.  Implement the correct `GPR?` macros in the corresponding header files in the `abstract-machine/am/include/arch/` directory, so that they get the correct system call parameter registers from context `c`.
+2.  Add `SYS_yield` system call.
+3.  Set the return value of a system call.
 
-重新运行dummy程序, 如果你的实现正确, 你会看到dummy程序又触发了一个号码为`0`的系统调用. 查看`nanos-lite/src/syscall.h`, 你会发现它是一个`SYS_exit`系统调用. 这说明之前的`SYS_yield`已经成功返回, 触发`SYS_exit`是因为dummy已经执行完毕, 准备退出了.
+Rerun the dummy program, and if you've implemented it correctly, you'll see that the dummy program has triggered another system call with the number `0`. Look at `nanos-lite/src/syscall.h`, and you will see that it is a `SYS_exit` system call. This means that the previous `SYS_yield` has returned successfully, and the `SYS_exit` is triggered because dummy has finished executing and is ready to exit.
 
 #### 实现SYS\_exit系统调用
 
