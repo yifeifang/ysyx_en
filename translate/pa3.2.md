@@ -254,11 +254,11 @@ There is nothing much to say about "Implementing new instructions". You have alr
 
 If you still have this kind of luck mentality, you will have a very painful life in PA3. In fact, "understanding how to reorganize structures correctly" is a very important content in PA3. So let's add a required question.
 
-#### 必答题(需要在实验报告中回答) - 理解上下文结构体的前世今生
+#### Required questions (need to be answered in the lab report) - Understand the past and present life of context structures
 
-你会在`__am_irq_handle()`中看到有一个上下文结构指针`c`, `c`指向的上下文结构究竟在哪里? 这个上下文结构又是怎么来的? 具体地, 这个上下文结构有很多成员, 每一个成员究竟在哪里赋值的? `$ISA-nemu.h`, `trap.S`, 上述讲义文字, 以及你刚刚在NEMU中实现的新指令, 这四部分内容又有什么联系?
+You will see a context structure pointer `c` in `__am_irq_handle()`. Where is the context structure pointed to by `c`? Where does this context structure come from? Specifically, this context structure has many members, where is each member assigned? `$ISA-nemu.h`, `trap.S`, the above handout text, and the new instructions you just implemented in NEMU. What is the connection between these four parts?
 
-如果你不是脑袋足够灵光, 还是不要眼睁睁地盯着代码看了, 理解程序的细节行为还是要从状态机视角入手.
+If you are not smart enough, don't just stare at the code. To understand the detailed behavior of the program, you still have to start from the state machine perspective.
 
 ### [#](#事件分发) 事件分发
 
