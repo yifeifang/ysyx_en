@@ -369,9 +369,9 @@ Similarly, the mandatory question "Understanding journeys through space and time
 
 Anyway, excluding the `printf()` to `write()` conversions in the C library, the rest of the code is what you should understand. So, try to understand every line of code!
 
-#### 支持多个ELF的ftrace
+#### Multiple ELF ftrace support
 
-如果我们想了解C库中`printf()`到`write()`的过程, ftrace将是一个很好的工具. 但我们知道, Nanos-lite和它加载的用户程序是两个独立的ELF文件, 这意味着, 如果我们给NEMU的ftrace指定其中一方的ELF文件, 那么ftrace就无法正确将另一方的地址翻译成正确的函数名. 事实上, 我们可以让NEMU的ftrace支持多个ELF: 如果一个地址不属于某个ELF中的任何一个函数, 那就尝试下一个ELF. 通过这种方式, ftrace就可以同时追踪Nanos-lite和用户程序的函数调用了.
+If we want to understand the process of `printf()` to `write()` in the C library, ftrace will be a good tool for us. But as we know, Nanos-lite and the user program it loads are two separate ELF files, which means that if we assign NEMU's ftrace the ELF file of one of them, then ftrace will not be able to correctly translate the address of the other one into the correct function name. In fact, we can make NEMU ftrace support multiple ELFs: if an address doesn't belong to a function in one of the ELFs, try the next ELF. In this way, ftrace can trace function calls from both Nanos-lite and the user program.
 
 #### 温馨提示
 
