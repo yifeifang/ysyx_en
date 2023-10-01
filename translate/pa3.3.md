@@ -343,11 +343,11 @@ Note that when debugging, you should not output from `_sbrk()` via `printf()`, b
 
 If your implementation is correct, you can see with strace that `printf()` no longer outputs the string character by character via `write()`, but rather outputs the formatted string all at once.
 
-#### 缓冲区与系统调用开销
+#### Buffer and System Call Overhead
 
-你已经了解系统调用的过程了. 事实上, 如果通过系统调用千辛万苦地陷入操作系统只是为了输出区区一个字符, 那就太不划算了. 于是有了批处理(batching)的技术: 将一些简单的任务累积起来, 然后再一次性进行处理. 缓冲区是批处理技术的核心, libc中的`fread()`和`fwrite()`正是通过缓冲区来将数据累积起来, 然后再通过一次系统调用进行处理. 例如通过一个1024字节的缓冲区, 就可以通过一次系统调用直接输出1024个字符, 而不需要通过1024次系统调用来逐个字符地输出. 显然, 后者的开销比前者大得多.
+You already know how system calls work. In fact, it wouldn't be cost-effective to go to all the trouble of getting into the operating system via a system call just to output a single character. Hence the technique of batching: accumulating simple tasks and processing them all at once. Buffers are at the heart of batching, and libc's `fread()` and `fwrite()` use buffers to accumulate data, which is then processed in a single system call. For example, with a 1024-byte buffer, you can output 1024 characters in a single system call, rather than 1024 system calls to output each character. Obviously, the latter is much more expensive than the former.
 
-有兴趣的同学可以在GNU/Linux上编写相应的程序, 来粗略测试一下一次`write()`系统调用的开销, 然后和[这篇文章open in new window](http://arkanis.de/weblog/2017-01-05-measurements-of-system-call-performance-and-overhead)对比一下.
+If you are interested, you can write a program on GNU/Linux to roughly test the overhead of a single `write()` syscall, and then compare it to [this article](http://arkanis.de/weblog/2017-01-05-measurements-of-system-call-performance-and-overhead).
 
 #### printf和换行
 
