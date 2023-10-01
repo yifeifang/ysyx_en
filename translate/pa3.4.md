@@ -287,26 +287,26 @@ You need to:
 
 We can simplify your implementation by assuming that at most one event will be read out at a time. Once implemented, have Nanos-lite run `navy-apps/tests/event-test`, and if it is implemented correctly, the program will output information about the keystroke event when the key is pressed.
 
-#### 用fopen()还是open()?
+#### Use fopen() or open()?
 
-这是个非常值得思考的问题. 你需要思考这两组API具体行为的区别, 然后分析`/dev/events`这个特殊文件应该用哪种函数来操作. 我们已经在某一个蓝色信息框中给出一些提示了.
+This is a very interesting question. You need to think about the difference between the behavior of the two APIs, and then analyze which function should be used for the particular file `/dev/events`. We've given some hints in one of the blue boxes.
 
-最后是VGA, 程序为了更新屏幕, 只需要将像素信息写入VGA的显存即可. 于是, Nanos-lite需要做的, 便是把显存抽象成文件. 显存本身也是一段存储空间, 它以行优先的方式存储了将要在屏幕上显示的像素. Nanos-lite和Navy约定, 把显存抽象成文件`/dev/fb`(fb为frame buffer之意), 它需要支持写操作和`lseek`, 以便于把像素更新到屏幕的指定位置上.
+Finally, there is the VGA, where the program only needs to write pixel information to the VGA's memory in order to update the screen. So, what Nanos-lite needs to do is to abstract the video memory into a file. The memory itself is a piece of storage space that stores the pixels that will be displayed on the screen in a row-first manner. Nanos-lite and Navy assume to abstract the memory to a file `/dev/fb` (fb is a frame buffer), which needs to support write operations and `lseek` to update the pixels to a specified location on the screen.
 
-NDL向用户提供了两个和绘制屏幕相关的API:
+The NDL provides the user with two APIs related to drawing the screen:
 
-    // 打开一张(*w) X (*h)的画布
-    // 如果*w和*h均为0, 则将系统全屏幕作为画布, 并将*w和*h分别设为系统屏幕的大小
+    // Open a (*w) X (*h) canvas
+    // If *w and *h are both 0, then the full screen of the system is used as the canvas, and *w and *h are set to the size of the system screen
     void NDL_OpenCanvas(int *w, int *h);
     
-    // 向画布`(x, y)`坐标处绘制`w*h`的矩形图像, 并将该绘制区域同步到屏幕上
-    // 图像像素按行优先方式存储在`pixels`中, 每个像素用32位整数以`00RRGGBB`的方式描述颜色
+    // Draws a `w*h` rectangle to the `(x, y)` coordinates of the canvas, and synchronizes the drawn area to the screen
+    // Image pixels are stored in `pixels` in a row-first manner, and each pixel has a 32-bit integer describing the color as `00RRGGBB`
     void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h);
     
 
-其中"画布"是一个面向程序的概念, 程序绘图时的坐标都是针对画布来设定的, 这样程序就无需关心系统屏幕的大小, 以及需要将图像绘制到系统屏幕的哪一个位置. NDL可以根据系统屏幕大小以及画布大小, 来决定将画布"贴"到哪里, 例如贴到屏幕左上角或者居中, 从而将画布的内容写入到frame buffer中正确的位置.
+The "canvas" is a program-oriented concept, the coordinates of the program drawing are set for the canvas, so that the program does not need to care about the size of the system screen, as well as the need to draw the image to where the system screen. NDL can be based on the size of the system screen and the size of the canvas, to determine where to "stick" the canvas, such as to the upper left corner of the screen or center, so that the contents of the canvas will be written to the frame buffer in the correct location.
 
-`NDL_DrawRect()`的功能和PA2中介绍的绘图接口是非常类似的. 但为了实现它, NDL还需要知道屏幕大小的信息. Nanos-lite和Navy约定, 屏幕大小的信息通过`/proc/dispinfo`文件来获得, 它需要支持读操作. `navy-apps/README.md`中对这个文件内容的格式进行了约定, 你需要阅读它. 至于具体的屏幕大小, 你需要通过IOE的相应API来获取.
+The functionality of `NDL_DrawRect()` is very similar to the drawing interface introduced in PA2. However, in order to implement it, NDL also needs to know the screen size information. Nanos-lite and Navy have assumed that screen size information is obtained through the `/proc/dispinfo` file, which needs to support read operations. The format of the contents of this file is specified in `navy-apps/README.md`, which you need to read. As for the screen size, you need to get it from the IOE API.
 
 #### 在NDL中获取屏幕大小
 
