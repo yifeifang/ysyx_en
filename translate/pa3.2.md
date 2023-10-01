@@ -235,16 +235,16 @@ Next, the code will call the C function `__am_irq_handle()` (defined in `abstrac
 
 There is a line of code called `pushl %esp` in `trap.S` of x86. At first glance, its behavior is very strange. Can you understand its behavior by combining the preceding and following codes? Hint: The program is a state machine.
 
-#### 重新组织\`Context\`结构体
+#### Reorganize the \`Context\` structure
 
-你的任务如下:
+Your tasks are as follows:
 
-*   实现这一过程中的新指令, 详情请RTFM.
-*   理解上下文形成的过程并RTFSC, 然后重新组织`abstract-machine/am/include/arch/$ISA-nemu.h` 中定义的`Context`结构体的成员, 使得这些成员的定义顺序和 `abstract-machine/am/src/$ISA/nemu/trap.S`中构造的上下文保持一致.
+*   Implement new instructions in this process, please RTFM for details.
+*   Understand the process of context formation and RTFSC, and then reorganize the members of the `Context` structure defined in `abstract-machine/am/include/arch/$ISA-nemu.h` so that the definition order of these members consistent with the context constructed in `abstract-machine/am/src/$ISA/nemu/trap.S`.
 
-需要注意的是, 虽然我们目前暂时不使用上文提到的地址空间信息, 但你在重新组织`Context`结构体时仍然需要正确地处理地址空间信息的位置, 否则你可能会在PA4中遇到难以理解的错误.
+It should be noted that although we are not currently using the address space information mentioned above, you still need to correctly handle the location of the address space information when reorganizing the `Context` structure, otherwise you may encounter incomprehensible problems in PA4.
 
-实现之后, 你可以在`__am_irq_handle()`中通过`printf`输出上下文`c`的内容, 然后通过简易调试器观察触发自陷时的寄存器状态, 从而检查你的`Context`实现是否正确.
+After implementation, you can output the contents of context `c` through `printf` in `__am_irq_handle()`, and then use the simple debugger to observe the register status when the trap is triggered to check whether your `Context` implementation is correct.
 
 #### 给一些提示吧
 
