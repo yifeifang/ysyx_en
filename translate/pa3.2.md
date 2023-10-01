@@ -296,11 +296,11 @@ The code will eventually return to the code location where Nanos-lite triggered 
 
 You need to implement the new instructions in this process. Re-run Nanos-lite. If your implementation is correct, you will see the information output in `do_event()`, and finally the `panic()` set at the end of the `main()` function is still triggered.
 
-#### 必答题(需要在实验报告中回答) - 理解穿越时空的旅程
+#### Required questions (need to be answered in the lab report) - Understanding the journey through time and space
 
-从Nanos-lite调用`yield()`开始, 到从`yield()`返回的期间, 这一趟旅程具体经历了什么? 软(AM, Nanos-lite)硬(NEMU)件是如何相互协助来完成这趟旅程的? 你需要解释这一过程中的每一处细节, 包括涉及的每一行汇编代码/C代码的行为, 尤其是一些比较关键的指令/变量. 事实上, 上文的必答题"理解上下文结构体的前世今生"已经涵盖了这趟旅程中的一部分, 你可以把它的回答包含进来.
+From the time Nanos-lite calls `yield()` to the time it returns from `yield()`, what exactly does this journey go through? How do software (AM, Nanos-lite) and hardware (NEMU) assist each other to complete this journey? You need to explain every detail in this process, including the behavior of every line of assembly code/C code involved, especially some of the more critical instructions/variables. In fact, the above required question "Understanding the Past and Present Life of Contextual Structures" already covers part of this journey, and you can include its answer.
 
-别被"每一行代码"吓到了, 这个过程也就大约50行代码, 要完全理解透彻并不是不可能的. 我们之所以设置这道必答题, 是为了强迫你理解清楚这个过程中的每一处细节. 这一理解是如此重要, 以至于如果你缺少它, 接下来你面对bug几乎是束手无策.
+Don't be intimidated by "every line of code". This process is only about 50 lines of code. It is not impossible to fully understand it. The reason why we set this mandatory question is to force you to understand every detail of this process. This understanding is so important that if you lack it, you will be almost helpless when facing bugs.
 
 #### mips32延迟槽和异常
 
