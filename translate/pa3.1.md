@@ -1,23 +1,23 @@
-[#](#批处理系统) 批处理系统
+[#](#Batch Processing System) Batch Processing System
 =================
 
-#### 没有调不出的bug, 只有不理解的系统
+#### There are no bugs that cannot be fixed, only systems that we do not understand
 
-PA3是整个PA的分水岭, 从PA3开始, 系统的复杂度开始逐渐上升, 越来越多的抽象层将会加入进来, 系统也开始逐渐完善, 应用也将更加真实.
+PA3 is a watershed for the entire PA. Starting from PA3, the complexity of the system begins to gradually increase, more and more abstraction layers will be added, the system will begin to gradually improve, and the applications will become more realistic.
 
-这意味着, bug的传播链条会变得更复杂, 调试也越来越考验你对系统行为的理解. 如果你之前调bug都是抱大腿, 并没有在调试过程中去理解系统的细节, 你会发现在PA3中自己和大腿的差距正在迅速扩大: 大腿对整个系统的掌握越来越熟练, 而你则是越往前就越觉得寸步难行, 例如讲义和代码越来越看不懂, bug越来越神秘.
+This means that the bug propagation chain will become more complex, and debugging will increasingly test your understanding of system behavior. If you used to get help from others and did not understand the details of the system during the debugging process, you will find that the gap between you and others is rapidly widening in PA3: others are becoming more and more proficient in mastering the entire system, while you find it more and more difficult to move forward as you go forward. For example, the handouts and codes become increasingly difficult to understand, and the bugs become more and more difficult to understand. Getting more and more mysterious.
 
-亡羊补牢的方法只有一个: 真的不能再偷懒了.
+There is only one way to remedy the situation: you really can’t be lazy anymore.
 
-我们在PA2中已经实现了一个冯诺依曼计算机系统, 并且已经在AM上把打字游戏和FCEUX运行起来了. 有了IOE, 就几乎能把各种小游戏移植到AM上来运行了. 这些小游戏在计算机上的运行模式有一个特点, 它们会独占整个计算机系统: 我们可以在NEMU上一直玩打字游戏, 不想玩的时候, 我们就会退出NEMU, 然后重新运行FCEUX来玩.
+We have implemented a von Neumann computer system in PA2, and have run typing games and FCEUX on AM. With IOE, almost all kinds of small games can be transplanted to AM to run. These small games running mode on the computer have one characteristic that they will monopolize the entire computer system: we can always play typing games on NEMU. When we don't want to play, we will exit NEMU and re-run FCEUX to play.
 
-事实上, 早期的计算机就是这样工作的: 系统管理员给计算机加载一个特定的程序(其实是上古时期的打孔卡片), 计算机就会一直执行这个程序, 直到程序结束或者是管理员手动终止, 然后再由管理员来手动加载下一个程序. 当年的程序也远远不如你玩的超级玛丽这么酷炫, 大多都是一些科学计算和物理建模的任务(比如弹道轨迹计算).
+In fact, this is how early computers worked: the system administrator loaded a specific program (actually a punch card from ancient times) into the computer, and the computer would continue to execute the program until the program ended or the administrator manually terminated it. Then the administrator manually loads the next program. The programs back then were far from as cool as the Super Mario you played, and most of them were scientific calculations and physical modeling tasks (such as ballistic trajectory calculations).
 
-后来人们就想, 每次都要管理员来手动加载新的程序, 这太麻烦了. 回想起冯诺依曼计算机的工作方式, 它的其中一个特点就是: 当计算机执行完一条指令的时候, 就自动执行下一条指令. 类似的, 我们能不能让管理员事先准备好一组程序, 让计算机执行完一个程序之后, 就自动执行下一个程序呢?
+Later, people thought that it would be too troublesome for the administrator to manually load new programs every time. Recalling the way the von Neumann computer works, one of its characteristics is: when the computer completes executing an instruction, Then automatically execute the next instruction. Similarly, can we let the administrator prepare a set of programs in advance, and let the computer automatically execute the next program after executing one program?
 
-这就是[批处理open in new window](https://en.wikipedia.org/wiki/Batch_processing)系统的思想, 有了批处理系统之后, 就可以解放管理员的双手了. 而批处理系统的关键, 就是要有一个后台程序, 当一个前台程序执行结束的时候, 后台程序就会自动加载一个新的前台程序来执行.
+That is the concept of [Batch Processing System](https://en.wikipedia.org/wiki/Batch_processing), With the batch processing system, the administrator's hands can be freed. The key to the batch processing system is to have a background program. When a foreground program ends, the background program will automatically load a new foreground program to execute.
 
-这样的一个后台程序, 其实就是操作系统. 对, 你没有听错, 这个听上去好像什么都没做的后台程序, 真的是操作系统! 说起操作系统, 也许你会马上想到安装包都有几个GB的Windows. 但实际上, 历史上最早投入使用的操作系统[GM-NAA I/Oopen in new window](https://en.wikipedia.org/wiki/GM-NAA_I/O)在1956年就诞生了, 而它的一个主要任务, 就是上文提到的"自动加载新程序".
+Such a background program is actually an operating system. Yes, you heard it right, this background program that sounds like it does nothing is really an operating system! Speaking of operating systems, you may immediately think of Windows with several GB of installation packages. But in fact, the earliest operating system [GM-NAA I](https://en.wikipedia.org/wiki/GM-NAA_I/O) put into use in history was born in 1956, and one of its main tasks is to Go to "Automatically load new programs".
 
 #### 什么是操作系统? (建议二周目思考)
 
