@@ -257,23 +257,23 @@ In order to better encapsulate the IOE functionality, we provide a multimedia li
     uint32_t NDL_GetTicks();
     
 
-#### 实现NDL的时钟
+#### Implementing the NDL clock
 
-你需要用`gettimeofday()`实现`NDL_GetTicks()`, 然后修改`timer-test`测试, 让它通过调用`NDL_GetTicks()`来获取当前时间. 你可以根据需要在`NDL_Init()`和`NDL_Quit()`中添加初始化代码和结束代码, 我们约定程序在使用NDL库的功能之前必须先调用`NDL_Init()`. 如果你认为无需添加初始化代码, 则无需改动它们.
+You need to implement `NDL_GetTicks()` with `gettimeofday()`, and then modify the `timer-test` test so that it gets the current time by calling `NDL_GetTicks()`. You can add initialization and termination code to `NDL_Init()` and `NDL_Quit()` as needed, and we assume that a program must call `NDL_Init()` before it can use the functions of the NDL library. If you don't think you need to add the initialization code, don't change it.
 
-另一个输入设备是键盘, 按键信息对系统来说本质上就是到来了一个事件. 一种简单的方式是把事件以文本的形式表现出来, 我们定义以下两种事件,
+The other input device is the keyboard, and keystroke information is essentially an event to the system. A simple way to represent events as text is to define the following two types of events,
 
-*   按下按键事件, 如`kd RETURN`表示按下回车键
-*   松开按键事件, 如`ku A`表示松开`A`键
+*   Key press events, e.g. `kd RETURN` for a press of the Enter key
+*   Key release events, e.g. `ku A` means release `A` key
 
-按键名称与AM中的定义的按键名相同, 均为大写. 此外, 一个事件以换行符`\n`结束.
+Key names are the same as those defined in AM, in all capital letters. In addition, an event is terminated with a line break `\n`.
 
-我们采用文本形式来描述事件有两个好处, 首先文本显然是一种字节序列, 这使得事件很容易抽象成文件; 此外文本方式使得用户程序可以容易可读地解析事件的内容. Nanos-lite和Navy约定, 上述事件抽象成一个特殊文件`/dev/events`, 它需要支持读操作, 用户程序可以从中读出按键事件, 但它不必支持`lseek`, 因为它是一个字符设备.
+Our use of text to describe events has two advantages. First, text is obviously a sequence of bytes, which makes it easy to abstract events into files; and text makes it easy for a user program to readably parse the contents of an event. Nanos-lite and Navy assume that such events are abstracted into a special file `/dev/events`, which needs to be readable so that a user program can read out keystrokes from it, but it doesn't need to support `lseek` because it's a character device.
 
-NDL向用户提供了一个和按键事件相关的API:
+NDL provides the user with an API for keystroke events:
 
-    // 读出一条事件信息, 将其写入`buf`中, 最长写入`len`字节
-    // 若读出了有效的事件, 函数返回1, 否则返回0
+    // Read an event message, write it to `buf`, up to `len` bytes
+    // If a valid event is read, the function returns 1, otherwise it returns 0
     int NDL_PollEvent(char *buf, int len);
     
 
