@@ -1,4 +1,4 @@
-[#](#A Journey Through Time: Batch Processing System) PA3 - A Journey Through Time: Batch Processing System
+[#](#A-Journey-Through-Time-Batch-Processing-System) PA3 - A Journey Through Time: Batch Processing System
 ============================================
 
 #### The story of the birth of the world - Chapter 3
@@ -23,4 +23,4 @@ Before proceeding with this PA, please run the following commands in the project
 
 *   task PA3.1: Implement self-trap operation `yield()`
 *   task PA3.2: Implement loading for guest programs and system calls to support execution of TRM programs
-*   task PA3.3: task PA3.3: Run Xian Jian Qi Xia Zhuan (also called Chinese PAL) and demonstrate the batch processing system, and submit a complete lab report
+*   task PA3.3: Run Xian Jian Qi Xia Zhuan (also called Chinese PAL) and demonstrate the batch processing system, and submit a complete lab report
