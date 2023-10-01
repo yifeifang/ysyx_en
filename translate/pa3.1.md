@@ -1,4 +1,4 @@
-[#](#Batch Processing System) Batch Processing System
+[#](#Batch-Processing-System) Batch Processing System
 =================
 
 #### There are no bugs that cannot be fixed, only systems that we do not understand
@@ -23,7 +23,7 @@ Such a background program is actually an operating system. Yes, you heard it rig
 
 This is a big deal, and we encourage you to come back and revisit it after taking the operating system course.
 
-### [#](#The simplest operating system) The simplest operating system
+### [#](#The-simplest-operating-system) The simplest operating system
 
 Seeing is believing, let’s first show how simple the operating system can be. The operating system used in PA is called Nanos-lite, which is a tailored version of Nanjing University’s operating system Nanos. It is an operating system tailor-made for PA . By writing Nanos-lite code, you will realize how the operating system uses the mechanisms provided by the hardware (that is, ISA and AM) to support the running of the program, which is also in line with the ultimate goal of PA. As for the full version of Nanos , you will see its true colors in the operating system course next semester.
 
@@ -89,13 +89,13 @@ The operating system provided by the framework code really does nothing! Looking
 *   After the user program is executed, it can jump to the operating system code to continue execution.
 *   The operating system can load a new user program to execute
 
-### [#](#来自操作系统的新需求) 来自操作系统的新需求
+### [#](#New-requirements-from-the-operating-system) New requirements from the operating system
 
-仔细思考, 我们就会发现, 上述两点功能中其实蕴含着一个新的需求: 程序之间的执行流切换. 我们知道函数调用一般是在一个程序内部发生的(动态链接库除外), 属于程序内部的执行流切换, 使用call/jal指令即可实现. 而上述两点需求需要在操作系统和用户程序之间进行执行流的切换. 不过, 执行流切换的本质, 也只是把PC从一个值修改成另一个值而已(黑客眼中就是这么理解的). 那么, 我们能否也使用call/jal指令来实现程序之间的执行流切换呢?
+If we think about it carefully, we will find that the above two functions actually contain a new requirement: execution flow switching between programs. We know that function calls generally occur within a program (except for dynamic link libraries), and are execution flow switching within the program, which can be achieved using the call/jal instruction. The above two requirements require execution flow switching between the operating system and the user program. However, the essence of execution flow switching is just to modify the PC from one value to another value (this is how hackers understand it). So, can we also use the call/jal instruction to switch the execution flow between programs?
 
-也许在GM-NAA I/O诞生的那个年代, 大家说不定还真是这样做的: 操作系统就是一个库函数, 用户程序退出的时候, 调用一下这个特殊的库函数就可以了, 就像我们在AM的程序中调用`halt()`一样. 不过, 后来人们逐渐认识到, 操作系统和其它用户程序还是不太一样的: 一个用户程序出错了, 操作系统可以运行下一个用户程序; 但如果操作系统崩溃了, 整个计算机系统都将无法工作. 所以, 人们还是希望能把操作系统保护起来, 尽量保证它可以正确工作.
+Maybe in the era when GM-NAA I/O was born, everyone might actually do this: the operating system is a library function, and when the user program exits, just call this special library function, just like we call `halt()` in AM programs. However, later people gradually realized that the operating system is still different from other user programs: if one user program fails, the operating system can run the next user program; but if the operating system crashes, the entire computer system will not work. Therefore, people still hope to protect the operating system and try to ensure that it can work correctly.
 
-在这个需求面前, 用call/jal指令来进行操作系统和用户进程之间的切换就显得太随意了. 操作系统的本质也是一个程序, 也是由函数构成的, 但无论用户程序是无意还是有心, 我们都不希望它可以把执行流切换到操作系统中的任意函数. 我们所希望的, 是一种可以限制入口的执行流切换方式, 显然, 这种方式是无法通过程序代码来实现的.
+In the face of this demand, it seems too arbitrary to use the call/jal instruction to switch between the operating system and the user process. The essence of the operating system is also a program, and it is also composed of functions. However, no matter whether the user program is unintentional or intentional, we do not want it to be able to switch the execution flow to any function in the operating system. What we hope for is an execution flow switching method that can limit the entry point. Obviously, this method cannot be implemented through program code.
 
 ### [#](#等级森严的制度) 等级森严的制度
 
