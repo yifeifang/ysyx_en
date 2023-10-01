@@ -18,9 +18,9 @@ In Linux, there are a number of GUI programs developed using the SDL library. Th
 
 We can use NDL to support the underlying implementation of miniSDL, allowing miniSDL to provide more functionality to user programs, so that we can run more complex programs on Navy. The APIs in miniSDL have the same name as SDL, you can [RTFM](https://www.libsdl.org/release/SDL-1.2.15/docs/) to check the behavior of these APIs. Also, most of the APIs in miniSDL are not implemented, so you'd better find a way to be alerted when a program uses an unimplemented API, otherwise you may have trouble understanding the unintended behavior of the resulting complex program.
 
-#### 一定要通过RTFM了解SDL API的行为
+#### Be sure to understand the behavior of the SDL API via RTFM
 
-我们在讲义中只会概括地介绍这些API的作用, 请你务必查阅SDL手册来理解它们的具体行为.
+We will only give a general overview of what these APIs do in the handout, so be sure to consult the SDL manual to understand their specific behavior.
 
 #### [#](#定点算术) 定点算术
 
