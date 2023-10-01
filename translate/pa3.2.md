@@ -231,9 +231,9 @@ We know that when making a function call, we also need to save the caller's stat
 
 Next, the code will call the C function `__am_irq_handle()` (defined in `abstract-machine/am/src/$ISA/nemu/cte.c`) to handle exceptions.
 
-#### 诡异的x86代码
+#### Weird x86 code
 
-x86的`trap.S`中有一行`pushl %esp`的代码, 乍看之下其行为十分诡异. 你能结合前后的代码理解它的行为吗? Hint: 程序是个状态机.
+There is a line of code called `pushl %esp` in `trap.S` of x86. At first glance, its behavior is very strange. Can you understand its behavior by combining the preceding and following codes? Hint: The program is a state machine.
 
 #### 重新组织\`Context\`结构体
 
