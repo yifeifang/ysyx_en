@@ -81,13 +81,13 @@ To answer the rest of the questions, we first need to understand how executables
 
 We mentioned that the code and data are in the executable, but we didn't mention the heap and stack. Why aren't the contents of the heap and stack in the executable? And where do the heap and stack come from when the program is running? Does AM's code give you any ideas?
 
-#### 如何识别不同格式的可执行文件?
+#### How to recognize executables in different formats?
 
-如果你在GNU/Linux下执行一个从Windows拷过来的可执行文件, 将会报告"格式错误". 思考一下, GNU/Linux是如何知道"格式错误"的?
+If you execute an executable file under GNU/Linux that was copied from Windows, it will report a "format error". Think about it, how does GNU/Linux know about "formatting errors"?
 
-ELF文件提供了两个视角来组织一个可执行文件, 一个是面向链接过程的section视角, 这个视角提供了用于链接与重定位的信息(例如符号表); 另一个是面向执行的segment视角, 这个视角提供了用于加载可执行文件的信息. 通过`readelf`命令, 我们还可以看到section和segment之间的映射关系: 一个segment可能由0个或多个section组成, 但一个section可能不被包含于任何segment中.
+ELF files provide two perspectives for organizing an executable, a section perspective for the linking process, which provides information for linking and relocating (e.g., symbol tables), and an execution-oriented segment perspective, which provides information for loading the executable. With the `readelf` command, we can also see the mapping between sections and segments: a segment may consist of zero or more sections, but a section may not be included in any segment.
 
-我们现在关心的是如何加载程序, 因此我们重点关注segment的视角. ELF中采用program header table来管理segment, program header table的一个表项描述了一个segment的所有属性, 包括类型, 虚拟地址, 标志, 对齐方式, 以及文件内偏移量和segment大小. 根据这些信息, 我们就可以知道需要加载可执行文件的哪些字节了, 同时我们也可以看到, 加载一个可执行文件并不是加载它所包含的所有内容, 只要加载那些与运行时刻相关的内容就可以了, 例如调试信息和符号表就不必加载. 我们可以通过判断segment的`Type`属性是否为`PT_LOAD`来判断一个segment是否需要加载.
+We are now interested in how to load the program, so we focus on the segment perspective. ELF uses a program header table to manage segments. A table entry in the program header table describes all the attributes of a segment, including its type, virtual address, flags, alignment, as well as its in-file offset and segment size. Based on this information, we know which bytes of the executable need to be loaded, and we can also see that loading an executable is not about loading all the content it contains, but only those that are relevant to the moment of operation, such as debugging information and symbol tables do not need to be loaded. We can tell if a segment needs to be loaded by determining if its `Type` attribute is `PT_LOAD`.
 
 #### 冗余的属性?
 
