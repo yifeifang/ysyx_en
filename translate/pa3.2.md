@@ -142,13 +142,13 @@ In other words, AM's runtime environment does not support floating point numbers
 
 Different from the fixed-point instructions in PA2, floating-point instructions are rarely used in PA, and we have other ways to get around it, so we just do it as simple as possible, so let’s do UB. Of course, if you are interested, you can also consider implementing a simplified version of FPU. After all, it is UB, and if your FPU behaves correctly, it does not violate the regulations.
 
-#### 另一个UB
+#### Another UB
 
-另一种你可能会碰到的UB是栈溢出, 对, 就是stackoverflow的那个. 检测栈溢出需要一个更强大的运行时环境, AM肯定是无能为力了, 于是就UB吧.
+Another type of UB you may encounter is stack overflow, yes, the one on stackoverflow. Detecting stack overflow requires a more powerful runtime environment, and AM is definitely powerless, so let's use UB.
 
-不过, AM究竟给程序提供了多大的栈空间呢? 事实上, 如果你在PA2的时候尝试努力了解每一处细节, 你已经知道这个问题的答案了; 如果你没有, 你需要反思一下自己了, 还是认真RTFSC吧.
+However, how much stack space does AM provide to the program? In fact, if you tried to understand every detail in PA2, you already know the answer to this question; if you don't, you need to reflect on yourself and take RTFSC seriously.
 
-所以, 我们只要把这两点信息抽象成一种统一的表示方式, 就可以定义出CTE的API了. 对于切换原因, 我们只需要定义一种统一的描述方式即可. CTE定义了名为"事件"的如下数据结构(见`abstract-machine/am/include/am.h`):
+Therefore, as long as we abstract these two pieces of information into a unified representation, we can define the API of CTE. For the cause of event, we only need to define a unified description method. CTE defines the following data structure named "event" (see `abstract-machine/am/include/am.h`):
 
     typedef struct Event {
       enum { ... } event;
@@ -157,18 +157,18 @@ Different from the fixed-point instructions in PA2, floating-point instructions 
     } Event;
     
 
-其中`event`表示事件编号, `cause`和`ref`是一些描述事件的补充信息, `msg`是事件信息字符串, 我们在PA中只会用到`event`. 然后, 我们只要定义一些统一的事件编号(上述枚举常量), 让每个架构在实现各自的CTE API时, 都统一通过上述结构体来描述执行流切换的原因, 就可以实现切换原因的抽象了.
+Among them, `event` represents the event number, `cause` and `ref` are some supplementary information describing the event, `msg` is the event information string, we will only use `event` in PA. Then, we only need to define some unified event numbers (the above-mentioned enumeration constants), so that when each architecture implements its own CTE API, it can uniformly describe the cause for execution flow switching through the above-mentioned structures, so that the abstraction of the switching cause can be achieved.
 
-对于上下文, 我们只能将描述上下文的结构体类型名统一成`Context`, 至于其中的具体内容, 就无法进一步进行抽象了. 这主要是因为不同架构之间上下文信息的差异过大, 比如mips32有32个通用寄存器, 就从这一点来看, mips32和x86的`Context`注定是无法抽象成完全统一的结构的. 所以在AM中, `Context`的具体成员也是由不同的架构自己定义的, 比如`x86-nemu`的`Context`结构体在`abstract-machine/am/include/arch/x86-nemu.h`中定义. 因此, 在操作系统中对`Context`成员的直接引用, 都属于架构相关的行为, 会损坏操作系统的可移植性. 不过大多数情况下, 操作系统并不需要单独访问`Context`结构中的成员. CTE也提供了一些的接口, 来让操作系统在必要的时候访问它们, 从而保证操作系统的相关代码与架构无关.
+For context, we can only unify the structure type name that describes the context into `Context`. As for the specific content, we cannot further abstract it. This is mainly because the context information between different architectures is too different. For example, mips32 has 32 general-purpose registers. From this point of view, the `Context` of mips32 and x86 is destined to be unable to be abstracted into a completely unified structure. Therefore, in AM, the specific members of `Context` are also defined by different architectures. For example, the `Context` structure of `x86-nemu` is defined in `abstract-machine/am/include/arch/x86-nemu.h`. Therefore, direct references to `Context` members in the operating system are architecture-related behaviors and will damage the portability of the operating system. However, in most cases, the operating system does not need to access the members in the `Context` structure separately. CTE also provides some interfaces to allow the operating system to access them when necessary, thereby ensuring that the relevant code of the operating system has nothing to do with the architecture.
 
-最后还有另外两个统一的API:
+Finally there are two other unified APIs:
 
-*   `bool cte_init(Context* (*handler)(Event ev, Context *ctx))`用于进行CTE相关的初始化操作. 其中它还接受一个来自操作系统的事件处理回调函数的指针, 当发生事件时, CTE将会把事件和相关的上下文作为参数, 来调用这个回调函数, 交由操作系统进行后续处理.
-*   `void yield()`用于进行自陷操作, 会触发一个编号为`EVENT_YIELD`事件. 不同的ISA会使用不同的自陷指令来触发自陷操作, 具体实现请RTFSC.
+*   `bool cte_init(Context* (*handler)(Event ev, Context *ctx))` used to perform CTE-related initialization operations. It also accepts a pointer to the event processing callback function from the operating system. When an event occurs, CTE will use the event and related context as parameters to call this callback function and leave it to the operating system for subsequent processing.
+*   `void yield()` is used to perform a self-trap operation, which will trigger an event numbered `EVENT_YIELD`. Different ISAs will use different self-trap instructions to trigger a self-trap operation. For specific implementation, please RTFSC.
 
-CTE中还有其它的API, 目前不使用, 故暂不介绍它们.
+There are other APIs in CTE that are not currently used, so we will not introduce them yet.
 
-接下来, 我们将尝试在Nanos-lite中触发一次自陷操作, 来梳理过程中的细节.
+Next, we will try to trigger a trap operation in Nanos-lite to sort out the details of the process.
 
 ### [#](#设置异常入口地址) 设置异常入口地址
 
