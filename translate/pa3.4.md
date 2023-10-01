@@ -315,13 +315,13 @@ The functionality of `NDL_DrawRect()` is very similar to the drawing interface i
 
 Let Nanos-lite run `navy-apps/tests/bmp-test`, since it doesn't have drawing capabilities yet, you can't output the image content, but you can first output the parsed screen size via `printf()`.
 
-#### 把VGA显存抽象成文件
+#### Abstracting VGA frame buffer into a file
 
-*   在`init_fs()`(在`nanos-lite/src/fs.c`中定义)中对文件记录表中`/dev/fb`的大小进行初始化.
-*   实现`fb_write()`(在`nanos-lite/src/device.c`中定义), 用于把`buf`中的`len`字节写到屏幕上`offset`处. 你需要先从`offset`计算出屏幕上的坐标, 然后调用IOE来进行绘图. 另外我们约定每次绘图后总是马上将frame buffer中的内容同步到屏幕上.
-*   在NDL中实现`NDL_DrawRect()`, 通过往`/dev/fb`中的正确位置写入像素信息来绘制图像. 你需要梳理清楚系统屏幕(即frame buffer), `NDL_OpenCanvas()`打开的画布, 以及`NDL_DrawRect()`指示的绘制区域之间的位置关系.
+*   Initialize the size of `/dev/fb` in the file list in `init_fs()` (defined in `nanos-lite/src/fs.c`).
+*   Implement `fb_write()` (defined in `nanos-lite/src/device.c`) to write `len` bytes from `buf` to `offset` on the screen. You need to calculate the coordinates on the screen from `offset`, and then call IOE to draw. In addition, we agree to always synchronize the contents of the frame buffer to the screen immediately after each drawing.
+*   Implement `NDL_DrawRect()` in NDL to draw an image by writing pixel information to the correct location in `/dev/fb`. You need to figure out the relationship between the system screen (i.e. the frame buffer), the canvas opened by `NDL_OpenCanvas()`, and the drawing area indicated by `NDL_DrawRect()`.
 
-让Nanos-lite运行`navy-apps/tests/bmp-test`, 如果实现正确, 你将会看到屏幕上显示Project-N的logo.
+Let Nanos-lite run `navy-apps/tests/bmp-test`, and if implemented correctly, you will see the Project-N logo displayed on the screen.
 
 #### 实现居中的画布
 
