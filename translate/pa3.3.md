@@ -287,16 +287,16 @@ In fact, it is possible to implement a simple strace in Nanos-lite: Nanos-lite g
 
 Implementing strace in Nanos-lite is a very simple task.
 
-### [#](#操作系统之上的trm) 操作系统之上的TRM
+### [#](#TRM-for-operating-system) TRM for operating system
 
-我们已经实现了两个很简单的系统调用了, 那么在当前的Nanos-lite上, 用户程序还可以做什么呢? 你也许想起我们在PA2中是如何对程序的需求分类的了, 那就是AM! 最基本的, TRM向我们展示了, 为了满足程序的基本计算能力, 需要有哪些条件:
+We have implemented two very simple system calls, so what else can a user program do on the current Nanos-lite? You may recall how we categorized the needs of programs in PA2: AM! At the most basic level, the TRM shows us what is required in order to satisfy a program's basic computational capabilities:
 
-*   机器提供基本的运算指令
-*   能输出字符
-*   有堆区可以动态申请内存
-*   可以结束运行
+*   The machine provides basic arithmetic instructions
+*   Can output characters
+*   There are heap areas where memory can be dynamically requested
+*   You can terminate the program
 
-基本的运算指令还是得靠机器提供, 也就是你在PA2中已经实现的指令系统. 至于结束运行, `SYS_exit`系统调用也已经提供了. 为了向用户程序提供输出字符和内存动态申请的功能, 我们需要实现更多的系统调用.
+The basic arithmetic instructions are still provided by the machine, i.e. the instruction system you have implemented in PA2. For termination, the `SYS_exit` system call is also provided. In order to provide the user program with the ability to output characters and request memory dynamically, we need to implement more system calls.
 
 #### [#](#标准输出) 标准输出
 
