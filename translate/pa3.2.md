@@ -250,9 +250,9 @@ After implementation, you can output the contents of context `c` through `printf
 
 There is nothing much to say about "Implementing new instructions". You have already implemented many instructions in PA2. "Reorganizing structures" is a very interesting topic. If you don't know what to do, you might as well start by understanding the task. The general meaning of the task is to define a structure in `$ISA-nemu.h` based on the content in `trap.S`. `trap.S` is obviously assembly code, while `$ISA-nemu.h` contains a structure defined in C language. Assembly code and C language... Wait, you seem to remember some content from the ICS textbook...
 
-#### 我乱改一通, 居然过了, 嘿嘿嘿
+#### I made some random corrections and actually passed, hahaha
 
-如果你还抱着这种侥幸心态, 你在PA3中会过得非常痛苦. 事实上, "明白如何正确重新组织结构体"是PA3中非常重要的内容. 所以我们还是加一道必答题吧.
+If you still have this kind of luck mentality, you will have a very painful life in PA3. In fact, "understanding how to reorganize structures correctly" is a very important content in PA3. So let's add a required question.
 
 #### 必答题(需要在实验报告中回答) - 理解上下文结构体的前世今生
 
