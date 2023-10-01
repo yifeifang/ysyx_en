@@ -131,9 +131,9 @@ You need to implement `fs_open()`, `fs_read()` and `fs_close()`, so that you can
 
 Once this is implemented, changing the user program in the future will only require changing the filename passed to the `naive_uload()` function.
 
-#### 实现完整的文件系统
+#### Implementing a complete file system
 
-实现`fs_write()`和`fs_lseek()`, 然后运行测试程序`navy-apps/tests/file-test`. 为了编译它, 你需要把它加到`navy-apps/Makefile`的`TESTS`变量中, 这样它最终就会被包含在ramdisk镜像中. 这个测试程序用于进行一些简单的文件读写和定位操作. 如果你的实现正确, 你将会看到程序输出`PASS!!!`的信息.
+Implement `fs_write()` and `fs_lseek()`, then run the test program `navy-apps/tests/file-test`. In order to compile it, you need to add it to the `TESTS` variable of `navy-apps/Makefile`, so that it will eventually be included in the ramdisk image. This test program is used to perform some simple file reading, writing and positioning operations. If your implementation is correct, you will see the program output the `PASS!!!` message.
 
 #### 记得更新应用程序列表
 
