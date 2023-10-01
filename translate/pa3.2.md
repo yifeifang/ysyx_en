@@ -87,15 +87,15 @@ The hardware response process after riscv32 triggers an exception is as follows:
 
 It should be noted that the above-mentioned work of saving the program state and jumping to the exception entry address is automatically completed by the hardware, and the programmer does not need to write instructions to complete the corresponding content. In fact, this is just a simplified process. There are many details that need to be dealt with on a real computer, such as privilege level switching between x86 and riscv32, etc. We will not go into details here. The ISA manual also records the allocation of interrupt numbers and exception numbers by the processor, and lists detailed explanations of various exceptions, which you can refer to when you need to know more.
 
-#### 特殊的原因? (建议二周目思考)
+#### Special reason? (It is recommended to think about it in the second trail)
 
-这些程序状态(x86的eflags, cs, eip; mips32的epc, status, cause; riscv32的mepc, mstatus, mcause)必须由硬件来保存吗? 能否通过软件来保存? 为什么?
+Do these program states (eflags, cs, eip of x86; epc, status, cause of mips32; mepc, mstatus, mcause of riscv32) have to be saved by hardware? Can they be saved by software? Why?
 
-由于异常入口地址是硬件和操作系统约定好的, 接下来的处理过程将会由操作系统来接管, 操作系统将视情况决定是否终止当前程序的运行(例如触发段错误的程序将会被杀死). 若决定无需杀死当前程序, 等到异常处理结束之后, 就根据之前保存的信息恢复程序的状态, 并从异常处理过程中返回到程序触发异常之前的状态. 具体地:
+Since the exception entry address is agreed between the hardware and the operating system, the subsequent processing will be taken over by the operating system. The operating system will decide whether to terminate the current program based on the situation (for example, the program that triggers a segmentation fault will be killed). If it is decided that there is no need to kill the current program, wait until the exception handling is completed, restore the state of the program based on the previously saved information, and return from the exception handling process to the state before the program triggered the exception. Specifically:
 
-*   x86通过`iret`指令从异常处理过程中返回, 它将栈顶的三个元素来依次解释成eip, cs, eflags, 并恢复它们.
-*   mips32通过`eret`指令从异常处理过程中返回, 它将清除status寄存器中的异常标志, 并根据epc寄存器恢复PC.
-*   riscv32通过`mret`指令从异常处理过程中返回, 它将根据mepc寄存器恢复PC.
+*   x86 returns from the exception handling process through the `iret` instruction, which interprets the three elements on the top of the stack into eip, cs, eflags, and restores them.
+*   mips32 returns from the exception handling process through the `eret` instruction, which will clear the exception flag in the status register and restore the PC according to the epc register.
+*   riscv32 returns from the exception handling process through the `mret` instruction, which will restore the PC according to the mepc register.
 
 ### [#](#状态机视角下的异常响应机制) 状态机视角下的异常响应机制
 
