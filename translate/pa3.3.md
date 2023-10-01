@@ -219,15 +219,15 @@ Under this model, the user program can only "compute" in the user area, and any 
 
 Just because the operating system needs to serve the user program does not mean that the operating system needs to expose all information to the user program. There is information that the user program does not need to know and should never know, such as data structures related to memory management. If a malicious program obtains this information, it may provide the basis for a malicious attack. For this reason, there is usually no system call to obtain such private data from the operating system.
 
-### [#](#系统调用) 系统调用
+### [#](#System-call) System call
 
-那么, 触发一个系统调用的具体过程是怎么样的呢?
+So, what is the process of triggering a system call?
 
-现实生活中的经验可以给我们一些启发: 我们到银行办理业务的时候, 需要告诉工作人员要办理什么业务, 账号是什么, 交易金额是多少, 这无非是希望工作人员知道我们具体想做什么. 用户程序执行系统调用的时候也是类似的情况, 要通过一种方法描述自己的需求, 然后告诉操作系统.
+Real-life experience can give us some inspiration: when we go to a bank, we need to tell the staff what we want to do, what our account number is, and how much the transaction will be, just because we want the staff to know exactly what we want to do. A user program executing a system call is in a similar situation, it has to describe its needs in a way, and then tell the operating system.
 
-说起"告诉操作系统", 你应该马上想起来, 这是通过自陷指令来实现的. 在GNU/Linux中, 用户程序通过自陷指令来触发系统调用, Nanos-lite也沿用这个约定. CTE中的`yield()`也是通过自陷指令来实现, 虽然它们触发了不同的事件, 但从上下文保存到事件分发, 它们的过程都是非常相似的. 既然我们通过自陷指令来触发系统调用, 那么对用户程序来说, 用来向操作系统描述需求的最方便手段就是使用通用寄存器了, 因为执行自陷指令之后, 执行流就会马上切换到事先设置好的入口, 通用寄存器也会作为上下文的一部分被保存起来. 系统调用处理函数只需要从上下文中获取必要的信息, 就能知道用户程序发出的服务请求是什么了.
+Speaking of "telling the operating system", you should immediately recognize that this is done by means of a trapping instruction. In GNU/Linux, the user program triggers a system call with a trap instruction, and Nanos-lite follows this convention. CTE's `yield()` is also implemented as a trapping instruction, and although they trigger different events, the process from context saving to event distribution is very similar. Since we are triggering the system call with a trapping instruction, the most convenient way for a user program to describe its requirements to the operating system is to use the general purpose registers, because after executing the trapping instruction, the execution flow switches to the predefined entry point, and the general purpose registers are saved as part of the context. The system call handler only needs to get the necessary information from the context to know what the user program is requesting.
 
-Navy已经为用户程序准备好了系统调用的接口了. `navy-apps/libs/libos/src/syscall.c`中定义的`_syscall_()`函数已经蕴含着上述过程:
+Navy has already prepared the system call interface for the user program. The `_syscall_()` function defined in `navy-apps/libs/libos/src/syscall.c` already implies the above process.
 
     intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
       // ...
@@ -236,7 +236,7 @@ Navy已经为用户程序准备好了系统调用的接口了. `navy-apps/libs/l
     }
     
 
-上述代码会先把系统调用的参数依次放入寄存器中, 然后执行自陷指令. 由于寄存器和自陷指令都是ISA相关的, 因此这里根据不同的ISA定义了不同的宏, 来对它们进行抽象. CTE会将这个自陷操作打包成一个系统调用事件`EVENT_SYSCALL`, 并交由Nanos-lite继续处理.
+The above code puts the arguments of the system call into the registers first, and then executes the trapping instruction. Since the registers and the syscall are both ISA-related, different macros are defined to abstract from them, depending on the ISA. The CTE packages this trap operation into a system call event `EVENT_SYSCALL`, which is passed on to Nanos-lite for further processing.
 
 #### 识别系统调用
 
