@@ -315,9 +315,9 @@ Exceptions thrown by the processor can also reflect the behavior of program exec
 
 In fact, QEMU and Spike also implement functions similar to etrace. If an error occurs in the system software running on them, developers can use these functions to quickly locate and diagnose the bug.
 
-#### 实现etrace
+#### Implement etrace
 
-你已经在NEMU中实现了很多trace工具了, 要实现etrace自然也难不倒你啦.
+You have already implemented many trace tools in NEMU, so it will not be difficult for you to implement etrace.
 
 #### 温馨提示
 
