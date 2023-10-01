@@ -158,16 +158,16 @@ You need to implement the loader function in Nanos-lite to load the user program
 
 Once implemented, call `naive_uload(NULL, NULL)` in `init_proc()`, which will call your implemented loader to load the first user program, and then jump to the user program for execution. If your implementation is correct, you will see an unhandled event #4 triggered in Nanos-lite when the `dummy` program is executed. This means that the loader has successfully loaded dummy, and has successfully jumped into dummy for execution. The unhandled event is described later.
 
-#### 检查ELF文件的魔数
+#### Checking the magic number of an ELF file
 
-我们知道ELF文件的开头都有一个特殊的魔数, 为了防止loader加载了一个非ELF格式的文件, 我们可以在loader中对魔数进行检查:
+We know that ELF files have a special magic number at the beginning of the file, in order to prevent the loader from loading a file that is not in ELF format, we can check the magic number in the loader:
 
     assert(*(uint32_t *)elf->e_ident == 0xBadC0de);
     
 
-你需要把上述的`0xBadC0de`换成正确的魔数.
+You need to replace the above `0xBadC0de` with the correct magic number.
 
-别小看这个表面上很蠢的`assert()`, 当你哪天手抖不知道做了什么而又被它抓到的时候, 你就知道谢天谢地了.
+Don't underestimate the apparent stupidity of `assert()`, and thank goodness when it catches you one day when your hands are shaking and you don't know what you've done.
 
 #### 检测ELF文件的ISA类型
 
