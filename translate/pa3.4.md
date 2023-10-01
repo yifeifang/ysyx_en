@@ -225,15 +225,15 @@ In Nanos-lite, the key to implementing VFS is the two read/write function pointe
 
 Among them, `ReadFn` and `WriteFn` are two kinds of function pointers, which are used to point to the function that actually reads or writes and returns the number of bytes successfully read or written. With these two function pointers, we only need to set up different read/write functions for different files in the file record table, and then we can call the specific read/write functions by `f->read()` and `f->write()`.
 
-#### 用C语言模拟面向对象编程
+#### Simulating Object-Oriented Programming in C
 
-VFS的实现展示了如何用C语言来模拟面向对象编程的一些基本概念: 例如通过结构体来实现类的定义, 结构体中的普通变量可以看作类的成员, 函数指针就可以看作类的方法, 给函数指针设置不同的函数可以实现方法的重载...
+The implementation of VFS shows how to simulate some of the basic concepts of object-oriented programming in C: for example, the definition of a class through a structure, ordinary variables in the structure can be regarded as members of the class, function pointers can be regarded as methods of the class, and different functions can be set to function pointers to realize the overloading of methods...
 
-这说明, OOP中那些看似虚无缥缈的概念也没比C语言高级到哪里去, 只不过是OOP的编译器帮我们做了更多的事情, 编译成机器代码之后, OOP也就不存在了. [Object-Oriented Programming With ANSI-Copen in new window](https://www.cs.rit.edu/~ats/books/ooc.pdf) 这本书专门介绍了如何用ANSI-C来模拟OOP的各种概念和功能. 在GNU/Linux的内核代码中, 很多地方也有OOP的影子.
+This suggests that the seemingly nebulous concepts of OOP are no more advanced than in C. It's just that the OOP compiler does more for us, and after compiling into machine code, OOP doesn't exist. [Object-Oriented Programming With ANSI-C](https://www.cs.rit.edu/~ats/books/ooc.pdf) This book is dedicated to simulating OOP concepts and functionality using ANSI-C. There are many places in the GNU/Linux kernel code where OOP is present.
 
-不过在Nanos-lite中, 由于特殊文件的数量很少, 我们约定, 当上述的函数指针为`NULL`时, 表示相应文件是一个普通文件, 通过ramdisk的API来进行文件的读写, 这样我们就不需要为大多数的普通文件显式指定ramdisk的读写函数了.
+However, in Nanos-lite, since the number of special files is very small, we assume that when the above function pointer is `NULL`, it means that the corresponding file is a normal file, which is read/written by the ramdisk API, so that we don't need to explicitly specify the ramdisk read/write functions for most normal files.
 
-我们把文件看成字节序列, 大部分字节序列都是"静止"的, 例如对于ramdisk和磁盘上的文件, 如果我们不对它们进行修改, 它们就会一直位于同一个地方, 这样的字节序列具有"位置"的概念; 但有一些特殊的字节序列并不是这样, 例如键入按键的字节序列是"流动"的, 被读出之后就不存在了, 这样的字节序列中的字节之间只有顺序关系, 但无法编号, 因此它们没有"位置"的概念. 属于前者的文件支持`lseek`操作, 存储这些文件的设备称为"块设备"; 而属于后者的文件则不支持`lseek`操作, 相应的设备称为"字符设备". 真实的操作系统还会对`lseek`操作进行抽象, 我们在Nanos-lite中进行了简化, 就不实现这一抽象了.
+We think of a file as a sequence of bytes, most byte sequences are "static", e.g., for ramdisk and files on disk, if we don't modify them, they will always be located in the same place, such byte sequences have the concept of "location"; but there are some special byte sequences that are not, e.g., byte sequences of typed keys are "flowing", after being read out, such byte sequences will not exist. However, there are some special byte sequences which are not like that, for example, byte sequences typed into a key are "flowing", and after they are read out they don't exist anymore. Files belonging to the former category support the `lseek` operation, and the devices that store them are called "block devices"; files belonging to the latter category do not support the `lseek` operation, and the corresponding devices are called "character devices". Real operating systems also abstract from the `lseek` operation, which we have simplified in Nanos-lite by not implementing it.
 
 ### [#](#操作系统之上的ioe) 操作系统之上的IOE
 
