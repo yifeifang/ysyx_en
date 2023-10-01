@@ -56,25 +56,26 @@ The structure of the Navy sub-project is organized as follows, more instructions
 
 Navy's `Makefile` organization is very similar to `abstract-machine`, you should easily understand it. Among them, `navy-apps/libs/libc` is a project named [Newlib](https://sourceware.org/newlib/), which is a C library specially provided for embedded systems. The function in newlib has extremely low requirements on the runtime environment. This is very friendly to Nanos-lite. We do not have to implement additional functions in Nanos-lite to cooperate with the C library. The entry point of the user program is located in the `_start()` function in `navy-apps/libs/libos/src/crt0/start.S`. `crt` here is the abbreviation of `C RunTime`, and `0` means the beginning. The `_start()` function will call the `call_main()` function in `navy-apps/libs/libos/src/crt0/crt0.c`, and then call the `main()` function of the user program, after returning from the `main()` function, `exit()` will be called to end the operation.
 
-#### C库的代码"总是"对的
+#### C library code is "always" correct
 
-有同学曾经在调bug时认为是C库的代码有bug, 对C库的代码进行修改之后, 果然就可以成功运行了. 事实上, PA的必做内容并不需要修改C库的代码. 修改C库代码使得程序运行成功, 说明有bug的还是你的代码. 修改C库的方式只是在绕开一个你已经发现的bug, 它并没有被解决, 而是回到潜伏的状态, 你很可能会在将来再次遇到它, 解决它所付出的代码也许会更大, 而且遇到的时候你还很难确定它们是不是同一个bug.
+A student once thought that there was a bug in the C library code when he was debugging, and after modifying the C library code, it worked successfully. In fact, the mandatory contents of PA do not need to modify the C library code. Modifying the C library code to make the program run successfully means that the bug is still in your code. By modifying the C library you are bypassing a bug that you have already found, it is not resolved, it goes back to a latent state, you will probably encounter it again in the future, the code required to resolve it may be larger, and when you do encounter it it will be difficult to determine if it is the same bug or not.
 
-总之, 当你决定要投机取巧的时候, 你需要先冷静分析得失, 再做决定.
+In short, when you decide to speculate, you need to calmly analyze the pros and cons before making a decision.
 
-我们要在Nanos-lite上运行的第一个用户程序是`navy-apps/tests/dummy/dummy.c`. 为了避免和Nanos-lite的内容产生冲突, 我们约定目前用户程序需要被链接到内存位置`0x3000000`(x86)或`0x83000000`(mips32或riscv32)附近, Navy已经设置好了相应的选项(见`navy-apps/scripts/$ISA.mk`中的`LDFLAGS`变量). 为了编译dummy, 在`navy-apps/tests/dummy/`目录下执行
+The first user program we want to run on Nanos-lite is `navy-apps/tests/dummy/dummy.c`. In order to avoid conflicts with the contents of Nanos-lite, we have agreed that the current user program needs to be linked near memory location `0x3000000` (x86) or `0x83000000` (mips32 or riscv32), and Navy has set the appropriate options (see `LDFLAGS` variable in `navy-apps/scripts/$ISA.mk`). In order to compile dummy, run 
 
     make ISA=$ISA
     
+in the `navy-apps/tests/dummy/` directory
 
-首次在Navy中编译时会从github上获取Newlib等项目并编译, 编译过程中会出现较多warning, 目前可以忽略它们. 编译成功后把`navy-apps/tests/dummy/build/dummy-$ISA`手动复制并重命名为`nanos-lite/build/ramdisk.img`, 然后在`nanos-lite/`目录下执行
+The first time you compile in Navy, you will get Newlib and other projects from github and compile them, there will be a lot of warnings during the compilation process, so you can ignore them for now. After compilation, copy `navy-apps/tests/dummy/build/dummy-$ISA` and rename it to `nanos-lite/build/ramdisk.img`, and then execute the following in the `nanos-lite/` directory
 
     make ARCH=$ISA-nemu
     
 
-会生成Nanos-lite的可执行文件, 编译期间会把ramdisk镜像文件`nanos-lite/build/ramdisk.img` 包含进Nanos-lite成为其中的一部分(在`nanos-lite/src/resources.S`中实现). 现在的ramdisk十分简单, 它只有一个文件, 就是我们将要加载的用户程序`dummy`, 这其实已经回答了上述第一个问题: 可执行文件位于ramdisk偏移为0处, 访问它就可以得到用户程序的第一个字节.
+The Nanos-lite executable is generated, and the ramdisk image `nanos-lite/build/ramdisk.img` is included as part of Nanos-lite during compilation (implemented in `nanos-lite/src/resources.S`). The ramdisk is now very simple, it has only one file, the user program `dummy`, which will be loaded, which in fact answers the first question above: the executable is located at offset 0 of the ramdisk, and accessing it will give you the first byte of the user program.
 
-为了回答剩下的问题, 我们首先需要了解可执行文件是如何组织的. 你应该已经在课堂上学习过ELF文件格式了, 它除了包含程序本身的代码和静态数据之外, 还包括一些用来描述它们的信息, 否则我们连代码和数据之间的分界线在哪里都不知道. 这些信息描述了可执行文件的组织形式, 不同组织形式形成了不同格式的可执行文件, 例如Windows主流的可执行文件是[PE(Portable Executable)open in new window](https://en.wikipedia.org/wiki/Portable_Executable)格式, 而GNU/Linux主要使用[ELF(Executable and Linkable Format)open in new window](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format)格式. 因此一般情况下, 你不能在Windows下把一个可执行文件拷贝到GNU/Linux下执行, 反之亦然. ELF是GNU/Linux可执行文件的标准格式, 这是因为GNU/Linux遵循System V ABI([Application Binary Interfaceopen in new window](http://stackoverflow.com/questions/2171177/what-is-application-binary-interface-abi)).
+To answer the rest of the questions, we first need to understand how executables are organized. You've already studied the ELF file format in class, which contains not only the code and static data of the program itself, but also some information that describes it, otherwise we wouldn't even know where the boundary between code and data is. This information describes the organization of the executable file, different organization forms different executable file formats, for example, the mainstream Windows executable file is [PE (Portable Executable)](https://en.wikipedia.org/wiki/Portable_Executable) format, while GNU/Linux mainly use [ELF (Executable and Linkable Format)](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) format. Therefore, in general, you cannot copy an executable file from Windows to GNU/Linux and vice versa. ELF is the standard format for GNU/Linux executables because GNU/Linux follows the System V ABI ([Application Binary Interface](http://stackoverflow.com/questions/2171177/what-is-application-binary-interface-abi)).
 
 #### 堆和栈在哪里?
 
