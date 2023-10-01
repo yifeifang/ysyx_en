@@ -306,11 +306,11 @@ In fact, the `printf()`, `cout` libraries and classes that we normally use to fo
 
 By implementing the `SYS_write` system call, we have removed the biggest obstacle to using `printf()`, since after `printf()` formatting the string, will ultimately output it via the `write()` system call. The Newlib library in Navy does this for us.
 
-#### 在Nanos-lite上运行Hello world
+#### Running Hello world on Nanos-lite
 
-Navy中提供了一个`hello`测试程序(`navy-apps/tests/hello`), 它首先通过`write()`来输出一句话, 然后通过`printf()`来不断输出.
+Navy provides a `hello` test program (`navy-apps/tests/hello`), which first outputs a sentence via `write()`, and then keeps outputting it via `printf()`.
 
-你需要实现`write()`系统调用, 然后把Nanos-lite上运行的用户程序切换成`hello`程序来运行.
+You need to implement the `write()` system call, and then switch the user program running on Nanos-lite to run as a `hello` program.
 
 #### [#](#堆区管理) 堆区管理
 
