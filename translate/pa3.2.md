@@ -1,9 +1,9 @@
-[#](#穿越时空的旅程) 穿越时空的旅程
+[#](#A-journey-through-time-and-space) A journey through time and space
 =====================
 
-有了强大的硬件保护机制, 用户程序将无法把执行流切换到操作系统的任意代码了. 但为了实现最简单的操作系统, 硬件还需要提供一种可以限制入口的执行流切换方式. 这种方式就是自陷指令, 程序执行自陷指令之后, 就会陷入到操作系统预先设置好的跳转目标. 这个跳转目标也称为异常入口地址.
+With a powerful hardware protection mechanism, user programs will not be able to switch the execution flow to any code of the operating system. But in order to implement the simplest operating system, the hardware also needs to provide an execution flow switching method that can limit the entry. This method is a self-trap instruction. After the program executes the self-trap instruction, it will fall into a jump target preset by the operating system. This jump target is also called the exception entry address.
 
-这一过程是ISA规范的一部分, 称为中断/异常响应机制. 大部分ISA并不区分CPU的异常和自陷, 甚至是将会在PA4最后介绍的硬件中断, 而是对它们进行统一的响应. 目前我们并未加入硬件中断, 因此先把这个机制简称为"异常响应机制"吧.
+This process is part of the ISA specification and is called the interrupt/exception response mechanism. Most ISAs do not distinguish between CPU exceptions and traps, or even hardware interrupts that will be introduced at the end of PA4, but respond to them uniformly . At present, we have not added hardware interrupts, so let's call this mechanism simply "exception response mechanism".
 
 ### [#](#x86) x86
 
