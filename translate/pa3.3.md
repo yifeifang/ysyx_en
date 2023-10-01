@@ -270,12 +270,12 @@ You need to implement the `SYS_exit` system call, which takes an exit status arg
 
 If you choose RISC-V, you will notice that it does not pass the syscall number through `a0`. In fact, we refer to the RISC-V Linux syscall parameter passing convention: i.e., RISC-V Linux also passes the syscall number through this register. Why do you think RISC-V Linux doesn't use `a0` to pass system call numbers?
 
-#### Linux的系统调用
+#### Linux system calls
 
-你可以通过以下命令查阅Linux系统调用的相关信息:
+You can consult the Linux system calls with the following command.
 
-*   `man syscall` - 查阅不同架构的系统调用约定, 包括参数传递和返回值
-*   `man syscalls` - 查阅Linux中已经实现的系统调用. 噢好多啊, 不过我们在PA中只需要几个系统调用就可以了
+*   `man syscall` - look up the syscall conventions of different architectures, including parameter passing and return values
+*   `man syscalls` - look up the system calls already implemented in Linux. Oh, that's a lot, but we only need a few syscalls in PA.
 
 ### [#](#系统调用的踪迹-strace) 系统调用的踪迹 - strace
 
