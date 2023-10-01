@@ -61,32 +61,32 @@ For negative real numbers, we use the opposite of the corresponding positive num
     -(1.2 * 2^8) = -0x133 = 0xfffffecd
     
 
-#### 比较fixedpt和float
+#### Comparing fixedpt with float
 
-`fixedpt`和`float`类型的数据都是32位, 它们都可以表示2^32个不同的数. 但由于表示方法不一样, `fixedpt`和`float`能表示的数集是不一样的. 思考一下, 我们用`fixedpt`来模拟表示`float`, 这其中隐含着哪些取舍?
+Both `fixedpt` and `float` types are 32-bit, and they can represent 2^32 different numbers. However, because of the different representation methods, `fixedpt` and `float` can represent different sets of numbers. Consider the trade-offs implicit in using `fixedpt` to simulate `float`.
 
-接下来我们来考虑`fixedpt`类型的常见运算, 假设实数`a`, `b`的`fixedpt`类型表示分别为`A`, `B`.
+Next we consider common operations on `fixedpt` types, assuming that the real numbers `a`, `b` have `fixedpt` representations of `A`, `B` respectively.
 
-*   由于我们使用整数来表示`fixedpt`类型, `fixedpt`类型的加法可以直接用整数加法来进行:
+*   Since we use integers to represent `fixedpt` types, addition of `fixedpt` types can be done directly with integer addition: `fixedpt` types can be added directly with integer addition: `fixedpt` types can be added directly with integer addition:
 
     A + B = a * 2^8 + b * 2^8 = (a + b) * 2^8
     
 
-*   由于我们使用补码的方式来表示`fixedpt`类型数据, 因此`fixedpt`类型的减法可以用整数减法来进行.
+*   Since we use complementary representation of `fixedpt` type data, subtraction of `fixedpt` type can be done by integer subtraction:
 
     A - B = a * 2^8 - b * 2^8 = (a - b) * 2^8
     
 
-*   `fixedpt`类型的乘除法和加减法就不一样了:
+*   The `fixedpt` type of multiplication and division is not the same as addition and subtraction:
 
     A * B = a * 2^8 * b * 2^8 = (a * b) * 2^16 != (a * b) * 2^8
     
 
-也就是说, 直接把两个`fixedpt`数据相乘得到的结果并不等于相应的两个实数乘积的`fixedpt`表示. 为了得到正确的结果, 我们需要对相乘的结果进行调整: 只要将结果除以`2^8`, 就能得出正确的结果了. 除法也需要对结果进行调整, 至于如何调整, 当然难不倒聪明的你啦.
+In other words, multiplying two `fixedpt` data directly does not give the same result as the `fixedpt` representation of the product of the two real numbers. In order to get the correct result, we need to adjust the result of the multiplication: just divide the result by `2^8`, and you will get the correct result. Division also requires an adjustment of the result, and how to do it is certainly not difficult for the cleverest of you.
 
-*   如果把`A = a * 2^8`看成一个映射, 那么在这个映射的作用下, 关系运算是保序的, 即`a <= b`当且仅当`A <= B`, 故`fixedpt`类型的关系运算都可以用整数的关系运算来进行.
+*   If `A = a * 2^8` is considered as a mapping, then the relational operations are order-preserving under this mapping, i.e., `a <= b` if and only if `A <= B`, and therefore the relational operations of the type `fixedpt` can be carried out using the relational operations of the integers.
 
-有了这些结论, 要用`fixedpt`类型来模拟实数运算就很方便了. fixedptc库已经提供了一些常用的API, 例如
+With these conclusions in mind, it is convenient to use the `fixedpt` type to simulate real number operations. The fixedptc library already provides some common APIs, such as
 
     float a = 1.2;
     float b = 10;
@@ -96,7 +96,7 @@ For negative real numbers, we use the opposite of the corresponding positive num
     }
     
 
-用`fixedpt`类型来表示就是
+Expressed in terms of the `fixedpt` type that is
 
     fixedpt a = fixedpt_rconst(1.2);
     fixedpt b = fixedpt_fromint(10);
@@ -106,7 +106,7 @@ For negative real numbers, we use the opposite of the corresponding positive num
     }
     
 
-可以看到, 我们只是把实数映射到定点算术体系, 在其中进行运算之后, 再映射回来. 如果我们最后需要的是一个整数(例如上述例子中的`c`), 那么我们就可以在不引入浮点指令的情况下实现程序原来的实数逻辑.
+As you can see, we're just mapping real numbers to the fixed-point arithmetic system, and then mapping them back again after we've performed operations on them. If we end up needing an integer (such as `c` in the above example), then we can implement the program's original real logic without introducing floating-point instructions.
 
 #### 神奇的fixedpt\_rconst
 
