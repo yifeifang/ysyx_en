@@ -355,19 +355,19 @@ We hinted in PA1 that you need to add `\n` when debugging with `printf()`, and n
 
 With the implementation of these two system calls, in principle all programs that can run on TRM can now run on Nanos-lite. However, we do not currently expose the system calls to user programs in strict accordance with the AM API, since the libc interface is more widely available to programs running on the operating system than to AM, and we do not need to show off.
 
-#### 必答题(需要在实验报告中回答) - hello程序是什么, 它从而何来, 要到哪里去
+#### Mandatory questions (to be answered in the lab report) - What is the hello program, where does it come from, where does it go?
 
-到此为止, PA中的所有组件已经全部亮相, 整个计算机系统也开始趋于完整. 你也已经在这个自己创造的计算机系统上跑起了hello这个第一个还说得过去的用户程序 (dummy是给大家热身用的, 不算), 好消息是, 我们已经距离运行仙剑奇侠传不远了(下一个阶段就是啦).
+At this point, all the components of PA have been revealed, and the computer system is starting to become complete. You've run hello, the first decent user program (dummy is for warming up, not counting), on a computer system of your own creation, and the good news is that we're not far from running Xian Jian Qi Xuan Zhuan (that's the next stage).
 
-不过按照PA的传统, 光是跑起来还是不够的, 你还要明白它究竟怎么跑起来才行. 于是来回答这道必答题吧:
+But in the tradition of PA, it's not enough to just get it up and running, you have to understand how it's going to get up and running. So here's the mandatory question:
 
-> 我们知道`navy-apps/tests/hello/hello.c`只是一个C源文件, 它会被编译链接成一个ELF文件. 那么, hello程序一开始在哪里? 它是怎么出现内存中的? 为什么会出现在目前的内存位置? 它的第一条指令在哪里? 究竟是怎么执行到它的第一条指令的? hello程序在不断地打印字符串, 每一个字符又是经历了什么才会最终出现在终端上?
+> We know that `navy-apps/tests/hello/hello.c` is just a C source file, which is compiled and linked into an ELF file. So, where does the hello program start? How did it get into memory? Why is it in the current memory location? Where is its first instruction? How exactly did it get to its first instruction? The hello program is printing strings over and over again, what does each character go through before it finally appears in the terminal?
 
-上面一口气问了很多问题, 我们想说的是, 这其中蕴含着非常多需要你理解的细节. 我们希望你能够认真整理其中涉及的每一行代码, 然后用自己的语言融会贯通地把这个过程的理解描述清楚, 而不是机械地分点回答这几个问题.
+That's a lot of questions in one breath, and we'd like to point out that there's a lot of detail here that you need to understand. We want you to carefully analyze each line of code involved, and then describe your understanding of the process in your own words, rather than mechanically answering the questions in points.
 
-同样地, 上一阶段的必答题"理解穿越时空的旅程"也已经涵盖了一部分内容, 你可以把它的回答包含进来, 但需要描述清楚有差异的地方. 另外, C库中`printf()`到`write()`的过程比较繁琐, 而且也不属于PA的主线内容, 这一部分不必展开回答. 而且你也已经在PA2中实现了自己的`printf()`了, 相信你也不难理解字符串格式化的过程. 如果你对Newlib的实现感兴趣, 你也可以RTFSC.
+Similarly, the mandatory question "Understanding journeys through space and time" from the previous phase has already covered some of this, so you can include it in your answer, but you need to describe the differences. Also, the process of `printf()` to `write()` in the C library is a bit tedious and not part of the main thread of PA, so you don't need to expand on that part of the answer. Besides, you've already implemented your own `printf()` in PA2, so it's not hard for you to understand the string formatting process. If you're interested in the Newlib implementation, you can also RTFSC it.
 
-总之, 扣除C库中`printf()`到`write()`转换的部分, 剩下的代码就是你应该理解透彻的了. 于是, 努力去理解每一行代码吧!
+Anyway, excluding the `printf()` to `write()` conversions in the C library, the rest of the code is what you should understand. So, try to understand every line of code!
 
 #### 支持多个ELF的ftrace
 
