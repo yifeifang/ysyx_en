@@ -277,11 +277,11 @@ You can consult the Linux system calls with the following command.
 *   `man syscall` - look up the syscall conventions of different architectures, including parameter passing and return values
 *   `man syscalls` - look up the system calls already implemented in Linux. Oh, that's a lot, but we only need a few syscalls in PA.
 
-### [#](#系统调用的踪迹-strace) 系统调用的踪迹 - strace
+### [#](#Trace-of-system-calls-strace) Trace of system calls - strace
 
-我们已经知道, 在操作系统上运行的用户程序只能做两件事, 一件是进行本地计算, 另一件就是通过系统调用请求操作系统来完成那些本地计算无法完成的工作. 这意味着, 如果我们可以观察系统调用的踪迹(syscall trace), 我们就能对程序的行为有更深入的了解了. Linux上有一个叫`strace`的工具(可通过`apt-get`安装), 它可以记录用户程序进行系统调用的踪迹, 我们强烈推荐你安装并尝试使用它. 例如你可以通过`strace ls`来了解`ls`的行为, 你甚至可以看到`ls`是如何被加载的; 如果你对`strace`本身感兴趣, 你还可以通过`strace strace ls`来研究`strace`是如何实现的.
+We already know that a user program running on an operating system can only do two things, one is to perform local computation, and the other is to ask the operating system through system calls to do things that local computation cannot do. This means that if we can look at the syscall trace, we can get a better understanding of the program's behavior. There is a tool called `strace` on Linux (installable via `apt-get`) that can record the syscall trace of a user's program, and we strongly recommend you install it and try it out. For example, you can use `strace ls` to see the behavior of `ls`, and you can even see how `ls` is loaded; if you are interested in `strace` itself, you can also use `strace strace ls` to see how `strace` is implemented.
 
-事实上, 我们也可以在Nanos-lite中实现一个简单的strace: Nanos-lite可以得到系统调用的所有信息, 包括名字, 参数和返回值. 这也是为什么我们选择在Nanos-lite中实现strace: 系统调用是携带高层的程序语义的, 但NEMU中只能看到底层的状态机.
+In fact, it is possible to implement a simple strace in Nanos-lite: Nanos-lite gets all the information about the system call, including the name, arguments and return value. That's why we chose to implement strace in Nanos-lite: system calls carry high-level program semantics, but NEMU can only see the underlying state machine.
 
 #### 实现strace
 
