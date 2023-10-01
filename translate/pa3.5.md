@@ -5,18 +5,18 @@
 
 We have already provided IOE access to the user program through system calls and files, and made some underlying encapsulation through NDL. However, for some more complex programs, it is still difficult to program directly with NDL. In order to better support the development and operation of these complex programs, we need to provide higher level libraries.
 
-#### [#](#多媒体库) 多媒体库
+#### [#](#Multimedia-library) Multimedia library
 
-在Linux中, 有一批GUI程序是使用SDL库来开发的. 在Navy中有一个miniSDL库, 它可以提供一些兼容SDL的API, 这样这批GUI程序就可以很容易地移植到Navy中了. miniSDL的代码位于`navy-apps/libs/libminiSDL/`目录下, 它由6个模块组成:
+In Linux, there are a number of GUI programs developed using the SDL library. There is a miniSDL library in Navy that provides some SDL-compatible APIs so that these GUI programs can be easily ported to Navy. The miniSDL code is located in the `navy-apps/libs/libminiSDL/` directory and consists of six modules:
 
-*   `timer.c`: 时钟管理
-*   `event.c`: 事件处理
-*   `video.c`: 绘图接口
-*   `file.c`: 文件抽象
-*   `audio.c`: 音频播放
-*   `general.c`: 常规功能, 包括初始化, 错误管理等
+*   `timer.c`: clock management
+*   `event.c`: event handling
+*   `video.c`: graphics interface
+*   `file.c`: file abstraction
+*   `audio.c`: audio playback
+*   `general.c`: general functions, including initialization, error management, etc.
 
-我们可以通过NDL来支撑miniSDL的底层实现, 让miniSDL向用户程序提供更丰富的功能, 这样我们就可以在Navy上运行更复杂的程序了. miniSDL中的API和SDL同名, 你可以通过[RTFMopen in new window](https://www.libsdl.org/release/SDL-1.2.15/docs/)来查阅这些API的具体行为. 另外miniSDL中的大部分API都没有实现, 你最好想个办法让程序用到某个未实现API的时候提醒你, 否则你可能难以理解由此导致的复杂程序非预期行为.
+We can use NDL to support the underlying implementation of miniSDL, allowing miniSDL to provide more functionality to user programs, so that we can run more complex programs on Navy. The APIs in miniSDL have the same name as SDL, you can [RTFM](https://www.libsdl.org/release/SDL-1.2.15/docs/) to check the behavior of these APIs. Also, most of the APIs in miniSDL are not implemented, so you'd better find a way to be alerted when a program uses an unimplemented API, otherwise you may have trouble understanding the unintended behavior of the resulting complex program.
 
 #### 一定要通过RTFM了解SDL API的行为
 
