@@ -139,9 +139,9 @@ Implement `fs_write()` and `fs_lseek()`, then run the test program `navy-apps/te
 
 If you wish to add an application to the image, please remember to add it to the list of applications in the Makefile above.
 
-#### 支持sfs的strace
+#### Support strace for sfs
 
-由于sfs的特性, 打开同一个文件总是会返回相同的文件描述符. 这意味着, 我们可以把strace中的文件描述符直接翻译成文件名, 得到可读性更好的trace信息. 尝试实现这一功能, 它可以为你将来使用strace提供一些便利.
+Due to the feature of sfs, opening the same file will always return the same file descriptor. This means that we can translate the file descriptors in strace directly into filenames to get a more readable trace. Try to implement this feature, it will help you to use strace in the future.
 
 [#](#一切皆文件) 一切皆文件
 -----------------
