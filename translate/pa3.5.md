@@ -108,11 +108,11 @@ Expressed in terms of the `fixedpt` type that is
 
 As you can see, we're just mapping real numbers to the fixed-point arithmetic system, and then mapping them back again after we've performed operations on them. If we end up needing an integer (such as `c` in the above example), then we can implement the program's original real logic without introducing floating-point instructions.
 
-#### 神奇的fixedpt\_rconst
+#### Fantastic fixedpt\_rconst
 
-阅读`fixedpt_rconst()`的代码, 从表面上看, 它带有非常明显的浮点操作, 但从编译结果来看却没有任何浮点指令. 你知道其中的原因吗?
+Reading the code for `fixedpt_rconst()`, on the face of it, it looks like it has a very obvious floating-point operation, but the compiled result doesn't have any floating-point instructions. Do you know why?
 
-通过这种方法, 只要程序中使用的实数范围不是很大, 对计算精度的要求不是很高, 我们都可以将其中的浮点操作替换成定点操作, 来在避免引入浮点指令的情况下保持程序的基本逻辑.
+In this way, as long as the range of real numbers used in the program is not very large, and the precision of the calculation is not very high, we can replace the floating-point operation with fixed-point operation, so as to maintain the basic logic of the program while avoiding the introduction of floating-point instructions.
 
 #### 实现更多的fixedptc API
 
