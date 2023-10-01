@@ -209,15 +209,15 @@ Therefore, there needs to be a role to manage the resources in the system in a u
 
 This interface is the system call. This has been the mission of the operating system since its inception: we mentioned earlier that one of the main tasks of GM-NAA I/O is to load new programs, and another main function of GM-NAA I/O is to provide public interfaces for program input and output. The public interface provided by GM-NAA I/O can be considered as the original form of system calls.
 
-#### 系统调用的必要性
+#### The necessity of system calls
 
-对于批处理系统来说, 系统调用是必须的吗? 如果直接把AM的API暴露给批处理系统中的程序, 会不会有问题呢?
+Are system calls necessary for batch systems? Would it be a problem to expose the AM API directly to the program in the batch system?
 
-于是, 系统调用把整个运行时环境分成两部分, 一部分是操作系统内核区, 另一部分是用户区. 那些会访问系统资源的功能会放到内核区中实现, 而用户区则保留一些无需使用系统资源的功能(比如`strcpy()`), 以及用于请求系统资源相关服务的系统调用接口.
+Thus, system calls divide the entire runtime environment into two parts, one for the operating system kernel and one for the userland. Functions that access system resources are implemented in the kernel, while the userland is reserved for functions that do not require system resources (such as `strcpy()`), as well as system call interfaces for requesting services related to system resources.
 
-在这个模型之下, 用户程序只能在用户区安分守己地"计算", 任何超越纯粹计算能力之外的任务, 都需要通过系统调用向操作系统请求服务. 如果用户程序尝试进行任何非法操作, CPU就会向操作系统抛出一个异常信号, 让非法操作的指令执行"失败", 并交由操作系统进行处理. 对, 这就是之前介绍的硬件保护机制, 操作系统需要借助这一天然屏障来阻挡程序的恶意行为.
+Under this model, the user program can only "compute" in the user area, and any task beyond the pure computational capability needs to be requested from the operating system through a system call. If the user program tries to perform any illegal operation, the CPU throws an exception to the operating system, causing the illegal instruction to "fail" and leaving it to the operating system to deal with. Yes, this is the hardware protection mechanism described earlier, and the operating system needs this natural barrier to prevent malicious behavior.
 
-虽然操作系统需要为用户程序服务, 但这并不意味着操作系统需要把所有信息都暴露给用户程序. 有些信息是用户进程没有必要知道的, 也永远不应该知道, 例如一些与内存管理相关的数据结构. 如果一个恶意程序获得了这些信息, 可能会为恶意攻击提供了信息基础. 因此, 通常不存在一个系统调用来获取这些操作系统的私有数据.
+Just because the operating system needs to serve the user program does not mean that the operating system needs to expose all information to the user program. There is information that the user program does not need to know and should never know, such as data structures related to memory management. If a malicious program obtains this information, it may provide the basis for a malicious attack. For this reason, there is usually no system call to obtain such private data from the operating system.
 
 ### [#](#系统调用) 系统调用
 
