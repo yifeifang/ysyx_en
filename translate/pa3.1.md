@@ -19,21 +19,21 @@ That is the concept of [Batch Processing System](https://en.wikipedia.org/wiki/B
 
 Such a background program is actually an operating system. Yes, you heard it right, this background program that sounds like it does nothing is really an operating system! Speaking of operating systems, you may immediately think of Windows with several GB of installation packages. But in fact, the earliest operating system [GM-NAA I](https://en.wikipedia.org/wiki/GM-NAA_I/O) put into use in history was born in 1956, and one of its main tasks is to Go to "Automatically load new programs".
 
-#### 什么是操作系统? (建议二周目思考)
+#### What is an operating system? (It is recommended to think about it in the second trail)
 
-这可是个大问题, 我们也鼓励你学习完操作系统课程之后再回来重新审视它.
+This is a big deal, and we encourage you to come back and revisit it after taking the operating system course.
 
-### [#](#最简单的操作系统) 最简单的操作系统
+### [#](#The simplest operating system) The simplest operating system
 
-眼见为实, 我们先来展示一下操作系统究竟可以多简单. 在PA中使用的操作系统叫Nanos-lite, 它是南京大学操作系统Nanos的裁剪版. 是一个为PA量身订造的操作系统. 通过编写Nanos-lite的代码, 你将会认识到操作系统是如何使用硬件提供的机制(也就是ISA和AM), 来支撑程序的运行, 这也符合PA的终极目标. 至于完整版的Nanos, 你将会在下学期的操作系统课程上见识到它的庐山真面目.
+Seeing is believing, let’s first show how simple the operating system can be. The operating system used in PA is called Nanos-lite, which is a tailored version of Nanjing University’s operating system Nanos. It is an operating system tailor-made for PA . By writing Nanos-lite code, you will realize how the operating system uses the mechanisms provided by the hardware (that is, ISA and AM) to support the running of the program, which is also in line with the ultimate goal of PA. As for the full version of Nanos , you will see its true colors in the operating system course next semester.
 
-我们为大家准备了Nanos-lite的框架代码, 通过执行以下命令获取:
+We have prepared the framework code of Nanos-lite for everyone, which can be obtained by executing the following command:
 
     cd ics2023
     bash init.sh nanos-lite
     
 
-Nanos-lite包含了后续PA用到的所有模块, 但大部分模块的具体功能都没有实现. 由于硬件(NEMU)的功能是逐渐添加的, Nanos-lite也要配合这个过程, 你会通过`nanos-lite/include/common.h`中一些与实验进度相关的宏来控制Nanos-lite的功能. 随着实验进度的推进, 我们会逐渐讲解所有的模块, Nanos-lite做的工作也会越来越多. 因此在阅读Nanos-lite的代码时, 你只需要关心和当前进度相关的模块就可以了, 不要纠缠于和当前进度无关的代码.
+Nanos-lite contains all modules used in subsequent PAs, but the specific functions of most modules have not been implemented. Since the functions of the hardware (NEMU) are gradually added, Nanos-lite must also cooperate with this process. You will use some macros in `nanos-lite/include/common.h` which are used to control the functions of Nanos-lite during the experiment. As the experimental progress progresses, we will gradually explain all the modules, and Nanos-lite will do more and more work. Therefore, when reading the code of Nanos-lite, you only need to care about the modules related to the current progress, and do not get entangled in the code that is not related to the current progress.
 
     nanos-lite
     ├── include
@@ -47,36 +47,36 @@ Nanos-lite包含了后续PA用到的所有模块, 但大部分模块的具体功
     ├── resources
     │   └── logo.txt    # Project-N logo文本
     └── src
-        ├── device.c    # 设备抽象
-        ├── fs.c        # 文件系统
-        ├── irq.c       # 中断异常处理
-        ├── loader.c    # 加载器
+        ├── device.c    # Device abstraction
+        ├── fs.c        # File System
+        ├── irq.c       # Interrupt exception handling
+        ├── loader.c    # Loader
         ├── main.c
-        ├── mm.c        # 存储管理
-        ├── proc.c      # 进程调度
-        ├── ramdisk.c   # ramdisk驱动程序
-        ├── resources.S # ramdisk内容和Project-N logo
-        └── syscall.c   # 系统调用处理
+        ├── mm.c        # Storage management
+        ├── proc.c      # Process scheduling
+        ├── ramdisk.c   # ramdisk driver
+        ├── resources.S # ramdisk content and logo of Project-N
+        └── syscall.c   # System call handling
     
 
-需要提醒的是, Nanos-lite是运行在AM之上, AM的API在Nanos-lite中都是可用的. 虽然操作系统对我们来说是一个特殊的概念, 但在AM看来, 它只是一个调用AM API的普通C程序而已, 和超级玛丽没什么区别. 同时, 你会再次体会到AM的好处: Nanos-lite的实现可以是架构无关的, 这意味着, 无论你之前选择的是哪一款ISA, 都可以很容易地运行Nanos-lite, 甚至你可以像开发klib那样, 在`native`上调试你编写的Nanos-lite.
+It should be reminded that Nanos-lite runs on AM, and AM’s APIs are available in Nanos-lite. Although the operating system is a special concept to us, from AM's perspective, it is just an ordinary C program that calls the AM API, no different from Super Mario. At the same time, you will once again realize the benefits of AM: the implementation of Nanos-lite can be architecture-independent, which means that no matter which ISA you have chosen before, you can easily run Nanos-lite, and even you can Just like developing klib, debug your Nanos-lite on `native`.
 
-另外, 虽然不会引起明显的误解, 但在引入Nanos-lite之后, 我们还是会在某些地方使用"用户进程"的概念, 而不是"用户程序". 如果你现在不能理解什么是进程, 你只需要把进程作为"正在运行的程序"来理解就可以了. 还感觉不出这两者的区别? 举一个简单的例子吧, 如果你打开了记事本3次, 计算机上就会有3个记事本进程在运行, 但磁盘中的记事本程序只有一个. 进程是操作系统中一个重要的概念, 有关进程的详细知识会在操作系统课上进行介绍.
+In addition, although it will not cause obvious misunderstandings, after the introduction of Nanos-lite, we will still use the concept of "user process" instead of "user program" in some places. If you can't understand what a process is now, you only need to understand the process as a "running program". Still can’t feel the difference between the two? Let’s give a simple example. If you open Notepad three times, there will be three Notepad processes running on the computer, but there is only one Notepad program on the disk. Process is an important concept in the operating system. Detailed knowledge about processes will be introduced in the operating system class.
 
-一开始, 在`nanos-lite/include/common.h`中所有与实验进度相关的宏都没有定义, 此时Nanos-lite的功能十分简单. 我们来简单梳理一下Nanos-lite目前的行为:
+At the beginning, all macros related to the experimental progress in `nanos-lite/include/common.h` are not defined. At this time, the function of Nanos-lite is very simple. Let's briefly sort out the current behavior of Nanos-lite:
 
-1.  打印Project-N的logo, 并通过`Log()`输出hello信息和编译时间. 需要说明的是, Nanos-lite中定义的`Log()`宏并不是NEMU中定义的`Log()`宏. Nanos-lite和NEMU是两个独立的项目, 它们的代码不会相互影响, 你在阅读代码的时候需要注意这一点. 在Nanos-lite中, `Log()`宏通过你在`klib`中编写的`printf()`输出, 最终会调用TRM的`putch()`.
-2.  调用`init_device()`对设备进行一些初始化操作. 目前`init_device()`会直接调用`ioe_init()`.
-3.  初始化ramdisk. 一般来说, 程序应该存放在永久存储的介质中(比如磁盘). 但要在NEMU中对磁盘进行模拟是一个略显复杂工作, 因此先让Nanos-lite把其中的一段内存作为磁盘来使用. 这样的磁盘有一个专门的名字, 叫ramdisk.
-4.  `init_fs()`和`init_proc()`, 分别用于初始化文件系统和创建进程, 目前它们均未进行有意义的操作, 可以忽略它们.
-5.  调用`panic()`结束Nanos-lite的运行.
+1.  Print the logo of Project-N, and output hello information and compilation time through `Log()`. It should be noted that the `Log()` macro defined in Nanos-lite is not the `Log()` macro defined in NEMU . Nanos-lite and NEMU are two independent projects, and their codes will not affect each other. You need to pay attention to this when reading the code. In Nanos-lite, the `Log()` macro outputs through the `printf()` you wrote in `klib`, which will eventually call TRM's `patch()`.
+2.  Call `init_device()` to perform some initialization operations on the device. Currently `init_device()` will directly call `ioe_init()`.
+3.  Initialize the ramdisk. Generally speaking, the program should be stored in a permanent storage medium (such as a disk). However, simulating a disk in NEMU is a slightly complicated task, so first let Nanos-lite use a section of memory as a disk. Such a disk has a special name, called ramdisk.
+4.  `init_fs()` and `init_proc()` are used to initialize the file system and create processes respectively. Currently, they do not perform meaningful operations, so you can ignore them.
+5.  Call `panic()` to end the running of Nanos-lite.
 
-由于Nanos-lite本质上也是一个AM程序, 我们可以采用相同的方式来编译/运行Nanos-lite. 在`nanos-lite/`目录下执行
+Since Nanos-lite is essentially an AM program, we can compile/run Nanos-lite in the same way. Execute 
 
     make ARCH=$ISA-nemu run
     
 
-即可. 另外如前文所说, 你也可以将Nanos-lite编译到`native`上并运行, 来帮助你进行调试.
+in the `nanos-lite/` directory. In addition, as mentioned above, you can also compile Nanos-lite to `native` and run it to help you debug.
 
 #### 操作系统是个C程序
 
