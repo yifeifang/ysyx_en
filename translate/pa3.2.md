@@ -193,11 +193,11 @@ You should notice that:
 *   You need to call `isa_raise_intr()` in the implementation of the trap instruction, instead of implementing the exception response mechanism code in the helper function of the trap instruction, because we will use the `isa_raise_intr()` function again later.
 *   If you choose x86, you need to use `vaddr_read()` when indexing the IDT through the address in IDTR.
 
-#### 实现异常响应机制
+#### Implement exception response mechanism
 
-你需要实现上文提到的新指令, 并实现`isa_raise_intr()`函数. 然后阅读`cte_init()`的代码, 找出相应的异常入口地址.
+You need to implement the new instructions mentioned above and implement the `isa_raise_intr()` function. Then read the code of `cte_init()` to find the corresponding exception entry address.
 
-实现后, 重新运行Nanos-lite, 如果你发现NEMU确实跳转到你找到的异常入口地址, 说明你的实现正确(NEMU也可能因为触发了未实现指令而终止运行).
+After implementation, re-run Nanos-lite. If you find that NEMU does jump to the exception entry address you found, it means your implementation is correct (NEMU may also terminate the operation because an unimplemented instruction is triggered).
 
 #### 让DiffTest支持异常响应机制
 
