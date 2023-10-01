@@ -284,13 +284,13 @@ The code will return all the way to `__am_asm_trap()` in `trap.S`, and the next 
 
 However, you need to pay attention here to the PC saved by the previous self-trap instruction. For the `int` instruction of x86, the PC pointed to the next instruction is saved, which is a bit like a function call; for `syscall` of mips32 and `ecall` of riscv32, the PC of the self-trap instruction is saved, so the software needs to add 4 to the saved PC in the appropriate place to return to the next instruction of the self-trap instruction in the future.
 
-#### 从加4操作看CISC和RISC
+#### Looking at CISC and RISC from the plus 4 operation
 
-事实上, 自陷只是其中一种异常类型. 有一种故障类异常, 它们返回的PC和触发异常的PC是同一个, 例如缺页异常, 在系统将故障排除后, 将会重新执行相同的指令进行重试, 因此异常返回的PC无需加4. 所以根据异常类型的不同, 有时候需要加4, 有时候则不需要加.
+In fact, trapping is just one of the exception types. There is a kind of fault-type exception. The PC they return is the same as the PC that triggered the exception. For example, page missing exception. After the system eliminates the fault, it will re-execute the same instruction and try again. Therefore, the PC returned by the exception does not need to be increased by 4. So depending on the exception type, sometimes you need to add 4, sometimes you don’t need to add it.
 
-这时候, 我们就可以考虑这样的一个问题了: 决定要不要加4的, 是硬件还是软件呢? CISC和RISC的做法正好相反, CISC都交给硬件来做, 而RISC则交给软件来做. 思考一下, 这两种方案各有什么取舍? 你认为哪种更合理呢? 为什么?
+At this time, we can consider this question: Is it hardware or software that decides whether to add 4? CISC and RISC are exactly the opposite. CISC leaves it to the hardware, while RISC leaves it to the software. Think about it, what are the trade-offs between these two solutions? Which one do you think is more reasonable? Why?
 
-代码最后会返回到Nanos-lite触发自陷的代码位置, 然后继续执行. 在它看来, 这次时空之旅就好像没有发生过一样.
+The code will eventually return to the code location where Nanos-lite triggered the trap, and then continue execution. From its perspective, this time and space journey will be as if it never happened.
 
 #### 恢复上下文
 
