@@ -209,15 +209,15 @@ In order for the DiffTest mechanism to work correctly, you need
 *   For riscv32, you need to initialize mstatus to `0x1800`.
 *   For riscv64, you need to initialize mstatus to `0xa00001800`.
 
-### [#](#保存上下文) 保存上下文
+### [#](#Save-context) Save context
 
-成功跳转到异常入口地址之后, 我们就要在软件上开始真正的异常处理过程了. 但是, 进行异常处理的时候不可避免地需要用到通用寄存器, 然而看看现在的通用寄存器, 里面存放的都是执行流切换之前的内容. 这些内容也是上下文的一部分, 如果不保存就覆盖它们, 将来就无法恢复这一上下文了. 但通常硬件并不负责保存它们, 因此需要通过软件代码来保存它们的值. x86提供了`pusha`指令, 用于把通用寄存器的值压栈; 而mips32和riscv32则通过`sw`指令将各个通用寄存器依次压栈.
+After successfully jumping to the exception entry address, we will start the real exception handling process in the software. However, general-purpose registers are inevitably needed for exception handling. However, looking at the current general-purpose registers, they contain the contents before the execution flow switch. These contents are also part of the context. If you overwrite them without saving them, the context cannot be restored in the future. But usually the hardware is not responsible for saving them, so software code needs to be used to save their values. x86 provides the `pusha` instruction, which is used to push the value of general-purpose registers onto the stack; while mips32 and riscv32 use the `sw` instruction to push each general-purpose register onto the stack in sequence.
 
-除了通用寄存器之外, 上下文还包括:
+In addition to general-purpose registers, context includes:
 
-*   触发异常时的PC和处理器状态. 对于x86来说就是eflags, cs和eip, x86的异常响应机制已经将它们保存在堆栈上了; 对于mips32和riscv32来说, 就是epc/mepc和status/mstatus寄存器, 异常响应机制把它们保存在相应的系统寄存器中, 我们还需要将它们从系统寄存器中读出, 然后保存在堆栈上.
-*   异常号. 对于x86, 异常号由软件保存; 而对于mips32和riscv32, 异常号已经由硬件保存在cause/mcause寄存器中, 我们还需要将其保存在堆栈上.
-*   地址空间. 这是为PA4准备的, 在x86中对应的是`CR3`寄存器, 代码通过一条`pushl $0`指令在堆栈上占位, mips32和riscv32则是将地址空间信息与0号寄存器共用存储空间, 反正0号寄存器的值总是0, 也不需要保存和恢复. 不过目前我们暂时不使用地址空间信息, 你目前可以忽略它们的含义.
+*   The PC and processor status when the exception is triggered. For x86, it is eflags, cs and eip. The x86 exception response mechanism has saved them on the stack; for mips32 and riscv32, it is the epc/mepc and status/mstatus registers. The exception response mechanism saves them in the corresponding system registers. We also need to read them from the system registers and save them on the stack.
+*   Exception number. For x86, the exception number is saved by software; while for mips32 and riscv32, the exception number has been saved by hardware in the cause/mcause register, and we also need to save it on the stack.
+*   Address space. This is prepared for PA4. In x86, it corresponds to the `CR3` register. The code takes up space on the stack through a `pushl $0` instruction, mips32 and riscv32 share the storage space of address space information with register 0. Anyway, the value of register 0 is always 0, and there is no need to save and restore. However, we do not use address space information for the time being, and you can ignore their meaning for now.
 
 #### 异常号的保存
 
