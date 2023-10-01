@@ -278,11 +278,11 @@ You need to:
 
 Re-run Nanos-lite. If your implementation is correct, you will see the information output after recognizing the trap event.
 
-### [#](#恢复上下文) 恢复上下文
+### [#](#Restore-context) Restore context
 
-代码将会一路返回到`trap.S`的`__am_asm_trap()`中, 接下来的事情就是恢复程序的上下文. `__am_asm_trap()`将根据之前保存的上下文内容, 恢复程序的状态, 最后执行"异常返回指令"返回到程序触发异常之前的状态.
+The code will return all the way to `__am_asm_trap()` in `trap.S`, and the next thing is to restore the context of the program. `__am_asm_trap()` will restore the state of the program based on the previously saved context content, and finally execute the "exception return instruction" to return to the state before the program triggered the exception.
 
-不过这里需要注意之前自陷指令保存的PC, 对于x86的`int`指令, 保存的是指向其下一条指令的PC, 这有点像函数调用; 而对于mips32的`syscall`和riscv32的`ecall`, 保存的是自陷指令的PC, 因此软件需要在适当的地方对保存的PC加上4, 使得将来返回到自陷指令的下一条指令.
+However, you need to pay attention here to the PC saved by the previous self-trap instruction. For the `int` instruction of x86, the PC pointed to the next instruction is saved, which is a bit like a function call; for `syscall` of mips32 and `ecall` of riscv32, the PC of the self-trap instruction is saved, so the software needs to add 4 to the saved PC in the appropriate place to return to the next instruction of the self-trap instruction in the future.
 
 #### 从加4操作看CISC和RISC
 
