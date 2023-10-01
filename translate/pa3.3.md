@@ -152,11 +152,11 @@ Since the ELF files are in ramdisk, the framework code provides some ramdisk-rel
 
 In fact, the work of the loader shows us the program in its most primitive state: the bit string! The loader is actually a program that puts this unobtrusive string of bits in the right place, but it reflects the epochal idea of the "stored program": when the operating system gives it control, the computer interprets it as an instruction and executes it line by line. The loader pushes the life cycle of the computer beyond the boundaries of the program: the end of a program does not mean that the computer stops working, but that the computer will carry out its mission of executing the program for the rest of its life.
 
-#### 实现loader
+#### Implementing the loader
 
-你需要在Nanos-lite中实现loader的功能, 来把用户程序加载到正确的内存位置, 然后执行用户程序. `loader()`函数在`nanos-lite/src/loader.c`中定义, 其中的`pcb`参数目前暂不使用, 可以忽略, 而因为ramdisk中目前只有一个文件, `filename`参数也可以忽略. 在下一个阶段实现文件系统之后, `filename`就派上用场了.
+You need to implement the loader function in Nanos-lite to load the user program into the correct memory location and then execute the user program. The `loader()` function is defined in `nanos-lite/src/loader.c`, where the `pcb` parameter can be ignored as it is not used at the moment, and the `filename` parameter can be ignored as there is only one file in the ramdisk. The `filename` parameter can be ignored because there is only one file in the ramdisk. The `filename` parameter will come in handy in the next phase of the filesystem implementation.
 
-实现后, 在`init_proc()`中调用`naive_uload(NULL, NULL)`, 它会调用你实现的loader来加载第一个用户程序, 然后跳转到用户程序中执行. 如果你的实现正确, 你会看到执行`dummy`程序时在Nanos-lite中触发了一个未处理的4号事件. 这说明loader已经成功加载dummy, 并且成功地跳转到dummy中执行了. 关于未处理的事件, 我们会在下文进行说明.
+Once implemented, call `naive_uload(NULL, NULL)` in `init_proc()`, which will call your implemented loader to load the first user program, and then jump to the user program for execution. If your implementation is correct, you will see an unhandled event #4 triggered in Nanos-lite when the `dummy` program is executed. This means that the loader has successfully loaded dummy, and has successfully jumped into dummy for execution. The unhandled event is described later.
 
 #### 检查ELF文件的魔数
 
