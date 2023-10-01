@@ -312,28 +312,28 @@ Navy provides a `hello` test program (`navy-apps/tests/hello`), which first outp
 
 You need to implement the `write()` system call, and then switch the user program running on Nanos-lite to run as a `hello` program.
 
-#### [#](#堆区管理) 堆区管理
+#### [#](#Heap-area-management) Heap area management
 
-你应该已经在程序设计课上使用过`malloc()`/`free()`库函数, 它们的作用是在用户程序的堆区中申请/释放一块内存区域. 堆区的使用情况是由libc来进行管理的, 但堆区的大小却需要通过系统调用向操作系统提出更改. 这是因为, 堆区的本质是一片内存区域, 当需要调整堆区大小的时候, 实际上是在调整用户程序可用的内存区域. 事实上, 一个用户程序可用的内存区域是需要经过操作系统的分配和管理的. 想象一下, 如果一个恶意程序可以不经过操作系统的同意, 就随意使用其它程序的内存区域, 将会引起灾难性的后果. 当然, 目前Nanos-lite只是个单任务操作系统, 不存在多个程序的概念. 在PA4中, 你将会对这个问题有更深刻的认识.
+You should have already used the `malloc()`/`free()` library functions in your programming classes, which are used to request/release an area of memory in the heap of a user program. The heap usage is managed by libc, but the size of the heap needs to be changed by a system call to the operating system. This is because the heap is essentially an area of memory, and when you resize the heap, you are actually resizing the area of memory available to the user program. In fact, the memory area available to a user program is allocated and managed by the operating system. Imagine the disastrous consequences if a malicious program could use other programs' memory without the operating system's consent. Of course, Nanos-lite is currently a single-tasking operating system, and the concept of multiple programs does not exist. In PA4, you will have a better understanding of this issue.
 
-调整堆区大小是通过`sbrk()`库函数来实现的, 它的原型是
+Resizing the heap is accomplished with the `sbrk()` library function, which has the following prototype
 
     void* sbrk(intptr_t increment);
     
 
-用于将用户程序的program break增长`increment`字节, 其中`increment`可为负数. 所谓program break, 就是用户程序的数据段(data segment)结束的位置. 我们知道可执行文件里面有代码段和数据段, 链接的时候`ld`会默认添加一个名为`_end`的符号, 来指示程序的数据段结束的位置. 用户程序开始运行的时候, program break会位于`_end`所指示的位置, 意味着此时堆区的大小为0. `malloc()`被第一次调用的时候, 会通过`sbrk(0)`来查询用户程序当前program break的位置, 之后就可以通过后续的`sbrk()`调用来动态调整用户程序program break的位置了. 当前program break和和其初始值之间的区间就可以作为用户程序的堆区, 由`malloc()`/`free()`进行管理. 注意用户程序不应该直接使用`sbrk()`, 否则将会扰乱`malloc()`/`free()`对堆区的管理记录.
+Used to grow the user program's program break by `increment` bytes, where `increment` can be a negative number. A program break is the end of a data segment of a user program. We know that an executable file contains both a code segment and a data segment, and when linking, `ld` adds a symbol called `_end` to indicate the end of the program's data segment. When the user program starts running, the program break will be at the location indicated by `_end`, meaning that the size of the heap is 0. The first time `malloc()` is called, it will query the user program for the current location of the program break by `sbrk(0)`, and then the program break can be dynamically adjusted by subsequent `sbrk()` calls. The interval between the current program break and its initial value can be used as the heap area of the user program, managed by `malloc()`/`free()`. Note that the user program should not use `sbrk()` directly, as this will mess up the `malloc()`/`free()` management of the heap.
 
-在Navy的Newlib中, `sbrk()`最终会调用`_sbrk()`, 它在`navy-apps/libs/libos/src/syscall.c`中定义. 框架代码让`_sbrk()`总是返回`-1`, 表示堆区调整失败, 事实上, 用户程序在第一次调用`printf()`的时候会尝试通过`malloc()`申请一片缓冲区, 来存放格式化的内容. 若申请失败, 就会逐个字符进行输出. 如果你在Nanos-lite中打开strace, 你会发现用户程序通过`printf()`输出的时候, 确实是逐个字符地调用`write()`来输出的.
+In Navy's Newlib, `sbrk()` ends up calling `_sbrk()`, which is defined in `navy-apps/libs/libos/src/syscall.c`. The framework code makes `_sbrk()` always return `-1`, indicating that heap resizing has failed. In fact, the user program tries to claim a buffer for the formatted content with `malloc()` when it first calls `printf()`. If the request fails, it is output character by character. If you open strace in Nanos-lite, you'll see that when the user program outputs via `printf()`, it does call `write()` character by character.
 
-但如果堆区总是不可用, Newlib中很多库函数的功能将无法使用, 因此现在你需要实现`_sbrk()`了. 为了实现`_sbrk()`的功能, 我们还需要提供一个用于设置堆区大小的系统调用. 在GNU/Linux中, 这个系统调用是`SYS_brk`, 它接收一个参数`addr`, 用于指示新的program break的位置. `_sbrk()`通过记录的方式来对用户程序的program break位置进行管理, 其工作方式如下:
+But if the heap is always unavailable, a lot of the functionality of the library functions in Newlib won't be available, so now you need to implement `_sbrk()`. In order to implement `_sbrk()`, we also need to provide a system call that sets the heap size. In GNU/Linux, this system call is `SYS_brk`, which takes one argument, `addr`, and indicates the location of the new program break. `_sbrk()` manages the location of a user program's program break by logging it, and works as follows.
 
-1.  program break一开始的位置位于`_end`
-2.  被调用时, 根据记录的program break位置和参数`increment`, 计算出新program break
-3.  通过`SYS_brk`系统调用来让操作系统设置新program break
-4.  若`SYS_brk`系统调用成功, 该系统调用会返回`0`, 此时更新之前记录的program break的位置, 并将旧program break的位置作为`_sbrk()`的返回值返回
-5.  若该系统调用失败, `_sbrk()`会返回`-1`
+1.  The program break starts at `_end`
+2.  When called, a new program break is calculated based on the recorded program break position and the parameter `increment`
+3.  Get the operating system to set up a new program break with the `SYS_brk` system call
+4.  If the `SYS_brk` system call succeeds, the system call returns `0`, at which point it updates the location of the previously recorded program break and returns the location of the old program break as the return value of `_sbrk()`
+5.  If this system call fails, `_sbrk()` returns `-1`
 
-上述代码是在用户层的库函数中实现的, 我们还需要在Nanos-lite中实现`SYS_brk`的功能. 由于目前Nanos-lite还是一个单任务操作系统, 空闲的内存都可以让用户程序自由使用, 因此我们只需要让`SYS_brk`系统调用总是返回`0`即可, 表示堆区大小的调整总是成功. 在PA4中, 我们会对这一系统调用进行修改, 实现真正的内存分配.
+The above code is implemented in a user-level library function, but we also need to implement `SYS_brk` in Nanos-lite. Since Nanos-lite is still a single-tasking operating system, free memory is free for the user program to use, so we just need to make the `SYS_brk` system call always return `0` to indicate that the heap resize is always successful. In PA4, we will modify this system call to enable real memory allocation.
 
 #### 实现堆区管理
 
