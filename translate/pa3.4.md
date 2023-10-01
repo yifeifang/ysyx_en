@@ -143,53 +143,53 @@ If you wish to add an application to the image, please remember to add it to the
 
 Due to the feature of sfs, opening the same file will always return the same file descriptor. This means that we can translate the file descriptors in strace directly into filenames to get a more readable trace. Try to implement this feature, it will help you to use strace in the future.
 
-[#](#一切皆文件) 一切皆文件
+[#](#Everything-is-a-file) Everything is a file
 -----------------
 
-AM中的IOE向我们展现了程序进行输入输出的需求. 那么在Nanos-lite上, 如果用户程序想访问设备, 要怎么办呢? 一种最直接的方式, 就是让操作系统为每个设备单独提供一个系统调用, 用户程序通过这些系统调用, 就可以直接使用相应的功能了. 然而这种做法却存在不少问题:
+The IOEs in AM show us what a program needs to do with input and output. So on Nanos-lite, what does a user program do if it wants to access a device? One of the most straightforward ways to do this is to have the operating system provide a separate system call for each device, which allows the user program to access the functionality directly through these system calls. However, there are a number of problems with this approach:
 
-*   首先, 设备的类型五花八门, 其功能更是数不胜数, 要为它们分别实现系统调用来给用户程序提供接口, 本身就已经缺乏可行性了;
-*   此外, 由于设备的功能差别较大, 若提供的接口不能统一, 程序和设备之间的交互就会变得困难. 所以我们需要有一种方式对设备的功能进行抽象, 向用户程序提供统一的接口.
+*   First of all, there are various types of devices, and their functions are even more numerous, to implement system calls for each of them to provide interfaces to the user program, itself already lacks feasibility.
+*   In addition, since the functions of devices vary greatly, if the interfaces provided are not uniform, the interaction between programs and devices becomes difficult. Therefore, we need a way to abstract the functions of devices and provide a unified interface to user programs.
 
-我们之前提到, 文件的本质就是字节序列. 事实上, 计算机系统中到处都是字节序列(如果只是无序的字节集合, 计算机要如何处理?), 我们可以轻松地举出很多例子:
+As we mentioned before, the essence of a file is a sequence of bytes. In fact, computer systems are full of byte sequences (what would a computer do with an unordered collection of bytes?) , and we can easily give many examples: we can use bytes in a file, and we can use bytes in a file in a file. , we can easily give many examples.
 
-*   内存是以字节编址的, 天然就是一个字节序列, 因而我们之前使用的ramdisk作为字节序列也更加显而易见了
-*   管道(shell命令中的`|`)是一种先进先出的字节序列, 本质上它是内存中的一个队列缓冲区
-*   磁盘也可以看成一个字节序列: 我们可以为磁盘上的每一个字节进行编号, 例如第x柱面第y磁头第z扇区中的第n字节, 把磁盘上的所有字节按照编号的大小进行排列, 便得到了一个字节序列
-*   socket(网络套接字)也是一种字节序列, 它有一个缓冲区, 负责存放接收到的网络数据包, 上层应用将socket中的内容看做是字节序列, 并通过一些特殊的文件操作来处理它们. 我们在PA2中介绍了DiffTest, 如果你RTFSC, 就会发现其中的`qemu-diff`就是通过socket与QEMU进行通信的, 而操作socket的方式就是`fgetc()`和`fputc()`
-*   操作系统的一些信息可以以字节序列的方式暴露给用户, 例如CPU的配置信息
-*   操作系统提供的一些特殊的功能, 如随机数生成器, 也可以看成一个无穷长的字节序列
-*   甚至一些非存储类型的硬件也可以看成是字节序列: 我们在键盘上按顺序敲入按键的编码形成了一个字节序列, 显示器上每一个像素的内容按照其顺序也可以看做是字节序列...
+*   Memory is byte-addressed, which is naturally a sequence of bytes, so our previous use of ramdisk as a sequence of bytes is even more obvious
+*   A pipe (`|` in shell commands) is a first-in-first-out sequence of bytes, which is essentially a queue buffer in memory
+*   The disk can also be viewed as a byte sequence: we can number each byte on the disk, for example, the nth byte of the xth pillar, the yth head, the zth sector, all the bytes on the disk in accordance with the number of the size of the arrangement, you get a sequence of bytes
+*   Network socket is also a kind of byte sequence, it has a buffer, responsible for storing the received network packets, the upper layer application sees the contents of the socket as a byte sequence, and handles them through some special file operations. We introduced DiffTest in PA2, if you RTFSC, you will find that the `qemu-diff` is to communicate with QEMU through socket, and the way to manipulate the socket is `fgetc()` and `fputc()`
+*   Some information about the operating system can be exposed to the user as a sequence of bytes, such as CPU configuration information
+*   Special features provided by the operating system, such as the random number generator, can also be viewed as an infinitely long sequence of bytes
+*   Even some non-storage types of hardware can be viewed as sequences of bytes: the encoding of the keys we hit in sequence on a keyboard forms a sequence of bytes, and the content of each pixel on a display can be viewed as a sequence of bytes in the order in which it is displayed...
 
-既然文件就是字节序列, 那很自然地, 上面这些五花八门的字节序列应该都可以看成文件. Unix就是这样做的, 因此有"一切皆文件"(Everything is a file)的说法. 这种做法最直观的好处就是为不同的事物提供了统一的接口: 我们可以使用文件的接口来操作计算机上的一切, 而不必对它们进行详细的区分: 例如 `navy-apps/Makefile`的`ramdisk`规则通过管道把各个shell工具的输入输出连起来, 生成文件记录表
+Since a file is a sequence of bytes, it's only natural that all these various sequences of bytes should be considered files. Unix does this, hence the phrase "everything is a file". The most intuitive benefit of this approach is that it provides a uniform interface to different things: we can use the file interface to manipulate everything on the computer without having to make detailed distinctions: for example, the `ramdisk` rule in `navy-apps/Makefile` pipes the input and output of various shell utilities to produce a file list
 
     wc -c $(FSIMG_FILES) | grep -v 'total$$' | sed -e 's+ ./fsimg+ +' |
       awk -v sum=0 '{print "\x7b\x22" $$2 "\x22\x2c " $$1 "\x2c " sum "\x7d\x2c";sum += $$1}' >> $(RAMDISK_H)
     
 
-以十六进制的方式查看磁盘上的内容
+Viewing the contents of a disk in hexadecimal format
 
     head -c 512 /dev/sda | hd
     
 
-查看CPU是否有Spectre漏洞
+查看CPU是否有Spectre漏洞Check CPU for Spectre vulnerabilities
 
     cat /proc/cpuinfo | grep 'spectre'
     
 
-甚至我们在PA2中提供的"小星星"示例音频, 也是通过简单的文件操作暴力拼接而成的
+Even the "Little Star" sample audio we provided in PA2 was violently spliced together through simple file manipulation.
 
     cat Do.ogg Do.ogg So.ogg So.ogg La.ogg La.ogg So.ogg > little-star.ogg
     
 
-而
+As well as
 
     #include "/dev/urandom"
     
 
-则会将urandom设备中的内容包含到源文件中: 由于urandom设备是一个长度无穷的字节序列, 提交一个包含上述内容的程序源文件将会令一些检测功能不强的Online Judge平台直接崩溃.
+The contents of the random device will be included in the source file: since the random device is an infinite sequence of bytes, submitting the source file of a program containing the above contents will crash some Online Judge platforms that do not have strong detection capabilities.
 
-"一切皆文件"的抽象使得我们可以通过标准工具很容易完成一些在Windows下不易完成的工作, 这其实体现了Unix哲学的部分内容: 每个程序采用文本文件作为输入输出, 这样可以使程序之间易于合作. GNU/Linux继承自Unix, 也自然继承了这种优秀的特性. 为了向用户程序提供统一的抽象, Nanos-lite也尝试将IOE抽象成文件.
+The "everything is a file" abstraction makes it easy to do things with standard tools that are not easy to do on Windows, and this is part of the Unix philosophy: each program uses text files as input and output, which makes it easy for programs to work together. GNU/Linux inherits from Unix, and naturally inherits this excellent feature. In order to provide a uniform abstraction for user programs, Nanos-lite also attempts to abstract IOEs to files.
 
 ### [#](#虚拟文件系统) 虚拟文件系统
 
