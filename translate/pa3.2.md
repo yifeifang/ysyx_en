@@ -225,11 +225,11 @@ x86 saves exception numbers through software, and there is no register similar t
 
 Therefore, these contents constitute complete context information. The exception handling process can diagnose and handle based on the context. At the same time, this information will also be needed when restoring the context in the future.
 
-#### 对比异常处理与函数调用
+#### Compare exception handling and function calling
 
-我们知道进行函数调用的时候也需要保存调用者的状态: 返回地址, 以及calling convention中需要调用者保存的寄存器. 而CTE在保存上下文的时候却要保存更多的信息. 尝试对比它们, 并思考两者保存信息不同是什么原因造成的.
+We know that when making a function call, we also need to save the caller's state: the return address, and the registers that the caller needs to save in the calling convention. However, CTE needs to save more information when saving context. Try to compare them and think about the reason why the two save different information.
 
-接下来代码会调用C函数`__am_irq_handle()`(在`abstract-machine/am/src/$ISA/nemu/cte.c`中定义), 来进行异常的处理.
+Next, the code will call the C function `__am_irq_handle()` (defined in `abstract-machine/am/src/$ISA/nemu/cte.c`) to handle exceptions.
 
 #### 诡异的x86代码
 
