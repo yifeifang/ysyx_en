@@ -298,13 +298,13 @@ We have implemented two very simple system calls, so what else can a user progra
 
 The basic arithmetic instructions are still provided by the machine, i.e. the instruction system you have implemented in PA2. For termination, the `SYS_exit` system call is also provided. In order to provide the user program with the ability to output characters and request memory dynamically, we need to implement more system calls.
 
-#### [#](#标准输出) 标准输出
+#### [#](#Standard-output) Standard output
 
-在GNU/Linux中, 输出是通过`SYS_write`系统调用来实现的. 根据`write`的函数声明(参考`man 2 write`), 你需要在`do_syscall()`中识别出系统调用号是`SYS_write`之后, 检查`fd`的值, 如果`fd`是`1`或`2`(分别代表`stdout`和`stderr`), 则将`buf`为首地址的`len`字节输出到串口(使用`putch()`即可). 最后还要设置正确的返回值, 否则系统调用的调用者会认为`write`没有成功执行, 从而进行重试. 至于`write`系统调用的返回值是什么, 请查阅`man 2 write`. 另外不要忘记在`navy-apps/libs/libos/src/syscall.c`的`_write()`中调用系统调用接口函数.
+In GNU/Linux, output is accomplished through the `SYS_write` system call. According to the `write` function declaration (see `man 2 write`), you need to check the value of `fd` in `do_syscall()` after recognizing that the syscall number is `SYS_write`, and if `fd` is `1` or `2` (for `stdout` and `stderr`, respectively), output the `buf` first address of `len` bytes to the serial port (use `putch()` is okay). Finally, the return value must be set correctly, otherwise the caller of the system call will think that `write` was not executed successfully and retry. As for the return value of the `write` system call, see `man 2 write`. Don't forget to call the system call interface function in `_write()` in `navy-apps/libs/libos/src/syscall.c`.
 
-事实上, 我们平时使用的`printf()`, `cout`这些库函数和库类, 对字符串进行格式化之后, 最终也是通过系统调用进行输出. 这些都是"系统调用封装成库函数"的例子. 系统调用本身对操作系统的各种资源进行了抽象, 但为了给上层的程序员提供更好的接口(beautiful interface), 库函数会再次对部分系统调用再次进行抽象. 例如`fwrite()`这个库函数用于往文件中写入数据, 在GNU/Linux中, 它封装了`write()`系统调用. 另一方面, 系统调用依赖于具体的操作系统, 因此库函数的封装也提高了程序的可移植性: 在Windows中, `fwrite()`封装了`WriteFile()`系统调用, 如果在代码中直接使用`WriteFile()`系统调用, 把代码放到GNU/Linux下编译就会产生链接错误. 从某种程度上来说, 库函数的抽象确实方便了程序员, 使得他们不必关心系统调用的细节.
+In fact, the `printf()`, `cout` libraries and classes that we normally use to format strings are also called from the system call. These are examples of "system calls wrapped in library functions". The system call itself abstracts various resources of the operating system, but in order to provide a beautiful interface to the higher-level programmer, the library function will again abstract some of the system call again. For example, the library function `fwrite()`, which writes data to a file, encapsulates the `write()` system call in GNU/Linux. On the other hand, system calls depend on the specific operating system, so the encapsulation of library functions also improves program portability: in Windows, `fwrite()` encapsulates the `WriteFile()` system call, and if you use the `WriteFile()` system call directly in your code, compiling the code under GNU/Linux will result in a linking error. In a way, the abstraction of library functions does make it easier for programmers to not have to worry about the details of system calls.
 
-实现`SYS_write`系统调用之后, 我们已经为"使用`printf()`"扫除了最大的障碍了, 因为`printf()`进行字符串格式化之后, 最终会通过`write()`系统调用进行输出. 这些工作, Navy中的Newlib库已经为我们准备好了.
+By implementing the `SYS_write` system call, we have removed the biggest obstacle to using `printf()`, since after `printf()` formatting the string, will ultimately output it via the `write()` system call. The Newlib library in Navy does this for us.
 
 #### 在Nanos-lite上运行Hello world
 
