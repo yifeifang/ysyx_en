@@ -114,9 +114,9 @@ Reading the code for `fixedpt_rconst()`, on the face of it, it looks like it has
 
 In this way, as long as the range of real numbers used in the program is not very large, and the precision of the calculation is not very high, we can replace the floating-point operation with fixed-point operation, so as to maintain the basic logic of the program while avoiding the introduction of floating-point instructions.
 
-#### 实现更多的fixedptc API
+#### Implementing more fixedptc APIs
 
-为了让大家更好地理解定点数的表示, 我们在`fixedptc.h`中去掉了一些API的实现, 你需要实现它们. 关于`fixedpt_floor()`和`fixedpt_ceil()`, 你需要严格按照`man`中`floor()`和`ceil()`的语义来实现它们, 否则在程序中用`fixedpt_floor()`代替`floor()`之后行为会产生差异, 在类似仙剑奇侠传这种规模较大的程序中, 这种差异导致的现象是非常难以理解的. 因此你也最好自己编写一些测试用例来测试你的实现.
+In order to give you a better understanding of the fixed-point representation, we have removed some of the API implementations in `fixedptc.h` that you need to implement. Regarding `fixedpt_floor()` and `fixedpt_ceil()`, you need to implement them strictly according to the semantics of `floor()` and `ceil()` in `man`, otherwise the behavior of `fixedpt_floor()` instead of `floor()` in your program will differ, and in larger programs such as Xian Jian Qi Zia Zhuan, the differences can be very difficult to understand. Therefore, it is also a good idea to write your own test cases to test your implementation.
 
 #### 如何将浮点变量转换成fixedpt类型?
 
