@@ -401,63 +401,63 @@ Once miniSDL has called the callback function to get the new audio data, it can 
 
 With these features in place, we are ready to run NPlayer. In addition to calling miniSDL, NPlayer also calls a library called `vorbis`, which is based on the OGG audio decoding library in [stb project](https://github.com/nothings/stb), and can decode an OGG audio file into PCM format audio data.
 
-#### 运行NPlayer
+#### Run NPlayer
 
-实现上述音频相关的功能后, 尝试在Navy中运行NPlayer. NPlayer默认会播放一首完整的"小星星". 播放过程中还可以调整音量, 具体操作可以RTFSC.
+After implementing the above audio related functions, try to run NPlayer in Navy. NPlayer will play a complete "Little Star" by default. The volume can be adjusted during playback, as described in the RTFSC.
 
-我们也建议你阅读NPlayer的代码, 它通过不到150行的代码就实现了一个非常简单的音频播放器. 关于`vorbis`库的API功能, 可以阅读`navy-apps/libs/libvorbis/include/vorbis.h`中的文档.
+We also recommend you to read the code of NPlayer, it is a very simple audio player implemented in less than 150 lines of code. For more information about the `vorbis` library API, read the documentation in `navy-apps/libs/libvorbis/include/vorbis.h`.
 
-#### 播放自己喜欢的音乐
+#### Play your favorite music
 
-由于Navy的库中没有提供其它音频格式的解码器, 目前NPlayer只能播放OGG格式的音乐. 不过你可以通过`ffmpeg`把你喜欢的音乐转换成OGG格式, 放到`navy-apps/fsimg/`目录中, 就可以让NPlayer来播放它了.
+Since Navy's library doesn't provide decoders for other audio formats, NPlayer can only play music in OGG format at the moment. However, you can convert your favorite music to OGG format by `ffmpeg`, put it into `navy-apps/fsimg/` directory, and let NPlayer play it.
 
-#### [#](#pal-带音乐和音效) PAL (带音乐和音效)
+#### [#](#pal-with-music-and-sound-effects) PAL (with music and sound effects)
 
-仙剑奇侠传的音乐使用的是公司自定义的RIX格式, SDLPAL中已经集成了RIX格式的音频解码器. 不过为了让仙剑奇侠传可以在Navy上成功播放音乐, 你还需要解决以下两个问题.
+The music for Xian Jian Qi Xia Zhuan uses the company's customized RIX format, and SDLPAL already has an audio decoder for the RIX format. However, in order to play the music successfully on Navy, you need to solve two more problems.
 
-第一个问题和RIX解码器的初始化有关. 解码器用到了一个叫`Adplug`的库(见`navy-apps/apps/pal/repo/src/sound/adplug/`), 它是使用C++编写的, 其中定义了一些全局对象. 对全局对象来说, 构造函数的调用需要运行时环境的支持, 但Navy的默认运行时环境并没有提供这样的支持.
+The first problem is related to the initialization of the RIX decoder. The decoder uses a library called `Adplug` (see `navy-apps/apps/pal/repo/src/sound/adplug/`), written in C++, which defines some global objects. For global objects, constructor calls need to be supported by the runtime environment, but Navy's default runtime environment does not provide such support.
 
-为了帮助你进一步理解这个问题, Navy准备了一个测试`cpp-test`. 这个测试程序做的事情非常简单: 代码中定义了一个类, 在构造函数和析构函数中进行输出, 并通过这个类定义了一个全局对象. 在Navy的native上直接运行它, 你可以看到程序按照构造函数->`main()`\->析构函数的顺序来运行, 这是因为Navy的native会链接Linux的glibc, 它提供的运行时环境已经支持全局对象的构造和销毁. 但如果你通过Nanos-lite来运行它, 你会发现程序并没有调用构造函数和析构函数, 这样就会使得全局对象中的成员处于未初始化的状态, 程序访问这个全局对象就会造成非预期的结果.
+To help you further understand this, Navy has prepared a test `cpp-test`. What this test program does is very simple: it defines a class in the code, outputs in the constructor and destructor, and defines a global object from this class. Running it directly on Navy's native, you can see that the program runs in the order constructor -> `main()` -> destructor, because Navy's native links to Linux's glibc, which provides a runtime environment that already supports the construction and destruction of global objects. However, if you run it through Nanos-lite, you will find that the program does not call the constructor and destructor, which leaves the members of the global object in an uninitialized state, and the program accesses the global object with unintended results.
 
-实际上, C++的标准规定, "全局对象的构造函数调用是否位于main()函数执行之前" 是和编译器的实现相关的(implementation-defined behavior), g++会把全局对象构造函数的初始化包装成一个类型为`void (*)(void)`的辅助函数, 然后把这个辅助函数的地址填写到一个名为`.init_array`的节(section)中. 这个特殊的节可以看做是一个`void (*)(void)`类型的函数指针数组, 专门用于收集那些需要在`main()`函数执行之前执行的函数. 这样以后, CRT就可以遍历这个数组, 逐个调用这些函数了.
+In fact, the C++ standard specifies that "whether or not a global object's constructor is called before the execution of the main() function" is compiler implementation-defined behavior, and g++ wraps the initialization of the global object's constructor in an auxiliary function of type `void (*)(void)`, and then fills in the address of this helper function in a section called `.init_array`. This special section can be thought of as an array of pointers to functions of type `void (*)(void)`, which are used to collect functions that need to be executed before the `main()` function is executed. This way, the CRT can traverse the array and call these functions one by one.
 
-#### 让运行时环境支持C++全局对象的初始化
+#### Getting the runtime environment to support C++ global object initialization
 
-Newlib中已经包含了一个遍历上述数组的函数`__libc_init_array()` (在`navy-apps/libs/libc/src/misc/init.c`中定义), 但框架代码的运行时环境并没有调用它, 你只需要在调用`main()`之前调用这个函数即可. 通过Nanos-lite来运行`cpp-test`, 如果你的实现正确, 你会看到构造函数会比`main()`函数先执行.
+Newlib already contains a function `__libc_init_array()` (defined in `navy-apps/libs/libc/src/misc/init.c`) that iterates over the above arrays, but the runtime environment of the framework code doesn't call it. You only need to call this function before calling `main()`. Run `cpp-test` through Nanos-lite, and if you've implemented it correctly, you'll see that the constructor executes before the `main()` function.
 
-#### 理解全局对象构造函数的调用过程
+#### Understand the process of calling the global object constructor.
 
-尝试阅读上述`__libc_init_array()`函数的代码, 并结合`objdump`和`readelf`的结果, 理解编译器, 链接器和运行时环境是如何相互协助, 从而实现"全局对象构造函数的调用"这一功能的. 为了看到`.init_array`节的内容, 你需要给`objdump`添加`-D`参数.
+Try to read the code of the `__libc_init_array()` function above, and combine it with the results of `objdump` and `readelf` to understand how the compiler, linker and runtime environment help each other in realizing the "global object constructor call". To see the contents of the `.init_array` section, you need to add the `-D` parameter to `objdump`.
 
-为了让仙剑奇侠传可以在Navy上成功播放音乐, 你还需要解决的第二个问题是回调函数的重入. 为了让miniSDL尽可能及时地调用回调函数, 我们在miniSDL的一些常用API中调用`CallbackHelper()`. 但如果回调函数又调用了这些API, 就会导致死递归. 解决问题的一种方式是通过一个标志来指示当前的函数调用是否属于重入, 若是则直接返回.
+The second problem you'll need to solve in order to get Xian Jian Qi Xia Zhuan to play music successfully on Navy is the reentry of callback functions. In order for miniSDL to call the callback function as promptly as possible, we call `CallbackHelper()` in some of miniSDL's common APIs. But if the callback function calls these APIs again, it will result in dead recursion. One way to solve this problem is to use a flag to indicate whether the current function call is a reentrant or not, and return it if it is.
 
-#### 运行带音乐和音效的仙剑奇侠传
+#### Run Xian Jian Qi Xia Zhuan with music and sound effects
 
-解决上述重入问题, 你就可以在仙剑奇侠传中播放音乐了.
+Solve the above reentry problem, and you'll be able to play music in Xian Jian Qi Xia Zhuan.
 
-#### [#](#flappy-bird-带音效) Flappy Bird (带音效)
+#### [#](#flappy-bird-with-sound-effects) Flappy Bird (with sound effects)
 
-Flappy Bird的音效播放需要实现miniSDL中另外3个和音频相关的API:
+Flappy Bird's sound playback requires the implementation of three other audio-related APIs in miniSDL:
 
-    // 打开`file`所指向的WAV文件并进行解析, 将其相关格式填写到spec中,
-    // 并申请一段与音频数据总长度一致的内存, 将WAV文件中的音频数据读到申请的内存中,
-    // 通过audio_buf返回内存的首地址, 并通过audio_len返回音频数据的字节数
+    // Open the WAV file pointed to by `file` and parse it, filling in the spec with the relevant format
+    // and request a piece of memory with the same total length as the audio data, read the audio data from the WAV file into the requested memory,
+    // return the first address of the memory via audio_buf, and the number of bytes of audio data via audio_len.
     SDL_AudioSpec *SDL_LoadWAV(const char *file, SDL_AudioSpec *spec, uint8_t **audio_buf, uint32_t *audio_len);
     
-    // 释放通过SDL_LoadWAV()申请的内存
+    // Free the memory requested through SDL_LoadWAV()
     void SDL_FreeWAV(uint8_t *audio_buf);
     
-    // 将缓冲区`src`中的`len`字节音频数据以`volume`的音量混合到另一个缓冲区`dst`中
+    // Mix the `len` bytes of audio data in buffer `src` into another buffer `dst` at `volume` volume
     void SDL_MixAudio(uint8_t *dst, uint8_t *src, uint32_t len, int volume);
     
 
-为了实现`SDL_LoadWAV()`, 你需要了解[WAV文件格式open in new window](http://soundfile.sapp.org/doc/WaveFormat/). "PCM和WAV的关系"与"BIN和ELF的关系"非常接近: 我们在PA2中直接播放PCM格式的音频数据, 而WAV文件可以看成是PCM音频数据和一些组织信息的组合, 解析WAV的过程就是在WAV的文件头部读出这些信息. 这个过程和你之前实现ELF loader是非常相似的. 此外, WAV文件也支持音频数据的压缩, 但在PA中使用的WAV文件都是非压缩的PCM格式, 因此你无需识别并处理压缩的情况.
+In order to implement `SDL_LoadWAV()`, you need to know the [WAV file format](http://soundfile.sapp.org/doc/WaveFormat/). The relationship between PCM and WAV is very close to the relationship between BIN and ELF: we play PCM audio data directly in PA2, and a WAV file can be seen as a combination of PCM audio data and some organizational information, and the process of parsing a WAV is to read out this information in the header of the WAV file. This process is very similar to your previous ELF loader implementation. Also, WAV files support compression of audio data, but the WAV files used in PA are uncompressed PCM, so you don't need to recognize and deal with compression.
 
-最后来看看`SDL_MixAudio()`, 它用来对两段音频数据进行混合, 以达到同时播放它们的目的. 在混合之前, 还可以对其中一段音频数据的音量进行调整. 我们知道, 声音是若干正弦波的叠加, PCM编码就是对叠加后的曲线进行采样和量化得到的. 由于音量和曲线的振幅成正比, 因此调整音量就是按比例调整每一个采样点数据的值的大小. 我们在`navy-apps/libs/libminiSDL/include/sdl-audio.h`中定义了最大音量`SDL_MIX_MAXVOLUME`, 若`volume`参数为`SDL_MIX_MAXVOLUME`的1/4, 则表示将音频的音量调整为原来的1/4. 而要对两段音频进行混合, 就是将两者的曲线直接叠加. 不过叠加后还需要进行裁剪处理, 对于16位有符号数的格式来说, 叠加后的结果最大值为`32767`, 最小值为`-32768`, 这是为了防止叠加后的数据溢出导致音频的失真 (例如对于曲线上位于x轴上方的样本, 可能因溢出变成位于x轴下方). 理解这些内容之后, 就很容易实现`SDL_MixAudio()`了.
+Finally, let's take a look at `SDL_MixAudio()`, which is used to mix two pieces of audio data in order to play them at the same time. Before mixing, it is also possible to adjust the volume of one of the pieces of audio data. As we know, sound is a superposition of several sine waves, and PCM encoding is the sampling and quantization of the superposition curve. Since the volume is proportional to the amplitude of the curve, adjusting the volume is a proportional adjustment of the value of each sample point. In `navy-apps/libs/libminiSDL/include/sdl-audio.h`, we define the maximum volume `SDL_MIX_MAXVOLUME`, and if the `volume` parameter is 1/4 of the `SDL_MIX_MAXVOLUME` parameter, it means that the audio volume will be adjusted to 1/4 of the original volume. To mix two pieces of audio, the curves of the two pieces of audio are overlaid directly on top of each other. However, after the overlay there is a trimming process, which for the 16-bit signed number format results in a maximum value of `32767` and a minimum value of `-32768`, in order to prevent overflow of the overlayed data from distorting the audio (e.g., samples above the x-axis on the curve may become below the x-axis due to overflow). Once this is understood, it is easy to implement `SDL_MixAudio()`.
 
-#### 运行带音效的Flappy Bird
+#### Running Flappy Bird with sound effects
 
-实现上述API, 在Navy中运行带音效的Flappy Bird.
+Implement the above API to run Flappy Bird with sound effects in Navy.
 
 [#](#基础设施-3) 基础设施(3)
 --------------------
