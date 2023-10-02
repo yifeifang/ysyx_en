@@ -459,37 +459,37 @@ Finally, let's take a look at `SDL_MixAudio()`, which is used to mix two pieces 
 
 Implement the above API to run Flappy Bird with sound effects in Navy.
 
-[#](#基础设施-3) 基础设施(3)
+[#](#Infrastructure-3) Infrastructure(3)
 --------------------
 
-如果你的仙剑奇侠传无法正确运行, 借助不同层次的native, 你应该可以很快定位到bug所在的层次. 如果是硬件bug, 你也许会陷入绝望之中: DiffTest速度太慢了, 尤其是基于QEMU的DiffTest! 有什么方法可以加快DiffTest的速度呢?
+If your Xian Jian Qi Xia Zhuan is not running correctly, you should be able to quickly pinpoint the level of the bug with the help of the different levels of native. If it's a hardware bug, you may be in despair: DiffTest is too slow, especially if it's based on QEMU! What can be done to speed up DiffTest?
 
-### [#](#自由开关difftest模式) 自由开关DiffTest模式
+### [#](#Free-switching-difftest-mode) Free-switching difftest mode
 
-目前每次DiffTest都是从一开始进行, 但如果这个bug在很久之后才触发, 那么每次都从一开始进行DiffTest是没有必要的. 如果我们怀疑bug在某个函数中触发, 那么我们更希望DUT首先按照正常模式运行到这个函数, 然后开启DiffTest模式, 再进入这个函数. 这样, 我们就节省了前期大量的不必要的比对开销了.
+Currently, DiffTest starts at the beginning, but if the bug is triggered a long time later, then there is no need to start the DiffTest at the beginning. If we suspect that the bug was triggered in a function, then we would prefer that the DUT first runs in normal mode to that function, then turns on DiffTest mode, and then enters that function. This way, we save a lot of unnecessary comparison overhead up front.
 
-为了实现这个功能, 关键是要在DUT运行中的某一时刻开始进入DiffTest模式. 而进入DiffTest模式的一个重要前提, 就是让DUT和REF的状态保持一致, 否则进行比对的结果就失去了意义. 我们又再次提到了状态的概念, 你应该再熟悉不过了: 计算机的状态就是计算机中的时序逻辑部件的状态. 这样, 我们只要在进入DiffTest模式之前, 把REF的寄存器和内存设置成和DUT一样, 它们就可以从一个相同的状态开始进行对比了.
+In order to realize this function, the key is to enter DiffTest mode at some point in the DUT's operation. An important prerequisite for entering DiffTest mode is to keep the state of the DUT and the REF the same, otherwise the results of the comparison will be meaningless. Once again, we are referring to the concept of state, which you are familiar with: the state of a computer is the state of the timing logic components of the computer. So, if we set the REF's registers and memory to be the same as the DUT's before entering DiffTest mode, they can be compared from an identical state.
 
-为了控制DUT是否开启DiffTest模式, 我们还需要在简易调试器中添加如下两个命令:
+In order to control whether the DUT is in DiffTest mode or not, we also need to add the following two commands to the simple debugger.
 
-*   `detach`命令用于退出DiffTest模式, 之后DUT执行的所有指令将不再与REF进行比对. 实现方式非常简单, 只需要让`difftest_step()`, `difftest_skip_dut()`和`difftest_skip_ref()`直接返回即可.
-*   `attach`命令用于进入DiffTest模式, 之后DUT执行的所有指令将逐条与REF进行比对. 为此, 你还需要将DUT中物理内存的内容同步到REF相应的内存区间中, 并将DUT的寄存器状态也同步到REF中. 特别地, 如果你选择x86, 你需要绕过REF中`0x7c00`附近的内存区域, 这是因为REF在`0x7c00`附近会有GDT相关的代码, 覆盖这段代码会使得REF无法在保护模式下运行, 导致后续无法进行DiffTest. 事实上, 我们只需要同步`[0x100000, PMEM_SIZE)`的内存就足够了, 因为在NEMU中运行的程序不会使用`[0, 0x100000)`中的内存空间.
+*   The `detach` command is used to exit DiffTest mode, after which all commands executed by the DUT will no longer be compared to the REF. The implementation is very simple, just let `difftest_step()`, `difftest_skip_dut()` and `difftest_skip_ref()` return directly.
+*   The `attach` command is used to enter DiffTest mode, after which all instructions executed by the DUT will be compared with the REF one by one. To do this, you also need to synchronize the contents of the physical memory in the DUT to the corresponding memory intervals in the REF, and synchronize the DUT's register status to the REF as well. In particular, if you choose x86, you need to bypass the memory area around `0x7c00` in the REF. This is because the REF will have GDT-related code around `0x7c00`, and overwriting this code will prevent the REF from running in protected mode, which will make it impossible to run a subsequent DiffTest. In fact, we only need to synchronize `[0x100000, PMEM_SIZE]` is enough, because the program running in NEMU will not use the memory space in `[0, 0x100000)`.
 
-这样以后, 你就可以通过以下方式来在客户程序运行到某个目标位置的时候开启DiffTest了:
+In this way, you can turn on DiffTest when the client program is running at a target location by:
 
-1.  去掉运行NEMU的`-b`参数, 使得我们可以在客户程序开始运行前键入命令
-2.  键入`detach`命令, 退出DiffTest模式
-3.  通过单步执行, 监视点, 断点等方式, 让客户程序通过正常模式运行到目标位置
-4.  键入`attach`命令, 进入DiffTest模式, 注意设置REF的内存需要花费约数十秒的时间
-5.  之后就可以在DiffTest模式下继续运行客户程序了
+1.  Remove the `-b` parameter for running NEMU, so that we can type commands before the client program starts running.
+2.  type the `detach` command to exit DiffTest mode
+3.  let the client program run in normal mode to the target location through single-step execution, watchpoints, breakpoints, and so on.
+4.  type the `attach` command to enter DiffTest mode, note that setting up the REF memory will take about tens of seconds.
+5.  After that, you can continue to run the client program in DiffTest mode.
 
-不过上面的方法还有漏网之鱼, 具体来说, 我们还需要处理一些特殊的寄存器, 因为它们也属于机器状态的一部分. 以x86为例, 我们还需要处理EFLAGS和IDTR这两个寄存器, 否则, 不一致的EFLAGS会导致接下来的`jcc`或者`setcc`指令在REF中的执行产生非预期结果, 而不一致的IDTR将会导致在REF中执行的系统调用因无法找到正确的目标位置而崩溃. 这里面的一个挑战是, REF中有的寄存器很难直接设置, 例如和QEMU通信的GDB协议中就没有定义IDTR的访问方式. 不过DiffTest提供的API已经可以解决这些问题了: 我们可以通过`difftest_memcpy_from_dut()`往REF中的空闲内存拷贝一段指令序列, 然后通过`difftest_setregs()`来让REF的pc指向这段指令序列, 接着通过`difftest_exec()`来让REF执行这段指令序列. 通过这种方式, 我们就可以让REF执行任意的程序了, 例如我们可以让REF来执行`lidt`指令, 这样就可以间接地设置IDTR了. 要设置EFLAGS寄存器, 可以通过执行`popf`指令来实现.
+However, the above approach leaves something to be desired, specifically, we need to deal with some special registers that are also part of the machine state. In the case of x86, for example, we also need to deal with the EFLAGS and IDTR registers, otherwise an inconsistent EFLAGS will cause the next `jcc` or `setcc` instruction to be executed in the REF with unintended results, and an inconsistent IDTR will cause a system call executed in the REF to crash because it cannot find the correct target location. One of the challenges here is that some of the registers in the REF are difficult to set directly, e.g., the GDB protocol that communicates with QEMU does not define how to access the IDTR. However, DiffTest provides an API that solves this problem: we can copy a sequence of instructions to free memory in the REF with `difftest_memcpy_from_dut()`, then point the REF's pc to the sequence with `difftest_setregs()`, then use `difftest_exec()` to set the REF's pc to the sequence, and `difftest_exec()` to set the REF's pc to the sequence with `difftest_exec()`. In this way, we can have the REF execute arbitrary programs, for example, we can have the REF execute the `lidt` instruction, which indirectly sets the IDTR. The EFLAGS register can be set by executing the `popf` instruction.
 
-#### 实现可自由开关的DiffTest
+#### Implement a DiffTest that can be switched freely
 
-根据上述内容, 在简易调试器中添加`detach`和`attach`命令, 实现正常模式和DiffTest模式的自由切换.
+Based on the above, add `detach` and `attach` commands to the simple debugger to realize the free switching between normal mode and DiffTest mode.
 
-上述文字基本上把实现的思路介绍清楚了, 如果你遇到具体的问题, 就尝试自己分析解决吧.
+The above text basically introduces the idea of implementation clearly, if you encounter specific problems, try to analyze and solve them yourself.
 
 ### [#](#快照) 快照
 
