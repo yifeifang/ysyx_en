@@ -144,11 +144,11 @@ You can compile `bmp-test` into Navy native by running `make ISA=native run` fro
 
 `bmp-test` needs to open a file with the path `/share/pictures/projectn.bmp`, but in Linux native, the file corresponding to this path does not exist. But we got `bmp-test` to work, do you know how? If you are interested, you can search for `LD_PRELOAD` on the Internet.
 
-#### Wine, WSL和运行时环境兼容
+#### Wine, WSL and runtime environment compatibility
 
-我们可以通过Linux native来实现Navy的运行时环境, 从而可以让Navy中的应用程序在Linux native上运行. 那么我们能不能实现其它操作系统的运行时环境, 比如在Linux中提供一套兼容Windows的运行时环境, 从而支持Windows应用程序在Linux上的运行呢?
+We can use Linux native to implement Navy's runtime environment, so that applications in Navy can run on Linux native. So can we implement runtime environments for other operating systems, such as providing a Windows-compatible runtime environment in Linux, so as to support Windows applications running on Linux?
 
-[Wineopen in new window](https://www.winehq.org/)就是这样的一个项目, 它通过Linux的运行时环境实现Windows相关的API. 另一个方向相反的项目是[WSLopen in new window](https://docs.microsoft.com/en-us/windows/wsl/about), 它是通过Windows的运行时环境来实现Linux的API, 从而支撑Linux程序在Windows上的运行, 不过WSL还修改了Windows内核, 让它对Linux程序提供专门的支持. 但完整的Linux和Windows运行时环境太复杂了, 因此一些对运行时环境依赖程度比较复杂的程序至今也很难在Wine或WSL上完美运行, 以至于WSL2抛弃了"运行时环境兼容"的技术路线, 转而采用虚拟机的方式来完美运行Linux系统. 反观Navy的运行时环境却是非常简单, 我们通过不到300行的`native.cpp`就可以实现它了, 不过如果你理解了其中的概念, 你也就明白类似WSL这些身边的技术是如何工作的了.
+One such project is [Wine](https://www.winehq.org/), which implements Windows-related APIs through the Linux runtime environment. Another project that goes in the opposite direction is [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) , which implements Linux APIs through the Windows runtime environment to support Linux programs on Windows, but WSL also modifies the Windows kernel to provide specialized support for Linux programs. But the full Linux and Windows runtimes are so complex that some programs with complex runtime dependencies have struggled to run well on Wine or WSL, so much so that WSL2 abandoned the "runtime compatibility" approach in favor of a virtual machine approach to running Linux perfectly. Navy's runtime environment, on the other hand, is very simple and can be implemented in less than 300 lines of `native.cpp`, but if you understand the concepts involved, you'll understand how technologies like WSL work around you.
 
 ### [#](#navy中的应用程序) Navy中的应用程序
 
