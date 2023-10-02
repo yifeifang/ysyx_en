@@ -124,21 +124,21 @@ Suppose we have a `void *p` pointer variable, which points to a 32-bit variable,
 
 The fixedptc library also provides fixed-point arithmetic implementations of primitive functions such as `sin`, `cos`, `exp`, `ln`, etc., which is basically sufficient for most programs. However, since the decimal part of `fixedpt` is only 8 bits, the precision of these functions may be very low, but this is sufficient for programs on Navy.
 
-#### [#](#navy作为基础设施) Navy作为基础设施
+#### [#](#Navy-as-infrastructure) Navy as infrastructure
 
-我们在PA2中介绍了AM中的`native`架构, 借助AM API的抽象, 我们可以把自己写的程序先运行在`native`上, 这样就可以有效地把硬件(NEMU)bug和软件bug区分出来. 那么在Navy中, 我们能不能实现类似的效果呢?
+In PA2, we introduced the `native` architecture in AM, and with the abstraction of the AM API, we can run our programs on `native` first, so that we can effectively distinguish hardware (NEMU) bugs from software bugs. Can we achieve a similar effect in Navy?
 
-答案是肯定的, 因为这样的效果就是计算机作为一个抽象层带给我们的礼物. Navy提供的运行时环境包括libos, libc(Newlib), 一些特殊的文件, 以及各种面向应用程序的库. 我们把前三者称为"操作系统相关的运行时环境", 而面向应用程序的库与操作系统关系不大, 在这个问题的讨论中, 我们甚至可以将它们归到Navy应用程序的类别中. 类似在AM中用Linux native的功能实现AM的API, 我们也可以用Linux native的功能来实现上述运行时环境, 从而支撑相同的Navy应用程序的运行, 来单独对它们进行测试. 这样我们就实现了操作系统相关的运行时环境与Navy应用程序的解耦.
+The answer is yes, because this is the gift that computers give us as an abstraction layer. The runtime environment provided by Navy consists of libos, libc(Newlib), some special files, and various application-oriented libraries. We refer to the first three as the "OS-related runtime environment", while the application-oriented libraries have little to do with the operating system, and for the purposes of this discussion can even be categorized as Navy applications. Similar to implementing the AM API in AM with Linux native functionality, we can implement the above runtime environment with Linux native functionality to support the same Navy applications to run and test them individually. In this way we decouple the operating system related runtime environment from the Navy application.
 
-我们在Navy中提供了一个特殊的ISA叫`native`来实现上述的解耦, 它和其它ISA的不同之处在于:
+We provide a special ISA called `native` in Navy to accomplish this decoupling, which differs from other ISAs in that.
 
-*   链接时绕开libos和Newlib, 让应用程序直接链接Linux的glibc
-*   通过一些Linux native的机制实现`/dev/events`, `/dev/fb`等特殊文件的功能 (见`navy-apps/libs/libos/src/native.cpp`)
-*   编译到Navy native的应用程序可以直接运行, 也可以用gdb来调试(见`navy-apps/scripts/native.mk`), 而编译到其它ISA的应用程序只能在Nanos-lite的支撑下运行
+*   Linking bypasses libos and Newlib, allowing applications to link directly to Linux's glibc
+*   Special files such as `/dev/events`, `/dev/fb`, etc. are implemented through some Linux native mechanisms (see `navy-apps/libs/libos/src/native.cpp`)
+*   Applications compiled to Navy native can be run directly and debugged with gdb (see `navy-apps/scripts/native.mk`), while applications compiled to other ISAs can only be run with Nanos-lite support
 
-虽然Navy的`native`和AM中的`native`同名, 但它们的机制是不同的: 在AM native上运行的系统, 需要AM, Nanos-lite, libos, libc这些抽象层来支撑上述的运行时环境, 在AM中的`ARCH=native`, 在Navy中对应的是`ISA=am_native`; 而在Navy native中, 上述运行时环境是直接由Linux native实现的.
+Although Navy's `native` and AM's `native` share the same name, their mechanisms are different: systems running on AM native require AM, Nanos-lite, libos, libc, and other abstraction layers to support the above runtime environment, and `ARCH=native` in AM, which corresponds to `ISA=am_native` in Navy. In AM, `ARCH=native`, in Navy the equivalent is `ISA=am_native`; in Navy native, the above runtime environment is directly implemented by Linux native.
 
-你可以在`bmp-test`所在的目录下运行`make ISA=native run`, 来把`bmp-test`编译到Navy native上并直接运行, 还可以通过`make ISA=native gdb`对它进行调试. 这样你就可以在Linux native的环境下单独测试Navy中除了libos和Newlib之外的所有代码了(例如NDL和miniSDL). 一个例外是Navy中的dummy, 由于它通过`_syscall_()`直接触发系统调用, 这样的代码并不能直接在Linux native上直接运行, 因为Linux不存在这个系统调用(或者编号不同).
+You can compile `bmp-test` into Navy native by running `make ISA=native run` from the directory where `bmp-test` is located, and you can debug it by `make ISA=native gdb`. This way you can test all the code in Navy except libos and Newlib (e.g. NDL and miniSDL) separately from the Linux native environment. One exception is Navy's dummy, which triggers a system call directly via `_syscall_()`, which does not run directly on Linux native because it doesn't exist in Linux (or is numbered differently).
 
 #### 神奇的LD\_PRELOAD
 
