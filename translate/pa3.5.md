@@ -160,11 +160,11 @@ NSlider is the simplest presentable application in Navy, which is a slide player
 
 Now you can also run NSlider on your own system, but first you need to implement the `SDL_UpdateRect()` API. SDL's drawing module introduces the notion of a `Surface`, which can be thought of as a canvas with many properties, as described in the `Surface` structure, which can learn more about it via RTFM. `SDL_UpdateRect()` is used to synchronize a specified rectangular area of the canvas to the screen.
 
-#### 运行NSlider
+#### Run NSlider
 
-我们提供了一个脚本来把PDF版本的, 比例为4:3的幻灯片转换成BMP图像, 并拷贝到`navy-apps/fsimg/`中. 你需要提供一个满足条件的PDF文件, 然后参考相应的README文件进行操作. 但你可能会在转换时遇到一些问题, 具体请自行解决.
+We provide a script to convert a PDF version of a 4:3 slide show into a BMP image and copy it to `navy-apps/fsimg/`. You need to provide a PDF file that meets the conditions, and then refer to the appropriate README file to operate. But you may encounter some problems in the conversion, please solve the problem yourself.
 
-然后在miniSDL中实现`SDL_UpdateRect()`, 如果你的实现正确, 运行NSlider时将会显示第一张幻灯片. 你很可能是第一次接触SDL的API, 为此你还需要RTFM, 并通过RTFSC来理解已有代码的行为.
+Then implement `SDL_UpdateRect()` in miniSDL, if your implementation is correct, the first slide will be displayed when running NSlider. You are probably new to the SDL API, for this you will also need RTFM, and RTFSC to understand the behavior of existing code.
 
 #### 注意ramdisk镜像的大小
 
