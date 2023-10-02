@@ -150,9 +150,9 @@ We can use Linux native to implement Navy's runtime environment, so that applica
 
 One such project is [Wine](https://www.winehq.org/), which implements Windows-related APIs through the Linux runtime environment. Another project that goes in the opposite direction is [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) , which implements Linux APIs through the Windows runtime environment to support Linux programs on Windows, but WSL also modifies the Windows kernel to provide specialized support for Linux programs. But the full Linux and Windows runtimes are so complex that some programs with complex runtime dependencies have struggled to run well on Wine or WSL, so much so that WSL2 abandoned the "runtime compatibility" approach in favor of a virtual machine approach to running Linux perfectly. Navy's runtime environment, on the other hand, is very simple and can be implemented in less than 300 lines of `native.cpp`, but if you understand the concepts involved, you'll understand how technologies like WSL work around you.
 
-### [#](#navy中的应用程序) Navy中的应用程序
+### [#](#Applications-in-navy) Applications in navy
 
-有了这些函数库, 我们就可以在Navy中运行更多的程序了. 要运行仙剑奇侠传需要实现较多的功能, 我们先运行一些简单的程序来对你的实现进行测试.
+With these libraries, we can run many more programs in Navy. Running Xian Jian Qi Xia Zhuan requires a lot of implementation, so let's run some simple programs to test your implementation.
 
 #### [#](#nslider-nju-slider) NSlider (NJU Slider)
 
