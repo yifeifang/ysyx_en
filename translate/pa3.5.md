@@ -491,16 +491,16 @@ Based on the above, add `detach` and `attach` commands to the simple debugger to
 
 The above text basically introduces the idea of implementation clearly, if you encounter specific problems, try to analyze and solve them yourself.
 
-### [#](#快照) 快照
+### [#](#Snapshots) Snapshots
 
-更进一步的, 其实连NEMU也没有必要每次都从头开始执行. 我们可以像仙剑奇侠传的存档系统一样, 把NEMU的状态保存到文件中, 以后就可以直接从文件中恢复到这个状态继续执行了. 在虚拟化领域中, 这样的机制有一个专门的名字, 叫[快照open in new window](https://en.wikipedia.org/wiki/Virtualization#Snapshots). 如果你用虚拟机来做PA, 相信你对这个名词应该不会陌生. 在NEMU中实现快照是一件非常简单的事情, 我们只需要在简易调试器中添加如下命令即可:
+Even further, it is not necessary to execute NEMU from scratch every time. We can save the state of the NEMU to a file, like the archive system in Xian Jian Qi Xia Zhuan, and then restore the NEMU to that state directly from the file to continue execution later. In the virtualization world, this mechanism has a special name, called [snapshot](https://en.wikipedia.org/wiki/Virtualization#Snapshots). If you're using a virtual machine as a PA, this term should be familiar to you. Implementing snapshots in NEMU is a simple matter of adding the following command to the simple debugger.
 
-*   `save [path]`, 将NEMU的当前状态保存到`path`指示的文件中
-*   `load [path]`, 从`path`指示的文件中恢复NEMU的状态
+*   `save [path]`, save the current state of the NEMU to the file indicated by `path`
+*   `load [path]`, restore the state of NEMU from the file indicated by the `path`
 
-#### 在NEMU中实现快照
+#### Snapshots in NEMU
 
-关于NEMU的状态, 我们已经强调过无数次了, 快去实现吧. 另外, 由于我们可能会在不同的目录中执行NEMU, 因此使用快照的时候, 建议你通过绝对路径来指示快照文件.
+We've emphasized the state of NEMU countless times, so go ahead and implement it. Also, since we may execute NEMU in different directories, it is recommended that when using snapshots, you indicate the snapshot file by an absolute path.
 
 [#](#展示你的批处理系统) 展示你的批处理系统
 -------------------------
