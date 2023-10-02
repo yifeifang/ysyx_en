@@ -537,21 +537,21 @@ Since time immemorial, computer systems-oriented programs have had an ultimate q
 
 You have implemented a batch system and successfully run other programs through NTerm. Although our batch system has been simplified in many ways, it still retains the essence of the history of computers. Having implemented a batch system, what new insights have you gained into the ultimate question?
 
-#### 添加开机音乐
+#### Add startup music
 
-你可以准备一段时长几秒钟的音乐(例如某著名的XP开机音乐), 在NTerm中播放它, 这样系统启动进入NTerm的时候就会自动播放这段音乐. 播放音乐的实现可以参考NPlayer的代码.
+You can prepare a few seconds long music (e.g. a famous XP boot music), and play it in NTerm, so that this music will be played automatically when the system boots into NTerm. You can refer to the code of NPlayer for the implementation of playing music.
 
-到这里为止, 我们基本上实现了一个"现代风"的批处理系统了: 我们刚才运行的开机菜单MENU, 就类似红白机中类似"100合1"的游戏选择菜单; 而NTerm的行为也和我们平时使用的终端和Shell非常接近. 重要的是, 这一切都是你亲手构建的: NEMU, AM, Nanos-lite, Navy的运行时环境, 最后到应用程序, "计算机是个抽象层"这一宏观视角已经完全展现在你的眼前, 你终于理解像仙剑奇侠传这样的复杂程序, 是如何经过计算机系统的层层抽象, 最终分解成最基本的硬件操作, 以状态机的方式在硬件上运行. 当你了解到这一真相并为之感到震撼的时候, PA让大家明白"程序如何在计算机上运行"的终极目标也已经实现大半了.
+Up to this point, we've basically implemented a "modern" batch system: we've just run the boot menu MENU, which is similar to the "100-in-1" game selection menu in the Red and White; and NTerm's behavior is very close to that of the Terminal and Shell we usually use. The important thing is that you built it all yourself: NEMU, AM, Nanos-lite, Navy's runtime environment, and finally the application, and the macro perspective of "computer as a layer of abstraction" has been fully displayed in front of your eyes, and you finally understand how a complex program like Xian Jian Qi Xia Zhuan can be abstracted through the layers of a computer system, and finally broken down into the most basic hardware operations, in the form of state machines, and then into a state machine. By the time you realize this truth and are shocked by it, PA's ultimate goal of getting people to understand how programs run on computers will have been halfway achieved.
 
-#### 必答题 - 理解计算机系统
+#### Mandatory Question - Understanding Computer Systems
 
-*   理解上下文结构体的前世今生 (见PA3.1阶段)
+*   Understand the antecedents of contextual constructs (see PA3.1)
     
-*   理解穿越时空的旅程 (见PA3.1阶段)
+*   Understand the antecedents of contextual constructs (see PA3.1)
     
-*   hello程序是什么, 它从而何来, 要到哪里去 (见PA3.2阶段)
+*   What the hello program is, where it comes from, and where it is going (see PA3.2)
     
-*   仙剑奇侠传究竟如何运行 运行仙剑奇侠传时会播放启动动画, 动画里仙鹤在群山中飞过. 这一动画是通过`navy-apps/apps/pal/repo/src/main.c`中的`PAL_SplashScreen()`函数播放的. 阅读这一函数, 可以得知仙鹤的像素信息存放在数据文件`mgo.mkf`中. 请回答以下问题: 库函数, libos, Nanos-lite, AM, NEMU是如何相互协助, 来帮助仙剑奇侠传的代码从`mgo.mkf`文件中读出仙鹤的像素信息, 并且更新到屏幕上? 换一种PA的经典问法: 这个过程究竟经历了些什么? (Hint: 合理使用各种trace工具, 可以帮助你更容易地理解仙剑奇侠传的行为)
+*   How Xian Jian Qi Xia Zhuan actually works When you run Xian Jian Qi Xia Zhuan, a startup animation is played, which shows cranes flying through the mountains. This animation is played using the `PAL_SplashScreen()` function in `navy-apps/apps/pal/repo/src/main.c`. Reading this function, we can see that the pixel information of the crane is stored in the data file `mgo.mkf`. Answer the following question: How do the library functions, libos, Nanos-lite, AM, NEMU, help each other to help the code of Xian Jian Qi Xia Zhuan read the pixel information of the crane from the `mgo.mkf` file and update it on the screen? To ask more classically: what exactly is going on in this process? (Hint: using various trace tools wisely can help you understand the behavior of Xian Jian Qi Xia Zhuan more easily)
     
 
 #### Kind tips
