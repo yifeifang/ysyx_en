@@ -140,9 +140,9 @@ Although Navy's `native` and AM's `native` share the same name, their mechanisms
 
 You can compile `bmp-test` into Navy native by running `make ISA=native run` from the directory where `bmp-test` is located, and you can debug it by `make ISA=native gdb`. This way you can test all the code in Navy except libos and Newlib (e.g. NDL and miniSDL) separately from the Linux native environment. One exception is Navy's dummy, which triggers a system call directly via `_syscall_()`, which does not run directly on Linux native because it doesn't exist in Linux (or is numbered differently).
 
-#### 神奇的LD\_PRELOAD
+#### Miraculous LD\_PRELOAD
 
-`bmp-test`需要打开一个路径为`/share/pictures/projectn.bmp`的文件, 但在Linux native中, 这个路径对应的文件并不存在. 但我们还是把`bmp-test`成功运行起来了, 你知道这是如何实现的吗? 如果你感兴趣, 可以在互联网上搜索`LD_PRELOAD`相关的内容.
+`bmp-test` needs to open a file with the path `/share/pictures/projectn.bmp`, but in Linux native, the file corresponding to this path does not exist. But we got `bmp-test` to work, do you know how? If you are interested, you can search for `LD_PRELOAD` on the Internet.
 
 #### Wine, WSL和运行时环境兼容
 
