@@ -166,9 +166,9 @@ We provide a script to convert a PDF version of a 4:3 slide show into a BMP imag
 
 Then implement `SDL_UpdateRect()` in miniSDL, if your implementation is correct, the first slide will be displayed when running NSlider. You are probably new to the SDL API, for this you will also need RTFM, and RTFSC to understand the behavior of existing code.
 
-#### 注意ramdisk镜像的大小
+#### Note the size of the ramdisk image
 
-我们让ramdisk镜像的内容链接到Nanos-lite的数据段, 而又把用户程序加载到内存位置 `0x3000000`(x86)或`0x83000000`(mips32或riscv32)附近, 这隐含了一个假设: ramdisk镜像的大小不能超过48MB. 如果这个假设不满足, ramdisk中的内容就可能被覆盖, 造成难以理解的错误. 因此你需要注意ramdisk镜像的大小, 不要放入过多过大的文件.
+By having the contents of the ramdisk image linked to the Nanos-lite data segment, and loading the user program near memory location `0x3000000` (x86) or `0x83000000` (mips32 or riscv32), there is an implicit assumption that the size of the ramdisk image must not be larger than 48MB. If this assumption is not met, the contents of the ramdisk may be overwritten, causing incomprehensible errors. Therefore you need to be careful about the size of the ramdisk image and not put too many files in it.
 
 #### 运行NSlider(2)
 
