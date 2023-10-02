@@ -156,9 +156,9 @@ With these libraries, we can run many more programs in Navy. Running Xian Jian Q
 
 #### [#](#nslider-nju-slider) NSlider (NJU Slider)
 
-NSlider是Navy中最简单的可展示应用程序, 它是一个支持翻页的幻灯片播放器. 在2018年第二届龙芯杯大赛中, 南京大学赛队通过在自己实现的乱序处理器上运行NSlider, 实现了"在自己构建的全栈计算机系统中播放幻灯片进行决赛现场答辩"的目标.
+NSlider is the simplest presentable application in Navy, which is a slide player that supports page turning. In the 2nd Longxin Cup Competition in 2018, the Nanjing University team realized the goal of "defending the final round of the competition by playing the slideshow on a full-stack computer system built by themselves" by running NSlider on their own implementation of a chaotic processor.
 
-现在你也可以在自己构建的计算机系统上运行NSlider了, 但你首先需要实现`SDL_UpdateRect()`这个API. SDL的绘图模块引入了一个`Surface`的概念, 它可以看成一张具有多种属性的画布, 具体可以通过RTFM查阅`Surface`结构体中的成员含义. `SDL_UpdateRect()`的作用是将画布中的指定矩形区域同步到屏幕上.
+Now you can also run NSlider on your own system, but first you need to implement the `SDL_UpdateRect()` API. SDL's drawing module introduces the notion of a `Surface`, which can be thought of as a canvas with many properties, as described in the `Surface` structure, which can learn more about it via RTFM. `SDL_UpdateRect()` is used to synchronize a specified rectangular area of the canvas to the screen.
 
 #### 运行NSlider
 
