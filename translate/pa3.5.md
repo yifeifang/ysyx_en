@@ -502,40 +502,40 @@ Even further, it is not necessary to execute NEMU from scratch every time. We ca
 
 We've emphasized the state of NEMU countless times, so go ahead and implement it. Also, since we may execute NEMU in different directories, it is recommended that when using snapshots, you indicate the snapshot file by an absolute path.
 
-[#](#展示你的批处理系统) 展示你的批处理系统
+[#](#Showcase your batch system) Showcase your batch system
 -------------------------
 
-在PA3的最后, 你将会向Nanos-lite中添加一些简单的功能, 来展示你的批处理系统.
+At the end of PA3, you'll be adding some simple functionality to Nanos-lite to demonstrate your batch system.
 
-你之前已经在Navy上执行了开机菜单和NTerm, 但它们都不支持执行其它程序. 这是因为"执行其它程序"需要一个新的系统调用来支持, 这个系统调用就是`SYS_execve`, 它的作用是结束当前程序的运行, 并启动一个指定的程序. 这个系统调用比较特殊, 如果它执行成功, 就不会返回到当前程序中, 具体信息可以参考`man execve`. 为了实现这个系统调用, 你只需要在相应的系统调用处理函数中调用`naive_uload()`就可以了. 目前我们只需要关心`filename`即可, `argv`和`envp`这两个参数可以暂时忽略.
+You've already executed the boot menu and NTerm on Navy, but neither of them supports executing other programs. This is because "executing other programs" requires a new system call, `SYS_execve`, which ends the current program and starts a specified program. This system call is special in that it does not return to the current program if it is executed successfully, see `man execve` for more information. To implement this system call, you just need to call `naive_uload()` in the corresponding system call handler. For now, we only need to care about `filename`, and the `argv` and `envp` arguments can be ignored for now.
 
-#### 可以运行其它程序的开机菜单
+#### Boot menu to run other programs
 
-你需要实现`SYS_execve`系统调用, 然后通过开机菜单来运行其它程序. 你已经实现过很多系统调用了, 需要注意哪些细节, 这里就不啰嗦了.
+You need to implement the `SYS_execve` system call to run other programs from the boot menu. You've already implemented many system calls, so I won't bore you with the details.
 
-#### 展示你的批处理系统
+#### Showcase your batch system
 
-有了开机菜单程序之后, 就可以很容易地实现一个有点样子的批处理系统了. 你只需要修改`SYS_exit`的实现, 让它调用`SYS_execve`来再次运行`/bin/menu`, 而不是直接调用`halt()`来结束整个系统的运行. 这样以后, 在一个用户程序结束的时候, 操作系统就会自动再次运行开机菜单程序, 让用户选择一个新的程序来运行.
+With the boot menu program, it's easy to implement a somewhat decent batch system. All you need to do is modify the implementation of `SYS_exit` so that it calls `SYS_execve` to run `/bin/menu` again, instead of calling `halt()` to end the whole system. This way, at the end of a user program, the operating system will automatically run the boot menu program again, allowing the user to select a new program to run.
 
-随着应用程序数量的增加, 使用开机菜单来运行程序就不是那么方便了: 你需要不断地往开机菜单中添加新的应用程序. 一种比较方便的做法是通过NTerm来运行这些程序, 你只要键入程序的路径, 例如`/bin/pal`.
+As the number of applications grows, using the boot menu to run a program becomes less convenient: you need to keep adding new applications to the boot menu. A more convenient way to run these programs is through NTerm, where you just type the path to the program, e.g. `/bin/pal`.
 
-#### 展示你的批处理系统(2)
+#### Showcase your batch system(2)
 
-在NTerm的內建Shell中实现命令解析, 把键入的命令作为参数调用`execve()`. 然后把NTerm作为Nanos-lite第一个启动的程序, 并修改`SYS_exit`的实现, 让它再次运行`/bin/nterm`. 目前我们暂不支持参数的传递, 你可以先忽略命令的参数.
+Implement command parsing in NTerm's built-in shell, calling `execve()` with the typed command as an argument. Then make NTerm the first program started by Nanos-lite, and modify the implementation of `SYS_exit` so that it runs `/bin/nterm` again. We don't support passing arguments at the moment, so you can ignore the command arguments for now.
 
-键入命令的完整路径是一件相对繁琐的事情. 回想我们使用`ls`的时候, 并不需要键入`/bin/ls`. 这是因为系统中定义了`PATH`这个环境变量, 你可以通过`man execvp`来阅读相关的行为. 我们也可以让NTerm中的內建Shell支持这一功能, 你只需要通过`setenv()`函数来设置`PATH=/bin`, 然后调用`execvp()`来执行新程序即可. 调用`setenv()`时需要将`overwrite`参数设置为`0`, 这是为了可以在Navy native上实现同样的效果.
+Typing the full path to a command can be tedious. Recall that when we use `ls`, we don't need to type `/bin/ls`. This is because the `PATH` environment variable is defined on the system, and you can read about the behavior with `man execvp`. We can also make the built-in shell in NTerm support this, you just need to set `PATH=/bin` with the `setenv()` function, and then call `execvp()` to execute the new program. Calling `setenv()` requires the `overwrite` parameter to be set to `0`, in order to achieve the same effect on Navy native.
 
-#### 为NTerm中的內建Shell添加环境变量的支持
+#### Adding Environment Variable Support to the Built-in Shell in NTerm
 
-这是一个非常简单的任务, 你只需要RTFM了解`setenv()`和`execvp()`的行为, 并对內建Shell的代码进行少量修改, 就可以得到一个和你平时的使用体验非常相似的Shell了.
+This is a very simple task, you just need to RTFM the behavior of `setenv()` and `execvp()`, and make a few changes to the built-in Shell code, and you'll get a Shell that is very similar to your usual experience.
 
-#### 终极拷问
+#### The Ultimate Question
 
-自古以来, 计算机系统方向的课程就有一个终极拷问:
+Since time immemorial, computer systems-oriented programs have had an ultimate question:
 
-> 当你在终端键入`./hello`运行Hello World程序的时候, 计算机究竟做了些什么?
+> When you type `. /hello` to run the Hello World program, what does the computer actually do?
 
-你已经实现了批处理系统, 并且成功通过NTerm来运行其它程序. 尽管我们的批处理系统经过了诸多简化, 但还是保留了计算机发展史的精髓. 实现了批处理系统之后, 你对上述的终极拷问有什么新的认识?
+You have implemented a batch system and successfully run other programs through NTerm. Although our batch system has been simplified in many ways, it still retains the essence of the history of computers. Having implemented a batch system, what new insights have you gained into the ultimate question?
 
 #### 添加开机音乐
 
