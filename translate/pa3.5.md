@@ -170,81 +170,81 @@ Then implement `SDL_UpdateRect()` in miniSDL, if your implementation is correct,
 
 By having the contents of the ramdisk image linked to the Nanos-lite data segment, and loading the user program near memory location `0x3000000` (x86) or `0x83000000` (mips32 or riscv32), there is an implicit assumption that the size of the ramdisk image must not be larger than 48MB. If this assumption is not met, the contents of the ramdisk may be overwritten, causing incomprehensible errors. Therefore you need to be careful about the size of the ramdisk image and not put too many files in it.
 
-#### 运行NSlider(2)
+#### Run NSlider(2)
 
-在miniSDL中实现`SDL_WaitEvent()`, 它用于等待一个事件. 你需要将NDL中提供的事件封装成SDL事件返回给应用程序, 具体可以通过阅读NSlider的代码来理解SDL事件的格式. 实现正确后, 你就可以在NSlider中进行翻页了, 翻页的操作方式请RTFSC.
+Implement `SDL_WaitEvent()` in miniSDL, which is used to wait for an event. You need to encapsulate the events provided in NDL into SDL events and return them to the application, you can read the NSlider code to understand the format of SDL events. Once this is done correctly, you can page through the NSlider, please refer to the RTFSC for how to do this.
 
-#### [#](#menu-开机菜单) MENU (开机菜单)
+#### [#](#menu-Booting-menu) MENU Booting menu
 
-开机菜单是另一个行为比较简单的程序, 它会展示一个菜单, 用户可以选择运行哪一个程序. 为了运行它, 你还需要在miniSDL中实现两个绘图相关的API:
+The boot menu is another program with a simpler behavior, it displays a menu where the user can choose which program to run. In order to run it, you also need to implement two drawing-related APIs in miniSDL.
 
-*   `SDL_FillRect()`: 往画布的指定矩形区域中填充指定的颜色
-*   `SDL_BlitSurface()`: 将一张画布中的指定矩形区域复制到另一张画布的指定位置
+*   `SDL_FillRect()`: fill the specified rectangular area of the canvas with the specified color
+*   `SDL_BlitSurface()`: copies a specified rectangular area from one canvas to a specified location on another canvas
 
-开机菜单还会显示一些英文字体, 这些字体的信息以BDF格式存储, Navy中提供了一个libbdf库来解析BDF格式, 生成相应字符的像素信息, 并封装成SDL的`Surface`. 实现了`SDL_BlitSurface()`之后, 我们就可以很方便地在屏幕上输出字符串的像素信息了.
+The boot menu also displays some English fonts, the information of these fonts is stored in BDF format, Navy provides a libbdf library to parse the BDF format, generate the pixel information of the corresponding characters, and encapsulate it into SDL's `Surface`. After implementing `SDL_BlitSurface()`, we can easily output the pixel information of the string on the screen.
 
-#### 运行开机菜单
+#### Running the boot menu
 
-正确实现上述API后, 你将会看到一个可以翻页的开机菜单. 但你尝试选择菜单项的时候将会出现错误, 这是因为开机菜单的运行还需要一些系统调用的支持. 我们会在下文进行介绍, 目前通过开机菜单来测试miniSDL即可.
+After implementing the above APIs correctly, you will see a menu that can be paged. However, you will get an error when trying to select a menu item, because the menu requires some system calls to work. This is because there are some system calls required to make the menu work. We'll explain this below, but for now it's enough to test miniSDL with the boot menu.
 
 #### [#](#nterm-nju-terminal) NTerm (NJU Terminal)
 
-NTerm是一个模拟终端, 它实现了终端的基本功能, 包括字符的键入和回退, 以及命令的获取等. 终端一般会和Shell配合使用, 从终端获取到的命令将会传递给Shell进行处理, Shell又会把信息输出到终端. NTerm自带一个非常简单的內建Shell(见`builtin-sh.cpp`), 它默认忽略所有的命令. NTerm也可以和外部程序进行通信, 但这超出了ICS的范围, 我们在PA中不会使用这个功能.
+NTerm is an emulated terminal, which implements the basic functions of a terminal, including typing characters, backtracking, and fetching commands, etc. NTerm is usually used in conjunction with a shell. Commands obtained from the terminal will be passed to the shell for processing, and the shell will output the information to the terminal. NTerm comes with a very simple built-in shell (see `builtin-sh.cpp`), which ignores all commands by default. NTerm can also communicate with external programs, but this is beyond the scope of ICS and we will not use this feature in PA.
 
-为了运行NTerm, 你还需要实现miniSDL的两个API:
+In order to run NTerm, you also need to implement two APIs from miniSDL:
 
-*   `SDL_GetTicks()`: 它和`NDL_GetTicks()`的功能完全一样
-*   `SDL_PollEvent()`: 它和`SDL_WaitEvent()`不同的是, 如果当前没有任何事件, 就会立即返回
+*   `SDL_GetTicks()`: it is exactly the same as `NDL_GetTicks()`
+*   `SDL_PollEvent()`: it differs from `SDL_WaitEvent()` in that if there are no current events, it immediately returns
 
-#### 运行NTerm
+#### Run NTerm
 
-正确实现上述API后, 你会看到NTerm的光标以每秒一次的频率闪烁, 并且可以键入字符. 为了让NTerm可以启动其它程序, 你还需要实现一些系统调用, 我们会在下文进行介绍.
+Once you have implemented the above APIs correctly, you will see NTerm's cursor blinking once per second and you will be able to type characters. In order for NTerm to start other programs, you need to implement some system calls, which are described below.
 
-#### 实现内建的echo命令
+#### Implementing the built-in echo command
 
-在內建Shell中解析命令和你在PA1中实现简易调试器的命令解析非常类似, 而且Navy中的Newlib已经提供了标准库函数了, 有兴趣的同学可以实现一个內建的`echo`命令.
+Parsing commands in the built-in shell is very similar to parsing commands in the simple debugger you implemented in PA1, and the standard library functions are already available in Navy's Newlib, so if you're interested, you can implement a built-in `echo` command.
 
 #### [#](#flappy-bird) Flappy Bird
 
-网友开发了一款基于SDL库的Flappy Bird游戏[sdlbirdopen in new window](https://github.com/CecilHarvey/sdlbird), 我们轻松地将它移植到Navy中. 在`navy-apps/apps/bird/`目录下运行`make init`, 将会从github上克隆移植后的项目. 这个移植后的项目仍然可以在Linux native上运行: 在`navy-apps/apps/bird/repo/`目录下运行`make run`即可 (你可能需要安装一些库, 具体请STFW). 这样的运行方式不会链接Navy中的任何库, 因此你还会听到一些音效, 甚至可以通过点击鼠标来进行游戏.
+Netizen developed a Flappy Bird game based on the SDL library [sdlbird](https://github.com/CecilHarvey/sdlbird), and we easily ported it to Navy. Running `make init` in the `navy-apps/apps/bird/` directory will clone the ported project from github. The ported project will still run on Linux native: just run `make run` in the `navy-apps/apps/bird/repo/` directory (you may need to install some libraries, please STFW). This way of running doesn't link any libraries in Navy, so you'll still hear some sound effects, and you can even play the game by clicking the mouse.
 
-为了在Navy中运行Flappy Bird, 你还需要实现另一个库SDL\_image中的一个API: `IMG_Load()`. 这个库是基于[stb项目open in new window](https://github.com/nothings/stb)中的图像解码库来实现的, 用于把解码后的像素封装成SDL的`Surface`结构, 这样应用程序就可以很容易地在屏幕上显示图片了. 上述API接受一个图片文件的路径, 然后把图片的像素信息封装成SDL的`Surface`结构并返回. 这个API的一种实现方式如下:
+In order to run Flappy Bird in Navy, you also need to implement an API from another library SDL\_image: `IMG_Load()`. This library is based on the image decoding library in [stb project](https://github.com/nothings/stb), and is used to encapsulate the decoded pixels into SDL's `Surface` structure, so that the application can easily display the image on the screen. The above API takes a path to an image file and returns the pixel information encapsulated into an SDL `Surface` structure. One implementation of this API is as follows:
 
-1.  用libc中的文件操作打开文件, 并获取文件大小size
-2.  申请一段大小为size的内存区间buf
-3.  将整个文件读取到buf中
-4.  将buf和size作为参数, 调用`STBIMG_LoadFromMemory()`, 它会返回一个`SDL_Surface`结构的指针
-5.  关闭文件, 释放申请的内存
-6.  返回`SDL_Surface`结构指针
+1.  Open the file with libc file operations, and get the size of the file
+2.  Request a memory interval with size of buf
+3.  Reads the entire file into buf
+4.  With buf and size as arguments, call `STBIMG_LoadFromMemory()`, which returns a pointer to the `SDL_Surface` structure
+5.  Close the file, freeing the requested memory
+6.  Returns a pointer to the `SDL_Surface` structure
 
-#### 运行Flappy Bird
+#### Run Flappy Bird
 
-实现`IMG_Load()`, 在Navy中运行Flappy Bird. 这本质上是一个文件操作的练习. 另外, Flappy Bird默认使用400像素的屏幕高度, 但NEMU的屏幕高度默认为300像素, 为了在NEMU运行Flappy Bird, 你需要将`navy-apps/apps/bird/repo/include/Video.h`中的 `SCREEN_HEIGHT`修改为300.
+Implement `IMG_Load()` to run Flappy Bird in Navy. This is essentially an exercise in file manipulation. Also, Flappy Bird uses a default screen height of 400 pixels, but NEMU's screen height defaults to 300 pixels, so in order to run Flappy Bird on NEMU, you'll need to change `SCREEN_HEIGHT` in `navy-apps/apps/bird/repo/include/Video.h` to 300. 
 
-Flappy Bird默认还会尝试打开声卡播放音效, miniSDL默认会让音频相关的API返回0或`NULL`, 程序会认为相应操作失败, 但仍然可以在无音效的情况下运行.
+Flappy Bird also tries to turn on the sound card to play sound effects by default. miniSDL will return 0 or `NULL` to the audio-related APIs by default, and the program will assume that the corresponding operation has failed, but it can still run without sound effects.
 
-此外, Flappy Bird也是一个适合大家阅读的项目: 阅读它不需要了解过多的知识背景, 而且大家很容易熟悉游戏的规则, 然后就可以去了解游戏的效果是如何用代码实现出来的.
+In addition, Flappy Bird is a good program to read: it doesn't require much background knowledge, and it's easy to familiarize yourself with the rules of the game, and then understand how the game's effects are implemented in code.
 
-#### "计算机是个抽象层"的应用: 移植和测试
+#### Application of "The Computer as a Layer of Abstraction": Porting and Testing
 
-我们在移植游戏的时候, 会按顺序在四种环境中运行游戏:
+When we port the game, we run it in four environments in order:
 
-*   纯粹的Linux native: 和Project-N的组件没有任何关系, 用于保证游戏本身确实可以正确运行. 在更换库的版本或者修改游戏代码之后, 都会先在Linux native上进行测试.
-*   Navy中的native: 用Navy中的库替代Linux native的库, 测试游戏是否能在Navy库的支撑下正确运行.
-*   AM中的native: 用Nanos-lite, libos和Newlib替代Linux的系统调用和glibc, 测试游戏是否能在Nanos-lite及其运行时环境的支撑下正确运行.
-*   NEMU: 用NEMU替代真机硬件, 测试游戏是否能在NEMU的支撑下正确运行.
+*   Pure Linux native: nothing to do with Project-N components, to ensure that the game itself actually works correctly. After changing the version of the library or modifying the game code, it will be tested on Linux native.
+*   Navy native: Replace Linux native libraries with Navy libraries to test if the game works correctly with Navy libraries.
+*   Native in AM: Replaced Linux system calls and glibc with Nanos-lite, libos and Newlib to test if the game runs correctly with Nanos-lite and its runtime environment.
+*   NEMU: Use NEMU to replace the real hardware, test if the game can run correctly under the support of NEMU.
 
-通过这种方法, 我们就可以很快定位到bug所在的抽象层次. 我们之所以能这样做, 都是得益于"计算机是个抽象层"这个结论: 我们可以把某个抽象层之下的部分替换成一个可靠的实现, 先独立测试一个抽象层的不可靠实现, 然后再把其它抽象层的不可靠实现逐个替换进来并测试. 不过这要求你编写的代码都是可移植的, 否则将无法支持抽象层的替换.
+In this way, we can quickly locate the level of abstraction where the bug is located. We can do this thanks to the conclusion that a computer is a layer of abstraction: we can replace parts of a layer of abstraction with a reliable implementation, test the unreliable implementation of one layer of abstraction independently, and then replace the unreliable implementations of the other layers of abstraction one by one and test them. However, this requires that you write portable code, otherwise you won't be able to support the replacement of abstraction layers.
 
-#### [#](#pal-仙剑奇侠传) PAL (仙剑奇侠传)
+#### [#](#pal-Xian-Jian-Qi-Xia-Zhuan) PAL (Xian Jian Qi Xia Zhuan)
 
-原版的仙剑奇侠传是针对Windows平台开发的, 因此它并不能在GNU/Linux中运行(你知道为什么吗?), 也不能在Navy-apps中运行. 网友开发了一款基于SDL库, 跨平台的仙剑奇侠传, 工程叫[SDLPALopen in new window](https://github.com/SDLPAL/sdlpal). 我们已经把SDLPAL移植到Navy中了, 在`navy-apps/apps/pal/`目录下运行`make init`, 将会从github上克隆移植后的项目. 和Flappy Bird一样, 这个移植后的项目仍然可以在Linux native上运行: 把仙剑奇侠传的数据文件(我们在课程群的公告中发布了链接)解压缩并放到`repo/data/`目录下, 在`repo/`目录下执行`make run`即可, 可以最大化窗口来进行游戏. 不过我们把配置文件`sdlpal.cfg`中的音频采样频率`SampleRate`改成了`11025`, 这是为了在Navy中可以较为流畅地运行, 如果你对音质有较高的要求, 在Linux native中体验时可以临时改回`44100`. 更多的信息可以参考README.
+The original Xian Jian Qi Xia Zhuan was developed for Windows, so it doesn't run on GNU/Linux (do you know why?) , nor on Navy-apps. , nor does it run on Navy-apps. We have developed a cross-platform Xian Jian Qi Xia Zhuan based on the SDL library, called [SDLPAL](https://github.com/SDLPAL/sdlpal). We've ported SDLPAL to Navy, running `make init` in the `navy-apps/apps/pal/` directory will clone the ported project from github. Like Flappy Bird, this ported project will still work on Linux native: extract the data files for Xian Jian Qi Xia Zhuan (we posted a link to them in the course announcement) and put them in the `repo/data/` directory, and run `make run` in the `repo/` directory, which will maximize the window to play the game. However, we have changed the audio sampling rate `SampleRate` to `11025` in the `sdlpal.cfg` configuration file, this is to make the game run smoother in Navy, if you have a higher sound quality requirement, you can temporarily change it back to `44100` in Linux native. More information can be found in the README.
 
-#### 我不是南京大学的学生, 如何获取仙剑奇侠传的数据文件?
+#### I'm not a student at NJU, how can I get the data files for PAL (Xian Jian Qi Xia Zhuan)?
 
-由于数据文件的版权属于游戏公司, 我们不便公开. 不过作为一款有25年历史的经典游戏, 你应该还是可以通过STFW找到它的.
+Since the data files are copyrighted by the game company, we can't disclose them. However, as a classic game with 25 years of history, you should be able to find it through STFW.
 
-此外, 你还需要创建配置文件`sdlpal.cfg`并添加如下内容:
+In addition, you need to create the configuration file `sdlpal.cfg` and add the following:
 
     OPLSampleRate=11025
     SampleRate=11025
@@ -252,154 +252,154 @@ Flappy Bird默认还会尝试打开声卡播放音效, miniSDL默认会让音频
     WindowWidth=320
     
 
-更多信息可阅读`repo/docs/README.md`和`repo/docs/sdlpal.cfg.example`.
+For more information read `repo/docs/README.md` and `repo/docs/sdlpal.cfg.example`.
 
-为了在Navy中运行仙剑奇侠传, 你还需要对miniSDL中绘图相关的API进行功能的增强. 具体地, 作为一款上世纪90年代的游戏, 绘图的时候每个像素都是用8位来表示, 而不是目前普遍使用的32位`00RRGGBB`. 而这8位也并不是真正的颜色, 而是一个叫"调色板"(palette)的数组的下标索引, 调色板中存放的才是32位的颜色. 用代码的方式来表达, 就是:
+In order to run Xian Jian Qi Xia Zhuan in Navy, you'll also need to make enhancements to the drawing-related APIs in miniSDL. Specifically, as a game from the 1990s, the drawing is done in 8-bit per pixel, rather than the 32-bit `00RRGGBB` that is commonly used today. These 8 bits are not the actual colors, but the subscript index of an array called "palette", which holds the 32-bit colors. In code form, it is
 
-    // 现在像素阵列中直接存放32位的颜色信息
+    // The 32-bit color information is now stored directly in the pixel array
     uint32_t color_xy = pixels[x][y];
     
-    // 仙剑奇侠传中的像素阵列存放的是8位的调色板下标,
-    // 用这个下标在调色板中进行索引, 得到的才是32位的颜色信息
+    // The pixel array in Xian Jian Qi Xia Zhuan stores the 8-bit palette subscripts
+    // This subscript is used to index the color palette to get the 32-bit color information
     uint32_t pal_color_xy = palette[pixels[x][y]];
     
 
-仙剑奇侠传中的代码会创建一些8位像素格式的`Surface`结构, 并通过相应的API来对这些结构进行处理. 因此, 你也需要在miniSDL的相应API中添加对这些8位像素格式的`Surface`的支持.
+The code in Fairy Sword and Wonderland creates 8-bit pixel `Surface` structures, which are processed by the corresponding APIs. Therefore, you need to add support for these 8-bit `Surfaces` to the miniSDL API.
 
-#### 运行仙剑奇侠传
+#### Run Xian Jian Qi Xia Zhuan
 
-为miniSDL中的绘图API添加8位像素格式的支持. 实现正确之后, 你就可以看到游戏画面了. 为了操作, 你还需要实现其它的API, 具体要实现哪些API, 就交给你来寻找吧. 实现正确后, 你就可以在自己实现的NEMU中运行仙剑奇侠传了! 游戏操作请阅读[这里open in new window](https://baike.baidu.com/item/%E4%BB%99%E5%89%91%E5%A5%87%E4%BE%A0%E4%BC%A0/5129500#5).
+Add support for 8-bit pixel format to the drawing API in miniSDL. Once this is implemented correctly, you will be able to see the game screen. In order to do this, you will need to implement other APIs, so it's up to you to find out which ones you need to implement. Once implemented, you will be able to run Fairy Fencer in your own NEMU! Please read [here](https://baike.baidu.com/item/%E4%BB%99%E5%89%91%E5%A5%87%E4%BE%A0%E4%BC%A0/5129500#5) for the game operation.
 
-你可以在游戏中进行各种操作来对你的实现进行测试, 我们提供的数据文件中包含一些游戏存档, 5个存档中的场景分别如下, 可用于进行不同的测试:
+You can test your implementation by performing various operations in the game. The data file we provided contains some game archives, the scenarios in each of the 5 archives are as follows, which can be used for different tests:
 
-1.  无敌人的机关迷宫
-2.  无动画的剧情
-3.  有动画的剧情
-4.  已进入敌人视野的迷宫
-5.  未进入敌人视野的迷宫
+1.  Enemy-free labyrinth of organs
+2.  Plot without animation
+3.  Plot with animation
+4.  Labyrinths that have entered the enemy's field of vision
+5.  Labyrinths not in enemy view
 
 ![pal](/docs/assets/Pal.558e6b6d.png)
 
-#### 仙剑奇侠传的框架是如何工作的?
+#### How does the frame work for Xian Jian Qi Xia Zhuan?
 
-我们在PA2中讨论过一个游戏的基本框架, 尝试阅读仙剑奇侠传的代码, 找出基本框架是通过哪些函数实现的. 找到之后, 可能会对你调试仙剑奇侠传带来一定的帮助. 虽然仙剑奇侠传的代码很多, 但为了回答这个问题, 你并不需要阅读大量的代码.
+We discussed the basic framework of a game in PA2, so try reading through the code of Legend of the Immortal Sword and Chivalry to find out what functions implement the basic framework. If you can find it, it may help you to debug the game. There is a lot of code in Legend of the Immortal Sword, but you don't need to read a lot of code to answer this question.
 
-#### 仙剑奇侠传的脚本引擎
+#### Scripting engine for Immortal Sword and Sorcery
 
-在`navy-apps/apps/pal/repo/src/game/script.c`中有一个`PAL_InterpretInstruction()`的函数, 尝试大致了解这个函数的作用和行为. 然后大胆猜测一下, 仙剑奇侠传的开发者是如何开发这款游戏的? 你对"游戏引擎"是否有新的认识?
+In `navy-apps/apps/pal/repo/src/game/script.c` there is a function `PAL_InterpretInstruction()`, try to get a general idea of what this function does and how it behaves. Then take a wild guess, how did the developers of Fairy Sword and Wonderland develop the game? Do you have a new understanding of "game engine"?
 
-#### 不再神秘的秘技
+#### Secret techniques that are no longer mysterious
 
-网上流传着一些关于仙剑奇侠传的秘技, 其中的若干条秘技如下:
+There are a number of secret techniques circulating on the Internet about the Xian Jian Qi Xia Zhuan, and some of them are as follows.
 
-1.  很多人到了云姨那里都会去拿三次钱, 其实拿一次就会让钱箱爆满! 你拿了一次钱就去买剑把钱用到只剩一千多, 然后去道士那里, 先不要上楼, 去掌柜那里买酒, 多买几次你就会发现钱用不完了.
-2.  不断使用乾坤一掷(钱必须多于五千文)用到财产低于五千文, 钱会暴增到上限, 如此一来就有用不完的钱了
-3.  当李逍遥等级到达99级时, 用5~10只金蚕王, 经验点又跑出来了, 而且升级所需经验会变回初期5~10级内的经验值, 然后去打敌人或用金蚕王升级, 可以学到灵儿的法术(从五气朝元开始); 升到199级后再用5~10只金蚕王, 经验点再跑出来, 所需升级经验也是很低, 可以学到月如的法术(从一阳指开始); 到299级后再用10~30只金蚕王, 经验点出来后继续升级, 可学到阿奴的法术(从万蚁蚀象开始).
+1.  Many people go to Auntie Yun's place to get money three times, in fact, once you get the money box will be full! You take a money to buy a sword to the money to only a thousand, and then go to the Taoist priest, do not go upstairs, go to the shopkeeper to buy wine, buy a few more times you will find that the money is not used up
+2.  keep using the Qiankun Throw (money must be more than 5,000 Wen) until the property is less than 5,000 Wen, the money will skyrocket to the upper limit, so there will be endless money.
+3.  when Li Yi Yi level reached 99, use 5~10 gold silkworm king, experience points run out again, and upgrade experience required will be changed back to the initial 5~10 levels of experience value, then go to fight the enemy or use the gold silkworm king to upgrade, you can learn Ling Er's spell (from the five qi towards the yuan); up to level 199 and then use 5~10 gold silkworm king, experience points run out again, the required experience is also very low, you can learn Yue Ru's spell (from the five qi towards the yuan). After level 199, use 5~10 Golden Silkworm Kings, and then run out of experience points, the required upgrade experience is also very low, and you can learn Yue Ru's spells (starting from Yi Yang Finger); after level 299, use 10~30 Golden Silkworm Kings, and then continue to upgrade, and then you can learn Anu's spells (starting from Ants Eroding Elephants).
 
-假设这些上述这些秘技并非游戏制作人员的本意, 请尝试解释这些秘技为什么能生效.
+Assuming that these secret techniques were not intended by the game makers, please try to explain why they work.
 
 #### [#](#am-kernels) am-kernels
 
-在PA2中, 你已经在AM上运行过一些应用了, 我们也可以很容易地将它们运行在Navy上. 事实上, 一个环境只要能支撑AM API的实现, AM就可以运行在这一环境之上. 在Navy中有一个libam的库, 它就是用来实现AM的API的. `navy-apps/apps/am-kernels/Makefile`会把libam加入链接的列表, 这样以后, AM应用中调用的AM API就会被链接到libam中, 而这些API又是通过Navy的运行时环境实现的, 这样我们就可以在Navy上运行各种AM应用了.
+You've already run some applications on AM in PA2, and we can easily run them on Navy as well. In fact, AM can run on any environment that supports the implementation of the AM API. There is a libam library in Navy that implements the AM API. The `navy-apps/apps/am-kernels/Makefile` will add libam to the list of links, so that AM APIs called by AM applications will be linked to libam, and these APIs will be implemented by Navy's runtime environment, so that we can run various AM applications on Navy.
 
-#### 实现Navy上的AM
+#### Implementing AM on Navy
 
-在libam中实现TRM和IOE, 然后在Navy中运行一些AM应用程序. 上述Makefile可以将coremark, dhrystone和打字小游戏编译到Navy中, 不过你需要先检查其中的`AM_KERNELS_PATH`变量是否正确. 你可以像之前运行`cpu-tests`那样通过`ALL`来指定编译的对象, 例如`make ISA=native ALL=coremark run`或者`make ISA=x86 ALL=typing-game install`.
+Implement TRM and IOE in libam, then run some AM applications on Navy. The above Makefile compiles coremark, dhrystone and typing games into Navy, but you need to check that the `AM_KERNELS_PATH` variable in it is correct first. You can specify what to compile with `ALL` as you did with `cpu-tests`, e.g. `make ISA=native ALL=coremark run` or `make ISA=x86 ALL=typing-game install`.
 
-#### 在Navy中运行microbench
+#### Running microbench in Navy
 
-尝试把microbench编译到Navy并运行, 你应该会发现运行错误, 请尝试分析原因.
+Try to compile microbench into Navy and run it, you should find a runtime error, try to analyze the reason.
 
 #### [#](#fceux) FCEUX
 
-实现了libam之后, FCEUX也可以在Navy上运行了.
+With the implementation of libam, FCEUX can also run on Navy.
 
-#### 运行FCEUX
+#### Run FCEUX
 
-为了成功编译, 你可能需要修改Makefile中的`FCEUX_PATH`变量, 让它指向正确的路径. 另外, 我们在通过Navy编译FCEUX时关闭了音效, 你也无需在libam中实现声卡相关的抽象.
+In order to compile successfully, you may need to modify the `FCEUX_PATH` variable in the Makefile so that it points to the correct path. Also, we turn off sound when compiling FCEUX via Navy, so you don't need to implement sound card related abstractions in libam.
 
-#### 如何在Navy上运行Nanos-lite?
+#### How to run Nanos-lite on Navy?
 
-既然能在Navy上运行基于AM的FCEUX, 那么为了炫耀, 在Navy上运行Nanos-lite也并不是不可能的. 思考一下, 如果想在Navy上实现CTE, 我们还需要些什么呢?
+Since it's possible to run AM-based FCEUX on Navy, it's not impossible to run Nanos-lite on Navy just to show off. Thinking about it, what else do we need if we want to implement CTE on Navy?
 
 #### [#](#oslab0) oslab0
 
-AM的精彩之处不仅在于可以方便地支持架构, 加入新应用也是顺手拈来. 你的学长学姐在他们的OS课上编写了一些基于AM的小游戏, 由于它们的API并未发生改变, 我们可以很容易地把这些小游戏移植到PA中来. 当然下学期的OS课你也可以这样做.
+The beauty of AM is not only the ease of supporting the architecture, but also the ease of adding new applications. Your seniors wrote some AM-based games in their OS classes, and since their APIs haven't changed, we can easily port those games to PA. Of course you can do the same for next semester's OS class.
 
-我们在
+We collected some game in
 
     https://github.com/NJU-ProjectN/oslab0-collection
     
 
-中收录了部分游戏, 你可以在`navy-apps/apps/oslab0/`目录下通过`make init`获取游戏代码. 你可以将它们编译到AM中并运行, 具体请参考相关的README. 另外也可以将它们编译到Navy, 例如在`navy-apps/apps/oslab0/`目录下执行`make ISA=native ALL=161220016`.
+You can get the game code by `make init` in the `navy-apps/apps/oslab0/` directory. You can compile them into AM and run them, see the relevant README. Alternatively you can compile them into Navy, e.g. by running `make ISA=native ALL=161220016` in the `navy-apps/apps/oslab0/` directory.
 
-#### 诞生于"未来"的游戏
+#### A game born in the "future".
 
-尝试在Navy上运行学长学姐编写的游戏, 游戏介绍和操作方式可以参考相应的README.
+Try to run the game written by the students on Navy, please refer to the corresponding README for the description and operation of the game.
 
 #### RTFSC???
 
-机智的你也许会想: 哇塞, 下学期的oslab0我不就有优秀代码可以参考了吗? 不过我们已经对发布的代码进行了某种特殊的处理. 在沮丧之余, 不妨思考一下, 如果要你来实现这一特殊的处理, 你会如何实现? 这和PA1中的表达式求值有什么相似之处吗?
+You may be thinking: wow, won't I have some great code for next semester's oslab0? Well, we've done something special with the released code. While frustrated, think about this: if you had to implement this special treatment, how would you do it? Is it similar to the expression evaluation in PA1?
 
 #### [#](#nplayer-nju-player) NPlayer (NJU Player)
 
-#### 此部分为选做内容
+#### This section is optional
 
-前置任务: 在PA2中实现声卡.
+Pre-task: Implementing a sound card in PA2.
 
-NPlayer是一个音乐播放器(也许将来会支持视频), 它可以认为是Linux上MPlayer的裁剪版, 支持音量调整和音频的可视化显示. 你已经在PA2中实现了声卡设备, 并在AM中提供了相应的IOE抽象. 为了让Navy上的程序可以使用声卡, 我们需要在Navy的运行时环境提供一些相应的功能, 这个过程和绘图相关功能的实现是非常类似的.
+NPlayer is a music player (maybe with video support in the future), which can be thought of as a cut-down version of MPlayer on Linux, with support for volume adjustment and audio visualization. You have already implemented the sound card device in PA2, and provided the corresponding IOE abstraction in AM. In order to make the sound card available to programs on Navy, we need to provide some functionality in Navy's runtime environment, which is very similar to the process of implementing drawing-related functionality.
 
-音频相关的运行时环境包括以下内容:
+The audio-related runtime environment consists of the following.
 
-*   设备文件. Nanos-lite和Navy约定提供如下设备文件:
-    *   `/dev/sb`: 该设备文件需要支持写操作, 让应用程序往声卡的流缓冲区中写入解码后的音频数据并播放, 但不支持`lseek`, 因为音频数据流在播放之后就不存在了, 因此没有"位置"的概念. 此外, 向该设备的写入操作是阻塞的, 如果声卡的流缓冲区空闲位置不足, 写操作将会等待, 直到音频数据完全写入流缓冲区之后才会返回.
-    *   `/dev/sbctl`: 该设备文件用于对声卡进行控制和状态查询. 写入时用于初始化声卡设备, 应用程序需要一次写入3个`int`整数共12字节, 3个整数会被依次解释成`freq`, `channels`, `samples`, 来对声卡设备进行初始化; 读出时用于查询声卡设备的状态, 应用程序可以读出一个`int`整数, 表示当前声卡设备流缓冲区的空闲字节数. 该设备不支持`lseek`.
-*   NDL API. NDL将上述音频相关的设备文件进行封装, 提供如下的API:
+*   Device files. The Nanos-lite and Navy conventions provide the following device files:
+    *   `/dev/sb`: The device file needs to support write operations that allow an application to write decoded audio data to the sound card's stream buffer and play it back, but does not support `lseek` because the audio data stream does not exist after it is played back, so there is no notion of a "location". In addition, writes to the device are blocking, and if the sound card does not have enough free slots in the stream buffer, the write operation will wait until the audio data has been completely written to the stream buffer before returning.
+    *   `/dev/sbctl`: This device file is used to control and query the status of the sound card. To initialize the sound card device, the application needs to write 3 `int` integers of 12 bytes at a time, the 3 integers will be interpreted as `freq`, `channels`, `samples`, to initialize the sound card device; To query the status of the sound card device. The application can read out an `int` integer indicating the number of free bytes in the current stream buffer of the sound card device. The device does not support `lseek`.
+*   NDL API. NDL encapsulates the above audio-related device files and provides the following API.
 
-    // 打开音频功能, 初始化声卡设备
+    // Turn on the audio function, initialize the sound card device
     void NDL_OpenAudio(int freq, int channels, int samples);
     
-    // 关闭音频功能
+    // Turning off the audio function
     void NDL_CloseAudio();
     
-    // 播放缓冲区`buf`中长度为`len`字节的音频数据, 返回成功播放的音频数据的字节数
+    // Play audio data of length `len` bytes in buffer `buf`, return the number of bytes of audio data successfully played
     int NDL_PlayAudio(void *buf, int len);
     
-    // 返回当前声卡设备流缓冲区的空闲字节数
+    // Returns the number of free bytes in the current sound card device stream buffer
     int NDL_QueryAudio();
     
 
-*   miniSDL API. miniSDL对上述NDL API进行进一步的封装, 提供如下功能:
+*   The miniSDL API. miniSDL further encapsulates the above NDL API by providing the following functionality:
 
-    // 打开音频功能, 并根据`*desired`中的成员来初始化声卡设备
-    // 初始化成功后, 音频播放处于暂停状态
+    // Turns on the audio function and initializes the sound card device according to the members of `*desired`
+    // After successful initialization, audio playback is paused
     int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained);
     
-    // 关闭音频功能
+    // Close the audio function
     void SDL_CloseAudio();
     
-    // 暂停/恢复音频的播放
+    // Pause/resume audio playback
     void SDL_PauseAudio(int pause_on)
     
 
-miniSDL的这些API和你在PA2的NEMU中实现声卡设备所使用的API是一样的, 其具体行为可以RTFM.
+These APIs in miniSDL are the same APIs you would use to implement a sound card device in PA2's NEMU, and their exact behavior can be RTFM.
 
-一个需要解决的问题是如何实现用于填充音频数据的回调函数. 这个回调函数是调用`SDL_OpenAudio()`的应用程序提供的, miniSDL需要定期调用它, 从而获取新的音频数据来写入到流缓冲区中. 为了实现回调函数的上述功能, 我们需要解决如下问题:
+One issue that needs to be addressed is how to implement the callback function that is used to load the audio data. This callback function is provided by the application that calls `SDL_OpenAudio()`, and miniSDL needs to call it periodically to get new audio data to write to the stream buffer. In order to realize the above functionality of the callback function, we need to solve the following problems:
 
-1.  每隔多长时间调用一次回调函数? 这一点可以根据`SDL_AudioSpec`结构中应用程序提供的参数计算出来. 具体地, `freq`是每秒的采样频率, `samples`是回调函数一次向应用程序请求填充的样本数, 这样就可以计算出miniSDL调用回调函数的间隔.
+1.  How often is the callback function called? This can be calculated from the parameters provided by the application in the `SDL_AudioSpec` structure. Specifically, `freq` is the frequency of samples per second, and `samples` is the number of samples that the callback function requests from the application to fill at a time, so that the interval at which miniSDL calls the callback function can be calculated.
     
-2.  如何让miniSDL定期调用回调函数? 在Linux中有一种叫"[信号(signal)open in new window](https://en.wikipedia.org/wiki/Signal_(IPC))"的通知机制, 基于信号机制可以实现定时器(类似闹钟)的功能, 在经过若干时间之后可以通知应用程序. 但要在Nanos-lite和Navy中实现信号机制是一件非常复杂的事情, 因此Nanos-lite中并不提供类似信号的通知机制. 为了在缺少通知机制的情况下实现"定期调用回调函数"的效果, miniSDL只能主动查询"是否已经到了下一次调用回调函数的时间". 因此我们可以实现一个名为`CallbackHelper()`的辅助函数, 其行为如下:
+2.  How to make miniSDL callback function periodically? In Linux there is a notification mechanism called "[signal](https://en.wikipedia.org/wiki/Signal_(IPC))", based on the signal mechanism can realize the function of timer (similar to an alarm clock), after a certain period of time can notify the application. However, it is very complicated to implement the signaling mechanism in Nanos-lite and Navy, so Nanos-lite does not provide a notification mechanism similar to the signaling mechanism. In order to achieve the effect of "calling the callback function periodically" in the absence of a notification mechanism, miniSDL can only proactively query "if it's time to call the callback function next". Therefore, we can implement a helper function called `CallbackHelper()` with the following behavior.
     
-    *   查询当前时间
-    *   若当前时间距离上次调用回调函数的时间大于调用间隔, 就调用回调函数, 否则直接返回
-    *   若调用了回调函数, 则更新"上次调用的时间"
+    *   Query the current time
+    *   If the current time is greater than the interval since the last callback function was called, then call the callback function, otherwise return directly
+    *   If the callback function is called, update the "time of last call"
     
-    这样以后, 我们只要尽可能频繁地调用`CallbackHelper()`, 就可以及时地调用回调函数了. 为了做到这一点, 我们可以在miniSDL中的一些应用程序会频繁调用的API中插入`CallbackHelper()`. 虽然这样的做法并不完美, 不过也不失为一种可行的方法.
+    From now on, we just need to call `CallbackHelper()` as often as possible, so that we can call the callback function in time. To do this, we can insert `CallbackHelper()` into some APIs in miniSDL that will be called frequently by the application. It's not perfect, but it's a workable approach.
     
 
-miniSDL调用回调函数获得新的音频数据之后, 就可以通过NDL的API来播放这些音频了. 不过按照约定, 往`/dev/sb`里面写入是阻塞的, 我们最好避免往流缓冲区中写入过多的音频数据导致等待, 把等待的时间用在程序的运行上会更值得. 因此, 我们可以先查询目前流缓冲区中的空闲空间, 保证每次向回调函数获取的音频数据长度不超过空闲空间, 就可以避免等待了.
+Once miniSDL has called the callback function to get the new audio data, it can be played via the NDL API. However, by convention, writing to `/dev/sb` is blocking, and it's better to avoid writing too much audio data into the stream buffer and waiting for it, as the time spent waiting would be better spent running the program. Therefore, we can check the current free space in the stream buffer, and make sure that the length of the audio data we fetch from the callback function does not exceed the free space, so that we can avoid waiting.
 
-实现这些功能之后, 我们就可以运行NPlayer了. NPlayer除了调用miniSDL之外, 还调用了一个名为`vorbis`的库, 它是基于[stb项目open in new window](https://github.com/nothings/stb)中的OGG音频解码库来实现的, 可以把一个OGG音频文件解码成PCM格式的音频数据.
+With these features in place, we are ready to run NPlayer. In addition to calling miniSDL, NPlayer also calls a library called `vorbis`, which is based on the OGG audio decoding library in [stb project](https://github.com/nothings/stb), and can decode an OGG audio file into PCM format audio data.
 
 #### 运行NPlayer
 
@@ -554,6 +554,6 @@ Flappy Bird的音效播放需要实现miniSDL中另外3个和音频相关的API:
 *   仙剑奇侠传究竟如何运行 运行仙剑奇侠传时会播放启动动画, 动画里仙鹤在群山中飞过. 这一动画是通过`navy-apps/apps/pal/repo/src/main.c`中的`PAL_SplashScreen()`函数播放的. 阅读这一函数, 可以得知仙鹤的像素信息存放在数据文件`mgo.mkf`中. 请回答以下问题: 库函数, libos, Nanos-lite, AM, NEMU是如何相互协助, 来帮助仙剑奇侠传的代码从`mgo.mkf`文件中读出仙鹤的像素信息, 并且更新到屏幕上? 换一种PA的经典问法: 这个过程究竟经历了些什么? (Hint: 合理使用各种trace工具, 可以帮助你更容易地理解仙剑奇侠传的行为)
     
 
-#### 温馨提示
+#### Kind tips
 
-PA3到此结束. 请你编写好实验报告(不要忘记在实验报告中回答必答题), 然后把命名为`学号.pdf`的实验报告文件放置在工程目录下, 执行`make submit`将工程提交到指定网站.
+This is the end of PA3. Please prepare the lab report (don't forget to answer the mandatory questions in the lab report), then place the lab report file named `student.pdf` in the project directory, and execute `make submit` to submit the project to the specified website.
