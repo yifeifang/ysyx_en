@@ -118,11 +118,11 @@ In this way, as long as the range of real numbers used in the program is not ver
 
 In order to give you a better understanding of the fixed-point representation, we have removed some of the API implementations in `fixedptc.h` that you need to implement. Regarding `fixedpt_floor()` and `fixedpt_ceil()`, you need to implement them strictly according to the semantics of `floor()` and `ceil()` in `man`, otherwise the behavior of `fixedpt_floor()` instead of `floor()` in your program will differ, and in larger programs such as Xian Jian Qi Zia Zhuan, the differences can be very difficult to understand. Therefore, it is also a good idea to write your own test cases to test your implementation.
 
-#### 如何将浮点变量转换成fixedpt类型?
+#### How to convert a floating point variable to a fixedpt type?
 
-假设有一个`void *p`的指针变量, 它指向了一个32位变量, 这个变量的本质是`float`类型, 它的真值落在`fixedpt`类型可表示的范围中. 如果我们定义一个新的函数`fixedpt fixedpt_fromfloat(void *p)`, 如何在不引入浮点指令的情况下实现它?
+Suppose we have a `void *p` pointer variable, which points to a 32-bit variable, which is essentially of type `float`, and whose truth value falls in the range representable by type `fixedpt`. If we define a new function `fixedpt fixedpt_fromfloat(void *p)`, how do we implement it without introducing floating point instructions?
 
-fixedptc库还提供了`sin`, `cos`, `exp`, `ln`等初等函数的定点算术实现, 这基本上可以满足大部分程序的需求. 但由于`fixedpt`的小数部分只有8位, 这些函数的计算精度可能会很低, 不过这对Navy上的程序来说已经足够了.
+The fixedptc library also provides fixed-point arithmetic implementations of primitive functions such as `sin`, `cos`, `exp`, `ln`, etc., which is basically sufficient for most programs. However, since the decimal part of `fixedpt` is only 8 bits, the precision of these functions may be very low, but this is sufficient for programs on Navy.
 
 #### [#](#navy作为基础设施) Navy作为基础设施
 
